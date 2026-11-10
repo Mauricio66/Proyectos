@@ -93,6 +93,19 @@ aside{background:var(--panel);overflow:auto;min-height:0}
   .props{border-left:none;border-top:1px solid var(--line);padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
   kbd,.sep{display:none}
 }
+/* medidas sobre la figura elegida */
+.dims{position:absolute;left:0;top:0;pointer-events:none;background:var(--panel);color:var(--fg);border:1px solid var(--accent);border-radius:6px;padding:3px 8px;font-family:var(--f-num);font-size:12px;white-space:nowrap;transform:translate(-50%,-100%);box-shadow:0 2px 6px rgb(0 0 0 / .12)}
+/* guía de bienvenida */
+.guide{position:absolute;inset:0;display:grid;place-items:center;background:rgb(10 14 20 / .35);padding:16px;z-index:5}
+.guide .card{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:12px;max-width:440px;width:100%;padding:20px 22px;box-shadow:0 10px 30px rgb(0 0 0 / .25);max-height:100%;overflow:auto}
+.guide h3{font-family:var(--f-display);font-size:20px;margin:0 0 4px}
+.guide .step{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.guide p,.guide li{line-height:1.5;font-size:14.5px}
+.guide ul{padding-left:18px;margin:8px 0}
+.guide .dots{display:flex;gap:6px;margin:12px 0}
+.guide .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.guide .dots i.on{background:var(--accent)}
+.guide .row{justify-content:flex-end}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
@@ -122,6 +135,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado">? Ayuda</button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
   </header>
 
@@ -134,6 +148,9 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="shape" data-add="piramide"><svg viewBox="0 0 32 32"><path d="M16 4L5 21l9 6 13-5z"/><path d="M16 4l-2 23"/></svg>Pirámide</button>
     <button class="shape" data-add="prisma"><svg viewBox="0 0 32 32"><path d="M9 6h14l4 4-4 4H9l-4-4z"/><path d="M5 10v13l4 4h14l4-4V10M9 14v13M23 14v13"/></svg>Hexágono</button>
     <button class="shape" data-add="texto"><svg viewBox="0 0 32 32"><path d="M5 26L12 6h2l7 20M8 19h10"/><path d="M27 26v-9c0-2-1.5-3-3.5-3s-3.5 1-3.5 3M27 21c-5 0-7 1-7 3s1.5 2.5 3 2.5 4-1 4-3"/></svg>Texto</button>
+    <button class="shape" data-add="tubo"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><ellipse cx="16" cy="8" rx="5" ry="1.8"/><path d="M7 8v16c0 2 4 3.5 9 3.5s9-1.5 9-3.5V8"/></svg>Tubo</button>
+    <button class="shape" data-add="estrella"><svg viewBox="0 0 32 32"><path d="M16 4l3.5 7.5 8 .9-6 5.5 1.7 8L16 21.8 8.8 25.9l1.7-8-6-5.5 8-.9z"/></svg>Estrella</button>
+    <button class="shape" data-add="corazon"><svg viewBox="0 0 32 32"><path d="M16 27C8 21 4 16.5 4 11.5 4 8 6.6 5.5 9.8 5.5c2.6 0 4.6 1.6 6.2 4 1.6-2.4 3.6-4 6.2-4 3.2 0 5.8 2.5 5.8 6 0 5-4 9.5-12 15.5z"/></svg>Corazón</button>
     <button class="shape" data-add="cuna"><svg viewBox="0 0 32 32"><path d="M4 24h17l7-5H11z"/><path d="M4 24l7-14 10 14M11 10l17 9"/></svg>Techo</button>
     <div class="label" style="margin-top:8px">Huecos</div>
     <button class="shape holeshape" data-add="caja" data-hole="1"><svg viewBox="0 0 32 32"><path d="M6 11l10-5 10 5v11l-10 5-10-5z"/><path d="M6 11l10 5 10-5M16 16v11"/></svg>Caja hueca</button>
@@ -153,6 +170,10 @@ aside{background:var(--panel);overflow:auto;min-height:0}
       <button class="btn" id="bMulti" aria-pressed="false" title="Activado: cada clic suma o quita una figura de la selección">Elegir varias</button>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="dims" id="dims" hidden></div>
+    <div class="guide" id="guide" hidden><div class="card" role="dialog" aria-modal="true" aria-labelledby="gTitle"><div id="gBody"></div>
+      <div class="dots" id="gDots"></div>
+      <div class="row"><button class="btn" id="gSkip">Cerrar</button><button class="btn" id="gPrev">Atrás</button><button class="btn primary" id="gNext">Siguiente</button></div></div></div>
   </main>
 
   <aside class="props" id="props" aria-label="Propiedades"></aside>
@@ -182,10 +203,10 @@ const wasm = await ManifoldModule(); wasm.setup();
 const { Manifold, Mesh: MMesh, CrossSection } = wasm;
 
 const $ = s => document.querySelector(s);
-const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
+const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',tubo:'Tubo',estrella:'Estrella',corazon:'Corazón',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
 // figuras cuya forma no es una figura básica: se calculan aparte (grupos, textos y piezas STL importadas)
 const CUSTOM = new Set(['group','texto','malla']);
-const ROUND = new Set(['cilindro','esfera','cono']);
+const ROUND = new Set(['cilindro','esfera','cono','tubo']);
 const PALETTE = ['#e8590c','#1f9d55','#1f5fd1','#c2255c','#f2b705','#7048e8','#0c8599'];
 const r2 = v => Math.round(v*100)/100;
 
@@ -260,12 +281,49 @@ function unitGeom(type, seg){
     case 'esfera': g = new THREE.SphereGeometry(0.5,seg,Math.max(6,Math.round(seg/2))); g.rotateX(Math.PI/2); break;
     case 'piramide': g = X(new THREE.CylinderGeometry(0.0005,Math.SQRT1_2,1,4).rotateY(Math.PI/4)); break;
     case 'prisma': g = X(new THREE.CylinderGeometry(0.5,0.5,1,6)); g.scale(1/Math.cos(Math.PI/6),1,1); break;
+    case 'estrella': case 'corazon': g = fromManifold(profileMan(type)); break;
     case 'cuna': { const s = new THREE.Shape(); s.moveTo(-0.5,-0.5); s.lineTo(0.5,-0.5); s.lineTo(0,0.5); s.closePath();
       g = new THREE.ExtrudeGeometry(s,{depth:1,bevelEnabled:false}); g.translate(0,0,-0.5); g.rotateX(Math.PI/2); break; }
   }
   g = prep(g);
-  if(!ROUND.has(type)) g = flatten(g);
+  if(!ROUND.has(type) && type!=='corazon') g = flatten(g);
   return unitCache[k] = g;
+}
+// contorno 2D (estrella o corazón) extruido, en tamaño 1×1×1 y centrado
+function profileMan(type){
+  let pts = [];
+  if(type==='estrella') for(let i=0;i<10;i++){ const a = Math.PI/2 + i*Math.PI/5, r = i%2 ? 0.42 : 1; pts.push([r*Math.cos(a), r*Math.sin(a)]); }
+  else for(let i=0;i<96;i++){ const t = i/96*2*Math.PI; pts.push([16*Math.sin(t)**3, 13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)]); }
+  const xs = pts.map(p=>p[0]), ys = pts.map(p=>p[1]);
+  const [x0,x1,y0,y1] = [Math.min(...xs),Math.max(...xs),Math.min(...ys),Math.max(...ys)];
+  pts = pts.map(([x,y])=>[(x-x0)/(x1-x0)-0.5, (y-y0)/(y1-y0)-0.5]);
+  const cs = new CrossSection([pts], 'EvenOdd'), man = cs.extrude(1); cs.delete();
+  const m2 = man.translate([0,0,-0.5]); man.delete(); return m2;
+}
+// figuras que se construyen a su tamaño real (para que el radio o la pared se mantengan en mm al cambiar el tamaño)
+const sized = o => o.type==='tubo' || (o.type==='caja' && o.r > 0);
+const sizedCache = new Map();
+function ellipse(rx, ry, n){ const p = []; for(let i=0;i<n;i++){ const a = i/n*2*Math.PI; p.push([rx*Math.cos(a), ry*Math.sin(a)]); } return p; }
+function sizedGeom(o){
+  const w = Math.max(o.w,0.2), d = Math.max(o.d,0.2), h = Math.max(o.h,0.2);
+  const key = o.type==='tubo' ? `tubo|${w}|${d}|${h}|${o.wall}|${o.seg||48}` : `caja|${w}|${d}|${h}|${o.r}`;
+  if(sizedCache.has(key)) return sizedCache.get(key);
+  let man;
+  if(o.type==='tubo'){
+    const n = o.seg||48, wall = Math.min(Math.max(o.wall||2, 0.2), Math.min(w,d)/2 - 0.1);
+    const cs = new CrossSection([ellipse(w/2,d/2,n), ellipse(w/2-wall,d/2-wall,n).reverse()], 'EvenOdd');
+    const e = cs.extrude(h); cs.delete(); man = e.translate([0,0,-h/2]); e.delete();
+  } else {
+    // caja redondeada: envoltura de 8 esferas puestas en las esquinas
+    const r = Math.min(o.r, Math.min(w,d,h)/2 - 0.01), seg = 24, ss = [];
+    for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [-1,1]){
+      const sp = Manifold.sphere(r, seg); ss.push(sp.translate([sx*(w/2-r), sy*(d/2-r), sz*(h/2-r)])); sp.delete(); }
+    man = Manifold.hull(ss); ss.forEach(m=>m.delete());
+  }
+  if(sizedCache.size > 200){ for(const v of sizedCache.values()) v.man.delete(); sizedCache.clear(); }
+  const g = fromManifold(man);
+  const res = {geom:g, size:new THREE.Vector3(w,d,h), man};
+  sizedCache.set(key,res); return res;
 }
 // normales planas para figuras con caras planas, suaves para las redondas
 function flatten(g){ g = g.clone(); g.deleteAttribute('normal'); g.computeVertexNormals(); return g; }
@@ -289,6 +347,7 @@ function fromManifold(man){
 const unitMan = {};
 const groupCache = new Map();
 function baseGeom(o){
+  if(sized(o)) return sizedGeom(o);
   if(o.type === 'texto') return textGeom(o);
   if(o.type === 'malla') return meshGeom(o);
   if(o.type !== 'group') return {geom: unitGeom(o.type, o.seg||48), size: new THREE.Vector3(1,1,1)};
@@ -303,7 +362,7 @@ const _tmp = new THREE.Object3D();
 // Manifold de una figura ya colocada (posición, giro y tamaño). Quien lo pide debe liberarlo con delete().
 function manifoldOf(o){
   let base;
-  if(CUSTOM.has(o.type)){ base = baseGeom(o).man; if(!base) throw new Error('sin-cerrar'); }
+  if(CUSTOM.has(o.type) || sized(o)){ base = baseGeom(o).man; if(!base) throw new Error('sin-cerrar'); }
   else { const k = o.type+'|'+(o.seg||48); base = unitMan[k] ||= toManifold(unitGeom(o.type, o.seg||48)); }
   placeObj(_tmp, o, baseGeom(o).size); _tmp.updateMatrix();
   return base.transform(_tmp.matrix.elements);
@@ -537,6 +596,9 @@ function addShape(type, hole){
   if(type==='texto') return addText(hole);
   const o = {id:nextId++, type, name:NAMES[type], hole:!!hole, color:PALETTE[(nextId-2)%PALETTE.length],
     w:type==='prisma'?17.32:20,d:20,h:20, x:0,y:0,z:0, rx:0,ry:0,rz:0, seg: ROUND.has(type)?48:undefined};
+  if(type==='tubo') o.wall = 2;
+  if(type==='estrella'){ o.d = 19.02; o.h = 5; }
+  if(type==='corazon'){ o.d = 18.4; o.h = 5; }
   placeFree(o);
   commit(()=>{ objects.push(o); selected=[o.id]; });
 }
@@ -625,6 +687,26 @@ function align(axis, where){
   const target = pick(all);
   commit(()=>{ for(const o of items){ o[axis] = r2(o[axis] + target - pick(boxes.get(o.id))); } });
 }
+// Girar 90° en un eje del mundo: la selección gira como un bloque y su base queda a la misma altura
+function turn90(axis){
+  const items = selected.map(byId).filter(Boolean); if(!items.length) return;
+  const box = new THREE.Box3(); items.forEach(o=>box.union(new THREE.Box3().setFromObject(meshes.get(o.id), true)));
+  const pivot = box.getCenter(new THREE.Vector3()), minZ = box.min.z;
+  const R = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis==='x'?1:0, axis==='y'?1:0, axis==='z'?1:0), Math.PI/2);
+  const deg = v => { const d = Math.round(THREE.MathUtils.radToDeg(v)*10)/10; return Object.is(d,-0) ? 0 : d; };
+  commit(()=>{ for(const o of items){
+    const m = meshes.get(o.id);
+    const c = new THREE.Vector3(o.x, o.y, o.z+o.h/2).sub(pivot).applyQuaternion(R).add(pivot);
+    const q = R.clone().multiply(m.quaternion), e = new THREE.Euler().setFromQuaternion(q,'XYZ');
+    o.rx = deg(e.x); o.ry = deg(e.y); o.rz = deg(e.z);
+    o.x = r2(c.x); o.y = r2(c.y); o.z = r2(c.z - o.h/2);
+  }});
+  if(axis !== 'z'){
+    // que no quede hundida ni flotando: misma base que antes
+    const nb = new THREE.Box3(); items.forEach(o=>nb.union(new THREE.Box3().setFromObject(meshes.get(o.id), true)));
+    const dz = r2(minZ - nb.min.z); if(dz){ items.forEach(o=>{ o.z = r2(o.z + dz); }); rebuild(); autosave(); }
+  }
+}
 function centerOnBed(){
   const items = selected.map(byId).filter(Boolean); if(!items.length) return;
   const box = new THREE.Box3(); items.forEach(o=>box.union(new THREE.Box3().setFromObject(meshes.get(o.id), true)));
@@ -649,6 +731,10 @@ const MIRROR_HTML = `<div><div class="label">Reflejar <span class="units">espejo
   <button class="btn abtn" data-mirror="x" title="Dar vuelta de izquierda a derecha"><span class="axis-x">⇋</span> X</button>
   <button class="btn abtn" data-mirror="y" title="Dar vuelta de adelante hacia atrás"><span class="axis-y">⇅</span> Y</button>
   <button class="btn abtn" data-mirror="z" title="Dar vuelta de arriba hacia abajo"><span class="axis-z">⇵</span> Z</button></div></div>`;
+const TURN_HTML = `<div><div class="label">Girar 90° <span class="units">un clic</span></div><div class="grid3">
+  <button class="btn abtn" data-turn="z" title="Girar 90° sobre la mesa"><span class="axis-z">↻</span> Z</button>
+  <button class="btn abtn" data-turn="x" title="Volcar 90° hacia atrás"><span class="axis-x">↻</span> X</button>
+  <button class="btn abtn" data-turn="y" title="Volcar 90° hacia el lado"><span class="axis-y">↻</span> Y</button></div></div>`;
 const ALIGN_HTML = `<div><div class="label">Alinear</div><div class="grid3" style="row-gap:5px">
   <button class="btn abtn" data-align="x,min" title="Alinear por el borde izquierdo">Izquierda</button><button class="btn abtn" data-align="x,mid" title="Centrar de izquierda a derecha">Centro X</button><button class="btn abtn" data-align="x,max" title="Alinear por el borde derecho">Derecha</button>
   <button class="btn abtn" data-align="y,min" title="Alinear por el borde de adelante">Adelante</button><button class="btn abtn" data-align="y,mid" title="Centrar de adelante hacia atrás">Centro Y</button><button class="btn abtn" data-align="y,max" title="Alinear por el borde de atrás">Atrás</button>
@@ -656,6 +742,7 @@ const ALIGN_HTML = `<div><div class="label">Alinear</div><div class="grid3" styl
   </div><p class="note" style="margin-top:6px">Para centrar un agujero en una pieza: elige las dos y pulsa <b>Centro X</b> y <b>Centro Y</b>.</p></div>`;
 function wireTools(p){
   p.querySelectorAll('[data-mirror]').forEach(b=>b.onclick = ()=>mirror(b.dataset.mirror));
+  p.querySelectorAll('[data-turn]').forEach(b=>b.onclick = ()=>turn90(b.dataset.turn));
   p.querySelectorAll('[data-align]').forEach(b=>b.onclick = ()=>{ const [a,w] = b.dataset.align.split(','); align(a,w); });
 }
 function num(id,label,val,cls='',step='0.1'){ return `<label class="field"><span class="${cls}">${label}</span><input type="number" id="p_${id}" data-k="${id}" value="${val}" step="${step}"></label>`; }
@@ -667,7 +754,7 @@ function renderProps(){
       ${sz ? `<div><div class="label">Tamaño de la pieza <span class="units">mm</span></div><p class="note" style="font-family:var(--f-num);font-size:13px;color:var(--fg)">${r2(sz.x)} × ${r2(sz.y)} × ${r2(sz.z)}</p>${Math.max(sz.x,sz.y)>BED?`<p class="note" style="color:var(--danger)">Ojo: la pieza es más grande que el área de impresión (${BED} mm).</p>`:''}</div>` : ''}
       ${n>=2 ? `<div class="row"><button class="btn" id="pSelAll" style="flex:1;justify-content:center">Seleccionar todo</button><button class="btn" id="pMulti" style="flex:1;justify-content:center">Elegir varias</button></div>` : ''}
       ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
-      <div class="label">Atajos</div>
+      <div class="label">Atajos <span class="units">(más en ? Ayuda)</span></div>
       <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
       <div class="label">Área de impresión</div><p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>`;
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
@@ -678,7 +765,7 @@ function renderProps(){
   if(selected.length>1){
     p.innerHTML = `<h2>${selected.length} figuras seleccionadas</h2><p class="empty">Pulsa <b>Agrupar</b> para unirlas en una sola pieza. Los huecos se restarán de los sólidos.</p>
       <div class="row"><button class="btn primary" id="pGroup">Agrupar</button><button class="btn" id="pDup">Duplicar</button><button class="btn danger" id="pDel">Eliminar</button></div>
-      ${ALIGN_HTML}${MIRROR_HTML}
+      ${ALIGN_HTML}${TURN_HTML}${MIRROR_HTML}
       <div class="row"><button class="btn" id="pCenter" title="Llevar las figuras al centro de la mesa">Centrar en la mesa</button><button class="btn" id="pNone">Quitar selección</button></div>`;
     $('#pGroup').onclick = group; $('#pDup').onclick = dup; $('#pDel').onclick = del; $('#pCenter').onclick = centerOnBed;
     $('#pNone').onclick = ()=>{ selected = []; setMulti(false); rebuild(); };
@@ -696,6 +783,11 @@ function renderProps(){
       ${num('x','X',o.x,'axis-x')}${num('y','Y',o.y,'axis-y')}${num('z','Elevación',o.z,'axis-z')}</div></div>
     <div><div class="label">Rotación <span class="units">grados</span></div><div class="grid3">
       ${num('rx','X',o.rx,'axis-x','1')}${num('ry','Y',o.ry,'axis-y','1')}${num('rz','Z',o.rz,'axis-z','1')}</div></div>
+    ${o.type==='caja' ? `<div><div class="label">Redondear esquinas <span class="units">radio en mm</span></div>
+      <div style="display:grid;grid-template-columns:1fr 70px;gap:8px;align-items:center">
+      <input type="range" id="p_rr" min="0" max="${r2(Math.min(o.w,o.d,o.h)/2)}" step="0.5" value="${o.r||0}" aria-label="Radio de las esquinas">
+      <label class="field"><input type="number" id="p_r" data-k="r" value="${o.r||0}" step="0.5" min="0"></label></div></div>` : ''}
+    ${o.type==='tubo' ? `<div class="grid3"><label class="field"><span>Pared mm</span><input type="number" id="p_wall" data-k="wall" value="${o.wall||2}" step="0.5" min="0.2"></label></div>` : ''}
     <div class="grid3">
       ${o.hole?'':`<label class="field"><span>Color</span><input type="color" id="p_color" data-k="color" value="${o.color}"></label>`}
       ${ROUND.has(o.type)?`<label class="field" style="grid-column:span 2"><span>Suavidad (lados)</span><select id="p_seg" data-k="seg">${[12,24,48,96].map(v=>`<option ${v==o.seg?'selected':''}>${v}</option>`).join('')}</select></label>`:''}
@@ -708,10 +800,13 @@ function renderProps(){
       ${o.type==='group'?'<button class="btn" id="pUng">Desagrupar</button>':''}
       <button class="btn danger" id="pDel">Eliminar</button>
     </div>
-    ${MIRROR_HTML}
+    ${TURN_HTML}${MIRROR_HTML}
     ${o.type==='group'?`<p class="note">Grupo de ${o.children.length} figuras. Desagrúpalo para editar cada una por separado.</p>`:''}
     ${o.type==='malla' && isOpenMesh(o)?`<p class="note" style="color:var(--danger)">Esta pieza importada tiene errores (no es cerrada). Se puede mover, escalar y exportar, pero no unir ni hacerle agujeros.</p>`:''}`;
   wireTools(p);
+  if($('#p_rr')){ const rr = $('#p_rr');
+    rr.oninput = ()=>{ $('#p_r').value = rr.value; };
+    rr.onchange = ()=>{ const v = +rr.value; if(v!==(o.r||0)) commit(()=>{ o.r = v; }); }; }
   if(o.type==='texto'){
     // al cambiar el texto o la letra se mantiene la altura de letra y se ajusta el ancho
     const retext = (k,v)=>{ if(k==='text' && !v.trim()){ renderProps(); return; }
@@ -731,6 +826,8 @@ function renderProps(){
       if($('#p_lock').checked){ const f = v/o[k]; commit(()=>{ o.w=r2(o.w*f); o.d=r2(o.d*f); o.h=r2(o.h*f); }); return; }
     }
     if(k==='seg') v = +v;
+    if(k==='r') v = Math.min(Math.max(0, v), r2(Math.min(o.w,o.d,o.h)/2));
+    if(k==='wall') v = Math.min(Math.max(0.2, v), r2(Math.min(o.w,o.d)/2 - 0.1));
     commit(()=>{ o[k] = typeof v==='number' && k!=='seg' ? r2(v) : v; });
   }));
   $('#tSolid').onclick = ()=>{ if(o.hole) commit(()=>{o.hole=false;}); };
@@ -752,7 +849,7 @@ function liveProps(){
 
 /* ---------- Teclado ---------- */
 addEventListener('keydown', e=>{
-  if(e.target.matches('input,select,textarea')) return;
+  if(e.target.matches('input,select,textarea') || !$('#guide').hidden) return;
   const mod = e.ctrlKey||e.metaKey, k = e.key.toLowerCase();
   if(mod && k==='z' && !e.shiftKey){ e.preventDefault(); undo(); return; }
   if(mod && (k==='y' || (k==='z'&&e.shiftKey))){ e.preventDefault(); redo(); return; }
@@ -949,5 +1046,52 @@ try{ const s = localStorage.getItem('taller3d-proyecto'); if(s){ const d = JSON.
 try{ const m = localStorage.getItem('taller3d-mallas'); if(m) unpackMeshes(JSON.parse(m)); savedMeshKeys = [...new Set(meshesIn(objects))].sort().join(','); }catch(e){}
 try{ await ensureFonts(objects); }catch(e){}
 rebuild(); fitView(); $('#loading').hidden = true;
-renderer.setAnimationLoop(()=>{ orbit.update(); renderer.render(scene,camera); });
+
+/* ---------- Medidas sobre la figura ---------- */
+// muestra ancho × fondo × alto (lo que ocupa en la mesa) encima de lo seleccionado
+const dimsEl = $('#dims'), _db = new THREE.Box3(), _dp = new THREE.Vector3();
+function updateDims(){
+  const ms = selected.map(id=>meshes.get(id)).filter(Boolean);
+  if(!ms.length || (dragging && tcontrols.mode==='rotate')){ dimsEl.hidden = true; return; }
+  _db.makeEmpty(); ms.forEach(m=>_db.union(new THREE.Box3().setFromObject(m, true)));
+  const sz = _db.getSize(new THREE.Vector3());
+  _dp.set((_db.min.x+_db.max.x)/2, (_db.min.y+_db.max.y)/2, _db.max.z).project(camera);
+  if(_dp.z > 1){ dimsEl.hidden = true; return; }
+  const f = v => (Math.round(v*10)/10).toString().replace('.',',');
+  const txt = `${f(sz.x)} × ${f(sz.y)} × ${f(sz.z)} mm`;
+  if(dimsEl.textContent !== txt) dimsEl.textContent = txt;
+  dimsEl.style.left = ((_dp.x+1)/2*vp.clientWidth)+'px';
+  dimsEl.style.top = Math.max(26, (1-_dp.y)/2*vp.clientHeight - 14)+'px';
+  dimsEl.hidden = false;
+}
+
+/* ---------- Guía de bienvenida ---------- */
+const GUIDE = [
+  ['Bienvenido a Taller 3D', `<p>Aquí puedes diseñar piezas y descargarlas para imprimirlas en 3D. Todas las medidas están en <b>milímetros</b>.</p><p>Para mirar la mesa: <b>arrastra</b> con el mouse para girar la vista y usa la <b>rueda</b> para acercar o alejar.</p>`],
+  ['1. Agrega figuras', `<p>Haz clic en una figura de la izquierda: <b>Caja</b>, <b>Cilindro</b>, <b>Estrella</b>, <b>Texto</b>…</p><p>Para moverla, arrastra las flechas de colores. Para cambiar su tamaño exacto, escribe los milímetros en el panel de la derecha.</p>`],
+  ['2. Haz agujeros', `<p>Las figuras grises de <b>Huecos</b> quitan material.</p><ul><li>Pon el hueco dentro del sólido.</li><li>Pulsa <b>Unir todo en una pieza</b> (o <b>Agrupar</b>).</li></ul><p>Para centrar el agujero: pulsa <b>Elegir varias</b>, haz clic en las dos figuras y luego en <b>Centro X</b> y <b>Centro Y</b>.</p>`],
+  ['3. Guarda e imprime', `<ul><li><b>Guardar</b>: crea un archivo para seguir otro día. Con <b>Abrir</b> lo recuperas.</li><li><b>Exportar STL</b>: descarga la pieza para el programa de la impresora (Cura, PrusaSlicer…).</li></ul><p>Si te equivocas, usa <b>Deshacer</b> (Ctrl+Z).</p>`],
+  ['Atajos de teclado', `<ul><li><b>Supr</b>: eliminar · <b>Ctrl+D</b>: duplicar</li><li><b>Ctrl+Z</b> / <b>Ctrl+Y</b>: deshacer / rehacer</li><li><b>Ctrl+A</b>: elegir todo · <b>Esc</b>: soltar la selección</li><li><b>Ctrl+G</b>: agrupar · <b>Ctrl+S</b>: guardar</li><li><b>Flechas</b>: mover · <b>Re Pág / Av Pág</b>: subir y bajar</li><li><b>W</b>, <b>E</b>, <b>R</b>: mover, rotar, escalar</li></ul>`],
+];
+let gi = 0;
+function showGuide(i){
+  gi = Math.max(0, Math.min(GUIDE.length-1, i));
+  const [t, html] = GUIDE[gi];
+  $('#gBody').innerHTML = `<div class="step">${gi+1} de ${GUIDE.length}</div><h3 id="gTitle">${t}</h3>${html}`;
+  $('#gDots').innerHTML = GUIDE.map((_,k)=>`<i class="${k===gi?'on':''}"></i>`).join('');
+  $('#gPrev').hidden = gi===0;
+  $('#gNext').textContent = gi===GUIDE.length-1 ? '¡A diseñar!' : 'Siguiente';
+  $('#guide').hidden = false; $('#gNext').focus();
+}
+function closeGuide(){ $('#guide').hidden = true; try{ localStorage.setItem('taller3d-guia','1'); }catch(e){} }
+$('#gNext').onclick = ()=> gi===GUIDE.length-1 ? closeGuide() : showGuide(gi+1);
+$('#gPrev').onclick = ()=>showGuide(gi-1);
+$('#gSkip').onclick = closeGuide;
+$('#guide').addEventListener('click', e=>{ if(e.target.id==='guide') closeGuide(); });
+$('#guide').addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Escape') closeGuide(); if(e.key==='ArrowRight') $('#gNext').click(); if(e.key==='ArrowLeft' && gi) showGuide(gi-1); });
+$('#bHelp').onclick = ()=>showGuide(0);
+let seen = false; try{ seen = localStorage.getItem('taller3d-guia')==='1'; }catch(e){}
+if(!seen) showGuide(0);
+
+renderer.setAnimationLoop(()=>{ orbit.update(); renderer.render(scene,camera); updateDims(); });
 </script>

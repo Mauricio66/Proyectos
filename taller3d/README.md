@@ -14,7 +14,12 @@ Editor 3D sencillo, al estilo Tinkercad, para diseñar piezas y exportarlas en S
 
 ## Cómo usarlo
 
-- **Agregar figuras:** Caja, Cilindro, Esfera, Cono, Pirámide, Hexágono, Texto, Techo, Caja hueca, Cilindro hueco y Texto hueco.
+- **Agregar figuras:** Caja, Cilindro, Esfera, Cono, Pirámide, Hexágono, Texto, Tubo, Estrella, Corazón, Techo, Caja hueca, Cilindro hueco y Texto hueco.
+- **Redondear esquinas:** en una caja, mueve la barra *Redondear esquinas* (radio en mm). El radio se mantiene aunque cambies el tamaño.
+- **Tubo:** cilindro hueco por dentro; escribe el grosor de la *Pared* en mm.
+- **Girar 90°:** botones Z, X e Y en el panel derecho giran la figura (o la selección) un cuarto de vuelta con un clic, sin que se hunda en la mesa.
+- **Medidas a la vista:** sobre lo seleccionado aparece una etiqueta con ancho × fondo × alto en mm.
+- **Ayuda:** la primera vez aparece una guía corta; se puede volver a ver con el botón *? Ayuda*, que también muestra los atajos de teclado.
 - **Texto 3D:** pulsa *Texto* y escribe en el cuadro *Texto* del panel derecho (acepta tildes y ñ). Elige la letra *Recta* o *Clásica*. Con *Texto hueco* puedes grabar letras en una placa.
 - **Medidas en mm:** selecciona una figura y escribe su ancho, largo, alto y posición en el panel.
 - **Mover, rotar y escalar:** con las herramientas de la barra o las teclas W, E y R.
