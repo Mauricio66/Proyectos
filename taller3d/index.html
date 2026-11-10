@@ -60,7 +60,13 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 #c{display:block;width:100%;height:100%;touch-action:none}
 .hud{position:absolute;left:12px;bottom:12px;display:flex;gap:6px;flex-wrap:wrap}
 .hud .btn{background:var(--panel)}
-.hint{position:absolute;left:12px;top:12px;right:12px;pointer-events:none;color:var(--muted);font-size:13px;max-width:52ch}
+/* cubo de vistas (esquina superior derecha de la mesa) */
+.navcube{position:absolute;right:12px;top:10px;display:flex;flex-direction:column;align-items:center;gap:6px;user-select:none}
+#cube{width:120px;height:120px;cursor:pointer;display:block;touch-action:none}
+.navcube .nav{display:grid;grid-template-columns:repeat(3,34px);gap:4px}
+.navcube .btn{background:var(--panel);justify-content:center;padding:5px 0;font-size:15px;line-height:1}
+@media (max-width:760px){ #cube{width:92px;height:92px} .navcube .nav{grid-template-columns:repeat(3,28px)} .hint{right:120px} }
+.hint{position:absolute;left:12px;top:12px;right:150px;pointer-events:none;color:var(--muted);font-size:13px;max-width:52ch}
 .toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1}
 .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:16px;line-height:1.5}
@@ -163,8 +169,18 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <canvas id="c" aria-label="Mesa de trabajo 3D"></canvas>
     <div class="loading" id="loading">Cargando la mesa de trabajo…</div>
     <div class="hint" id="hint"></div>
+    <div class="navcube">
+      <canvas id="cube" aria-label="Cubo de vistas: haz clic en una cara, borde o esquina para ver la pieza desde ese lado"></canvas>
+      <div class="nav">
+        <button class="btn" id="vLeft" title="Girar la vista 90° a la izquierda">⟲</button>
+        <button class="btn" id="vHome" title="Vista general">⌂</button>
+        <button class="btn" id="vRight" title="Girar la vista 90° a la derecha">⟳</button>
+        <button class="btn" id="vIn" title="Acercar">+</button>
+        <button class="btn" id="vFit" title="Ajustar: ver todas las figuras (o la selección)">⤢</button>
+        <button class="btn" id="vOut" title="Alejar">−</button>
+      </div>
+    </div>
     <div class="hud">
-      <button class="btn" id="vHome" title="Vista general">Vista general</button>
       <button class="btn" id="vTop" title="Vista desde arriba">Arriba</button>
       <button class="btn" id="vFront" title="Vista de frente">Frente</button>
       <button class="btn" id="bMulti" aria-pressed="false" title="Activado: cada clic suma o quita una figura de la selección">Elegir varias</button>
@@ -242,6 +258,8 @@ const camera = new THREE.PerspectiveCamera(40,1,0.5,5000);
 camera.up.set(0,0,1);
 const orbit = new OrbitControls(camera, canvas);
 orbit.enableDamping = true;
+orbit.zoomToCursor = true;   // la rueda acerca hacia donde apunta el mouse
+orbit.screenSpacePanning = true;
 scene.add(new THREE.HemisphereLight(0xffffff,0x8090a0,1.6));
 const sun = new THREE.DirectionalLight(0xffffff,1.8); sun.position.set(80,-120,200); scene.add(sun);
 const fill = new THREE.DirectionalLight(0xffffff,0.5); fill.position.set(-100,80,60); scene.add(fill);
@@ -1019,15 +1037,114 @@ $('#bNew').onclick = ()=>{
 };
 
 /* ---------- Vistas ---------- */
-function fitView(dir){
-  const box = new THREE.Box3(); for(const m of meshes.values()) box.expandByObject(m);
-  const c = box.isEmpty() ? new THREE.Vector3(0,0,10) : box.getCenter(new THREE.Vector3());
-  const r = box.isEmpty() ? 60 : Math.max(40, box.getSize(new THREE.Vector3()).length());
-  const d = dir || new THREE.Vector3(0.8,-1.2,0.9);
-  camera.position.copy(c).add(d.clone().normalize().multiplyScalar(r*1.9));
-  orbit.target.copy(c); orbit.update();
+// cambio de vista animado: la dirección gira por una esfera para no pasar por dentro de la pieza
+let anim = null;
+function flyTo(pos, target, instant){
+  if(instant){ anim = null; camera.position.copy(pos); orbit.target.copy(target); orbit.update(); return; }
+  const d0 = camera.position.clone().sub(orbit.target), d1 = pos.clone().sub(target);
+  anim = {t0: orbit.target.clone(), t1: target.clone(), r0: d0.length(), r1: d1.length(),
+    q: new THREE.Quaternion().setFromUnitVectors(d0.clone().normalize(), d1.clone().normalize()), n0: d0.normalize(), start: performance.now()};
 }
-$('#vHome').onclick = ()=>fitView(); $('#vTop').onclick = ()=>fitView(new THREE.Vector3(0,-0.001,1)); $('#vFront').onclick = ()=>fitView(new THREE.Vector3(0,-1,0.15));
+function stepAnim(){
+  if(!anim) return;
+  const k = Math.min(1, (performance.now()-anim.start)/380), e = k<.5 ? 2*k*k : 1-(-2*k+2)**2/2;
+  const q = new THREE.Quaternion().slerp(anim.q, e);
+  orbit.target.lerpVectors(anim.t0, anim.t1, e);
+  camera.position.copy(anim.n0).applyQuaternion(q).multiplyScalar(anim.r0 + (anim.r1-anim.r0)*e).add(orbit.target);
+  camera.lookAt(orbit.target);
+  if(k===1) anim = null;
+}
+// evita mirar justo desde arriba o abajo (la cámara se confunde); se inclina un pelo hacia el frente
+const safeDir = d => { d = d.clone().normalize(); if(Math.abs(d.z) > 0.999) d.set(0, -0.002, Math.sign(d.z)).normalize(); return d; };
+function sceneBox(onlySel){
+  const box = new THREE.Box3();
+  const ids = onlySel && selected.length ? selected : [...meshes.keys()];
+  for(const id of ids){ const m = meshes.get(id); if(m) box.union(new THREE.Box3().setFromObject(m, true)); }
+  return box;
+}
+function fitView(dir, instant, onlySel){
+  const box = sceneBox(onlySel);
+  const c = box.isEmpty() ? new THREE.Vector3(0,0,10) : box.getCenter(new THREE.Vector3());
+  const r = box.isEmpty() ? 60 : Math.max(onlySel ? 15 : 40, box.getSize(new THREE.Vector3()).length());
+  const d = safeDir(dir || new THREE.Vector3(0.8,-1.2,0.9));
+  const fov = THREE.MathUtils.degToRad(camera.fov), fit = r/2/Math.sin(Math.min(fov, fov*camera.aspect)/2);
+  flyTo(c.clone().add(d.multiplyScalar(Math.max(fit*1.3, 30))), c, instant);
+}
+// mirar desde una dirección, manteniendo el centro y la distancia actuales
+function lookFrom(dir){
+  const dist = camera.position.distanceTo(orbit.target);
+  flyTo(orbit.target.clone().add(safeDir(dir).multiplyScalar(dist)), orbit.target.clone());
+}
+function zoomBy(f){ const d = camera.position.clone().sub(orbit.target).multiplyScalar(f); flyTo(orbit.target.clone().add(d), orbit.target.clone()); }
+function spin(deg){ const d = camera.position.clone().sub(orbit.target).applyAxisAngle(new THREE.Vector3(0,0,1), THREE.MathUtils.degToRad(deg)); flyTo(orbit.target.clone().add(d), orbit.target.clone()); }
+$('#vHome').onclick = ()=>fitView(); $('#vFit').onclick = ()=>fitView(camera.position.clone().sub(orbit.target), false, true);
+$('#vTop').onclick = ()=>lookFrom(new THREE.Vector3(0,0,1)); $('#vFront').onclick = ()=>lookFrom(new THREE.Vector3(0,-1,0.15));
+$('#vIn').onclick = ()=>zoomBy(0.75); $('#vOut').onclick = ()=>zoomBy(1/0.75);
+$('#vLeft').onclick = ()=>spin(-90); $('#vRight').onclick = ()=>spin(90);
+
+/* ---------- Cubo de vistas ---------- */
+const cubeCv = $('#cube');
+const cubeR = new THREE.WebGLRenderer({canvas: cubeCv, antialias: true, alpha: true});
+cubeR.setPixelRatio(Math.min(devicePixelRatio, 2));
+const cubeScene = new THREE.Scene(), cubeCam = new THREE.PerspectiveCamera(32, 1, 0.1, 20);
+cubeCam.up.set(0,0,1);
+cubeScene.add(new THREE.AmbientLight(0xffffff, 2.2));
+const cubeGroup = new THREE.Group(); cubeScene.add(cubeGroup);
+// cada cara: dirección hacia afuera, dirección "arriba" del texto y nombre
+const FACES = [
+  [[0,0,1],[0,1,0],'ARRIBA'], [[0,0,-1],[0,-1,0],'ABAJO'],
+  [[0,-1,0],[0,0,1],'FRENTE'], [[0,1,0],[0,0,1],'ATRÁS'],
+  [[1,0,0],[0,0,1],'DERECHA'], [[-1,0,0],[0,0,1],'IZQUIERDA'],
+];
+function faceTex(label, hot){
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  g.fillStyle = hot ? css('--accent') : css('--panel'); g.fillRect(0,0,128,128);
+  g.strokeStyle = css('--line'); g.lineWidth = 6; g.strokeRect(3,3,122,122);
+  g.fillStyle = hot ? css('--accent-ink') : css('--fg');
+  const fs = label.length > 7 ? 17 : 21; g.font = `700 ${fs}px ${css('--f-ui')}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(label, 64, 66);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+}
+const cubeFaces = FACES.map(([n,u,label])=>{
+  const N = new THREE.Vector3(...n), U = new THREE.Vector3(...u), Rt = U.clone().cross(N);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial({map: faceTex(label,false)}));
+  m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(Rt, U, N));
+  m.position.copy(N).multiplyScalar(0.5);
+  m.userData = {label, normal: N, tex: [m.material.map, faceTex(label,true)]};
+  cubeGroup.add(m); return m;
+});
+cubeGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.002,1.002,1.002)), new THREE.LineBasicMaterial({color: 0x8a96a8})));
+// ejes de colores en la esquina del cubo, igual que en la mesa
+for(const [d,col] of [[[1,0,0],0xd64545],[[0,1,0],0x2f9e44],[[0,0,1],0x1f5fd1]])
+  cubeGroup.add(new THREE.ArrowHelper(new THREE.Vector3(...d), new THREE.Vector3(-0.62,-0.62,-0.62), 0.55, col, 0.14, 0.09));
+function retintCube(){ for(const f of cubeFaces){ f.userData.tex.forEach(t=>t.dispose()); f.userData.tex = [faceTex(f.userData.label,false), faceTex(f.userData.label,true)]; f.material.map = f.userData.tex[f===hotFace?1:0]; } }
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', retintCube);
+let hotFace = null;
+const cubeRay = new THREE.Raycaster(), cubePtr = new THREE.Vector2();
+function cubeHit(e){
+  const r = cubeCv.getBoundingClientRect();
+  cubePtr.set((e.clientX-r.left)/r.width*2-1, -(e.clientY-r.top)/r.height*2+1);
+  cubeRay.setFromCamera(cubePtr, cubeCam);
+  return cubeRay.intersectObjects(cubeFaces, false)[0] || null;
+}
+function setHot(f){ if(f===hotFace) return; if(hotFace) hotFace.material.map = hotFace.userData.tex[0]; hotFace = f; if(f) f.material.map = f.userData.tex[1]; }
+cubeCv.addEventListener('pointermove', e=>{ const h = cubeHit(e); setHot(h ? h.object : null); cubeCv.title = h ? 'Ver desde: '+h.object.userData.label.toLowerCase() : ''; });
+cubeCv.addEventListener('pointerleave', ()=>setHot(null));
+cubeCv.addEventListener('click', e=>{
+  const h = cubeHit(e); if(!h) return;
+  // cerca de un borde o esquina se mira en diagonal; en el centro de la cara, de frente
+  const p = h.point, snap = v => Math.abs(v) > 0.3 ? Math.sign(v) : 0;
+  const dir = new THREE.Vector3(snap(p.x), snap(p.y), snap(p.z));
+  if(dir.lengthSq() === 0) dir.copy(h.object.userData.normal);
+  lookFrom(dir);
+});
+function renderCube(){
+  const w = cubeCv.clientWidth, h = cubeCv.clientHeight; if(!w || !h) return;
+  if(cubeCv.width !== Math.round(w*cubeR.getPixelRatio())) cubeR.setSize(w, h, false);
+  const d = camera.position.clone().sub(orbit.target).normalize();
+  cubeCam.position.copy(d).multiplyScalar(3.4); cubeCam.up.copy(camera.up); cubeCam.lookAt(0,0,0);
+  cubeR.render(cubeScene, cubeCam);
+}
 
 let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),Math.max(2500,msg.length*55)); }
 
@@ -1045,7 +1162,7 @@ function sample(){
 try{ const s = localStorage.getItem('taller3d-proyecto'); if(s){ const d = JSON.parse(s); objects = d.objects||[]; nextId = d.nextId||1; } else sample(); }catch(e){ sample(); }
 try{ const m = localStorage.getItem('taller3d-mallas'); if(m) unpackMeshes(JSON.parse(m)); savedMeshKeys = [...new Set(meshesIn(objects))].sort().join(','); }catch(e){}
 try{ await ensureFonts(objects); }catch(e){}
-rebuild(); fitView(); $('#loading').hidden = true;
+rebuild(); fitView(null, true); $('#loading').hidden = true;
 
 /* ---------- Medidas sobre la figura ---------- */
 // muestra ancho × fondo × alto (lo que ocupa en la mesa) encima de lo seleccionado
@@ -1067,7 +1184,7 @@ function updateDims(){
 
 /* ---------- Guía de bienvenida ---------- */
 const GUIDE = [
-  ['Bienvenido a Taller 3D', `<p>Aquí puedes diseñar piezas y descargarlas para imprimirlas en 3D. Todas las medidas están en <b>milímetros</b>.</p><p>Para mirar la mesa: <b>arrastra</b> con el mouse para girar la vista y usa la <b>rueda</b> para acercar o alejar.</p>`],
+  ['Bienvenido a Taller 3D', `<p>Aquí puedes diseñar piezas y descargarlas para imprimirlas en 3D. Todas las medidas están en <b>milímetros</b>.</p><p>Para mirar la mesa: <b>arrastra</b> con el mouse para girar la vista y usa la <b>rueda</b> para acercar o alejar.</p><p>El <b>cubo</b> de la esquina cambia la vista: haz clic en <b>FRENTE</b>, <b>ARRIBA</b>, en un borde o en una esquina. Con <b>⌂</b> vuelves a la vista general.</p>`],
   ['1. Agrega figuras', `<p>Haz clic en una figura de la izquierda: <b>Caja</b>, <b>Cilindro</b>, <b>Estrella</b>, <b>Texto</b>…</p><p>Para moverla, arrastra las flechas de colores. Para cambiar su tamaño exacto, escribe los milímetros en el panel de la derecha.</p>`],
   ['2. Haz agujeros', `<p>Las figuras grises de <b>Huecos</b> quitan material.</p><ul><li>Pon el hueco dentro del sólido.</li><li>Pulsa <b>Unir todo en una pieza</b> (o <b>Agrupar</b>).</li></ul><p>Para centrar el agujero: pulsa <b>Elegir varias</b>, haz clic en las dos figuras y luego en <b>Centro X</b> y <b>Centro Y</b>.</p>`],
   ['3. Guarda e imprime', `<ul><li><b>Guardar</b>: crea un archivo para seguir otro día. Con <b>Abrir</b> lo recuperas.</li><li><b>Exportar STL</b>: descarga la pieza para el programa de la impresora (Cura, PrusaSlicer…).</li></ul><p>Si te equivocas, usa <b>Deshacer</b> (Ctrl+Z).</p>`],
@@ -1093,5 +1210,6 @@ $('#bHelp').onclick = ()=>showGuide(0);
 let seen = false; try{ seen = localStorage.getItem('taller3d-guia')==='1'; }catch(e){}
 if(!seen) showGuide(0);
 
-renderer.setAnimationLoop(()=>{ orbit.update(); renderer.render(scene,camera); updateDims(); });
+renderer.setAnimationLoop(()=>{ if(anim) stepAnim(); else orbit.update(); renderer.render(scene,camera); updateDims(); renderCube(); });
+orbit.addEventListener('start', ()=>{ anim = null; });   // si el alumno arrastra, se corta la animación
 </script>
