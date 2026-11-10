@@ -113,7 +113,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
       <option value="0">Ajuste: libre</option><option value="0.5">Ajuste: 0,5 mm</option><option value="1" selected>Ajuste: 1 mm</option><option value="5">Ajuste: 5 mm</option><option value="10">Ajuste: 10 mm</option>
     </select>
     <span class="sep"></span>
-    <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos (Ctrl+G)">Agrupar</button>
+    <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
@@ -131,7 +131,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <div class="label" style="margin-top:8px">Huecos</div>
     <button class="shape holeshape" data-add="caja" data-hole="1"><svg viewBox="0 0 32 32"><path d="M6 11l10-5 10 5v11l-10 5-10-5z"/><path d="M6 11l10 5 10-5M16 16v11"/></svg>Caja hueca</button>
     <button class="shape holeshape" data-add="cilindro" data-hole="1"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><path d="M7 8v16c0 2 4 3.5 9 3.5s9-1.5 9-3.5V8"/></svg>Cilindro hueco</button>
-    <p class="note">Los huecos se restan al agrupar. Selecciona varias figuras con Mayús + clic.</p>
+    <p class="note">Pon un hueco dentro de un sólido y pulsa <b>Agrupar</b>: queda el agujero.</p>
   </aside>
 
   <main class="viewport" id="vp">
@@ -308,7 +308,7 @@ const meshes = new Map(); // id -> mesh
 const world = new THREE.Group(); scene.add(world);
 const matCache = {};
 function material(o){
-  if(o.hole){ return matCache.hole ||= new THREE.MeshStandardMaterial({color:0x6c7686, transparent:true, opacity:0.55, depthWrite:false, roughness:.6}); }
+  if(o.hole){ return matCache.hole ||= new THREE.MeshStandardMaterial({color:0x6c7686, transparent:true, opacity:0.55, depthWrite:false, roughness:.6, polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2}); }
   return matCache[o.color] ||= new THREE.MeshStandardMaterial({color:o.color, roughness:.55, metalness:.02});
 }
 function rebuild(){
@@ -429,8 +429,10 @@ function dup(){
   commit(()=>{ const n=[]; for(const id of selected){ const c = structuredClone(byId(id)); c.id = nextId++; c.x = r2(c.x+10); c.y = r2(c.y-10); objects.push(c); n.push(c.id);} selected=n; });
 }
 function group(){
-  const items = selected.map(byId).filter(Boolean);
-  if(items.length<2){ toast('Selecciona al menos dos figuras (Mayús + clic) para agrupar.'); return; }
+  // con menos de dos figuras seleccionadas, se agrupa todo lo que hay en la mesa (lo más simple para los alumnos)
+  const ids = selected.length>=2 ? selected : objects.map(o=>o.id);
+  const items = ids.map(byId).filter(Boolean);
+  if(items.length<2){ toast('Necesitas al menos dos figuras en la mesa para agrupar.'); return; }
   if(items.every(o=>o.hole)){ toast('Un grupo necesita al menos una figura sólida.'); return; }
   const before = snapshot();
   // centro común en el mundo
@@ -446,7 +448,7 @@ function group(){
   const g = {id:nextId++, type:'group', name:'Grupo', hole:false, color:solid.color, children,
     w:r2(res.size.x), d:r2(res.size.y), h:r2(res.size.z), x:r2(c.x+off.x), y:r2(c.y+off.y), z:r2(c.z+off.z-res.size.z/2), rx:0,ry:0,rz:0};
   undoStack.push(before); redoStack=[];
-  objects = objects.filter(o=>!selected.includes(o.id)); objects.push(g); selected=[g.id];
+  objects = objects.filter(o=>!ids.includes(o.id)); objects.push(g); selected=[g.id];
   rebuild(); autosave(); toast('Grupo creado: se unieron los sólidos y se restaron los huecos.');
 }
 function ungroup(){
@@ -479,11 +481,11 @@ $('#bGroup').onclick = group; $('#bUngroup').onclick = ungroup;
 $('#bUndo').onclick = undo; $('#bRedo').onclick = redo; $('#bDup').onclick = dup;
 function updateButtons(){
   $('#bUndo').disabled = !undoStack.length; $('#bRedo').disabled = !redoStack.length;
-  $('#bGroup').disabled = selected.length<2; $('#bDup').disabled = !selected.length;
+  $('#bGroup').disabled = objects.length<2; $('#bDup').disabled = !selected.length;
   const g = byId(selected[0]); $('#bUngroup').disabled = !(selected.length===1 && g && g.type==='group');
   const solids = objects.filter(o=>!o.hole).length;
   $('#hint').textContent = !objects.length ? 'Elige una figura de la izquierda para empezar. Arrastra para girar la vista, rueda para acercar.'
-    : (objects.some(o=>o.hole) ? 'Para hacer un agujero: pon el hueco dentro del sólido. Para unirlos: clic en el sólido, Mayús + clic en el hueco (o Ctrl+A para todo) y pulsa Agrupar.' : '');
+    : (objects.some(o=>o.hole) ? 'Para hacer un agujero: pon una figura gris (hueco) dentro del sólido y pulsa Agrupar. Si nada está seleccionado, se agrupa todo.' : '');
 }
 
 /* ---------- Panel de propiedades ---------- */
@@ -495,9 +497,11 @@ function renderProps(){
     const n = objects.length, sz = designSize();
     p.innerHTML = `<h2>Diseño</h2><p class="empty">${n ? `Hay ${n} ${n===1?'figura':'figuras'} en la mesa. Haz clic en una para ver y cambiar sus medidas.` : 'La mesa está vacía.'}</p>
       ${sz ? `<div><div class="label">Tamaño de la pieza <span class="units">mm</span></div><p class="note" style="font-family:var(--f-num);font-size:13px;color:var(--fg)">${r2(sz.x)} × ${r2(sz.y)} × ${r2(sz.z)}</p>${Math.max(sz.x,sz.y)>BED?`<p class="note" style="color:var(--danger)">Ojo: la pieza es más grande que el área de impresión (${BED} mm).</p>`:''}</div>` : ''}
+      ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
       <div class="label">Atajos</div>
       <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
       <div class="label">Área de impresión</div><p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>`;
+    if($('#pGroupAll')) $('#pGroupAll').onclick = group;
     return;
   }
   if(selected.length>1){

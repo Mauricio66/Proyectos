@@ -14,7 +14,7 @@ Editor 3D sencillo, al estilo Tinkercad, para diseñar piezas y exportarlas en S
 - **Medidas en mm:** selecciona una figura y escribe su ancho, largo, alto y posición en el panel.
 - **Mover, rotar y escalar:** con las herramientas de la barra o las teclas W, E y R.
 - **Sólido o Hueco:** marca una figura como *Hueco* para que reste material.
-- **Agrupar:** haz clic en el sólido, Mayús + clic en el hueco (o Ctrl+A para todo) y pulsa *Agrupar*. Los huecos se pueden elegir aunque estén dentro del sólido. Los huecos se restan de los sólidos y las figuras sólidas se unen. *Desagrupar* (Ctrl+Shift+G) las separa otra vez.
+- **Agrupar:** pon el hueco dentro del sólido, haz clic en un espacio vacío y pulsa *Agrupar* (o *Unir todo en una pieza* en el panel derecho). Sin selección se agrupa todo; para agrupar solo algunas figuras, selecciónalas con Mayús + clic. Los huecos se restan de los sólidos y las figuras sólidas se unen. *Desagrupar* (Ctrl+Shift+G) las separa otra vez.
 - **Apoyar en la mesa:** baja la figura hasta la cuadrícula.
 - **Ajuste a la cuadrícula:** elige cuánto avanza la figura al moverla (libre, 0,5, 1, 5 o 10 mm). La base de la figura queda siempre alineada, y al escalar la figura no se hunde en la mesa.
 - **Duplicar:** botón *Duplicar* o Ctrl+D. **Seleccionar todo:** Ctrl+A.
