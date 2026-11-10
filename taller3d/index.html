@@ -26,13 +26,13 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:14px
 button,input,select{font:inherit;color:inherit}
 .app{height:100%;display:grid;grid-template-columns:150px minmax(0,1fr) 260px;grid-template-rows:auto minmax(0,1fr);
   padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
-header{grid-column:1/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
+header{grid-column:1/-1;display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
   background:var(--panel);border-bottom:1px solid var(--line)}
-.brand{font-family:var(--f-display);font-size:19px;letter-spacing:-.01em;margin-right:10px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand{font-family:var(--f-display);font-size:19px;letter-spacing:-.01em;margin-right:6px;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .brand i{width:18px;height:18px;border:2px solid var(--accent);border-radius:3px;display:inline-block;position:relative;transform:rotate(-8deg)}
 .brand i::after{content:"";position:absolute;inset:3px;border:2px dashed var(--hole);border-radius:50%}
-.sep{width:1px;height:24px;background:var(--line);margin:0 4px}
-.btn{border:1px solid var(--line);background:var(--panel-2);padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;line-height:1.2}
+.sep{width:1px;height:24px;background:var(--line);margin:0 2px}
+.btn{border:1px solid var(--line);background:var(--panel-2);padding:6px 9px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;line-height:1.2}
 .btn:hover{border-color:var(--accent)}
 .btn:focus-visible,.shape:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .btn:disabled{opacity:.45;cursor:default;border-color:var(--line)}
@@ -41,6 +41,8 @@ header{grid-column:1/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;p
 .seg{display:inline-flex}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:6px 0 0 6px}.seg .btn:last-child{border-radius:0 6px 6px 0}.seg .btn+.btn{border-left:none}
 kbd{font-family:var(--f-num);font-size:10px;color:var(--muted)}
 .spacer{flex:1}
+header .btn{font-size:13px;padding:6px 8px}
+@media (max-width:1300px) and (min-width:761px){ header .brand{font-size:0;gap:0;margin-right:2px} }
 select.btn{padding-right:6px}
 aside{background:var(--panel);overflow:auto;min-height:0}
 .shapes{border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:6px}
@@ -57,7 +59,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 .hint{position:absolute;left:12px;top:12px;right:12px;pointer-events:none;color:var(--muted);font-size:13px;max-width:52ch}
 .toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1}
-.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:16px;line-height:1.5}
 .props{border-left:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:12px}
 .props h2{font-family:var(--f-display);font-size:17px;margin:0;text-wrap:balance}
 .empty{color:var(--muted);line-height:1.5}
@@ -100,20 +102,21 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <span class="sep"></span>
     <button class="btn" id="bUndo" title="Deshacer (Ctrl+Z)">↶ Deshacer</button>
     <button class="btn" id="bRedo" title="Rehacer (Ctrl+Y)">↷ Rehacer</button>
+    <button class="btn" id="bDup" title="Duplicar la selección (Ctrl+D)">Duplicar</button>
     <span class="sep"></span>
     <div class="seg" role="group" aria-label="Herramienta">
-      <button class="btn on" data-mode="translate" title="Mover (W)">Mover <kbd>W</kbd></button>
-      <button class="btn" data-mode="rotate" title="Rotar (E)">Rotar <kbd>E</kbd></button>
-      <button class="btn" data-mode="scale" title="Escalar (R)">Escalar <kbd>R</kbd></button>
+      <button class="btn on" data-mode="translate" title="Mover (W)">Mover</button>
+      <button class="btn" data-mode="rotate" title="Rotar (E)">Rotar</button>
+      <button class="btn" data-mode="scale" title="Escalar (R)">Escalar</button>
     </div>
-    <select class="btn" id="snap" title="Paso de la cuadrícula">
-      <option value="0">Paso libre</option><option value="0.5">Paso 0,5 mm</option><option value="1" selected>Paso 1 mm</option><option value="5">Paso 5 mm</option><option value="10">Paso 10 mm</option>
+    <select class="btn" id="snap" title="Ajuste a la cuadrícula: cuánto avanza la figura al moverla o cambiar su tamaño">
+      <option value="0">Ajuste: libre</option><option value="0.5">Ajuste: 0,5 mm</option><option value="1" selected>Ajuste: 1 mm</option><option value="5">Ajuste: 5 mm</option><option value="10">Ajuste: 10 mm</option>
     </select>
     <span class="sep"></span>
-    <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos (Ctrl+G)">Agrupar</button>
+    <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
-    <button class="btn primary" id="bStl" title="Descargar el diseño en formato STL para imprimir">Exportar STL</button>
+    <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
   </header>
 
   <aside class="shapes" aria-label="Figuras">
@@ -128,7 +131,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <div class="label" style="margin-top:8px">Huecos</div>
     <button class="shape holeshape" data-add="caja" data-hole="1"><svg viewBox="0 0 32 32"><path d="M6 11l10-5 10 5v11l-10 5-10-5z"/><path d="M6 11l10 5 10-5M16 16v11"/></svg>Caja hueca</button>
     <button class="shape holeshape" data-add="cilindro" data-hole="1"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><path d="M7 8v16c0 2 4 3.5 9 3.5s9-1.5 9-3.5V8"/></svg>Cilindro hueco</button>
-    <p class="note">Los huecos se restan al agrupar. Selecciona varias figuras con Mayús + clic.</p>
+    <p class="note">Pon un hueco dentro de un sólido y pulsa <b>Agrupar</b>: queda el agujero.</p>
   </aside>
 
   <main class="viewport" id="vp">
@@ -150,16 +153,22 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 {"imports":{
   "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
   "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
-  "three-mesh-bvh":"https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.9.8/src/index.js",
-  "three-bvh-csg":"https://cdn.jsdelivr.net/npm/three-bvh-csg@0.0.18/src/index.js"
+  "manifold-3d":"https://cdn.jsdelivr.net/npm/manifold-3d@3.2.1/manifold.js"
 }}
+</script>
+<script>
+// si las librerías 3D no cargan (sin internet o bloqueadas), avisar en vez de quedar "cargando" para siempre
+setTimeout(()=>{ const l=document.getElementById('loading'); if(l && !l.hidden) l.textContent='Está tardando más de lo normal… Si no carga, revisa la conexión a internet y recarga la página.'; }, 15000);
 </script>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
-import { STLExporter } from 'three/addons/exporters/STLExporter.js';
-import { Brush, Evaluator, ADDITION, SUBTRACTION } from 'three-bvh-csg';
+import { mergeVertices, toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
+// Manifold hace las uniones y restas, y siempre entrega piezas cerradas ("manifold"), que es lo que pide la impresora
+import ManifoldModule from 'manifold-3d';
+const wasm = await ManifoldModule(); wasm.setup();
+const { Manifold, Mesh: MMesh } = wasm;
 
 const $ = s => document.querySelector(s);
 const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',group:'Grupo'};
@@ -239,7 +248,23 @@ function unitGeom(type, seg){
 // normales planas para figuras con caras planas, suaves para las redondas
 function flatten(g){ g = g.clone(); g.deleteAttribute('normal'); g.computeVertexNormals(); return g; }
 
-const evaluator = new Evaluator(); evaluator.attributes = ['position','normal']; evaluator.useGroups = false;
+// three.js -> Manifold (figuras base, en tamaño 1×1×1)
+function toManifold(g){
+  const ig = g.clone(); ig.deleteAttribute('normal');
+  const mg = mergeVertices(ig, 1e-6);
+  const mesh = new MMesh({numProp:3, vertProperties:new Float32Array(mg.attributes.position.array), triVerts:new Uint32Array(mg.index.array)});
+  mesh.merge();
+  return new Manifold(mesh);
+}
+// Manifold -> three.js (para dibujar el grupo en pantalla)
+function fromManifold(man){
+  const mesh = man.getMesh();
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(mesh.vertProperties.slice(0, mesh.numVert*mesh.numProp).filter((_,i)=>i%mesh.numProp<3)), 3));
+  g.setIndex(new THREE.BufferAttribute(new Uint32Array(mesh.triVerts), 1));
+  return toCreasedNormals(g, THREE.MathUtils.degToRad(30));
+}
+const unitMan = {};
 const groupCache = new Map();
 function baseGeom(o){
   if(o.type !== 'group') return {geom: unitGeom(o.type, o.seg||48), size: new THREE.Vector3(1,1,1)};
@@ -248,23 +273,29 @@ function baseGeom(o){
   const res = csgOf(o.children);
   groupCache.set(key,res); return res;
 }
-function brushOf(o){
-  const {geom,size} = baseGeom(o);
-  const b = new Brush(geom.clone());
-  placeObj(b,o,size); b.updateMatrixWorld(true); return b;
+const _tmp = new THREE.Object3D();
+// Manifold de una figura ya colocada (posición, giro y tamaño). Quien lo pide debe liberarlo con delete().
+function manifoldOf(o){
+  let base;
+  if(o.type === 'group') base = baseGeom(o).man;
+  else { const k = o.type+'|'+(o.seg||48); base = unitMan[k] ||= toManifold(unitGeom(o.type, o.seg||48)); }
+  placeObj(_tmp, o, baseGeom(o).size); _tmp.updateMatrix();
+  return base.transform(_tmp.matrix.elements);
 }
+// une todos los sólidos y les resta los huecos
+function unionOf(list){ const ms = list.map(manifoldOf); const u = Manifold.union(ms); ms.forEach(m=>m.delete()); return u; }
 function csgOf(children){
   const solids = children.filter(c=>!c.hole), holes = children.filter(c=>c.hole);
-  let acc = null;
-  for(const c of solids){ const b = brushOf(c); acc = acc ? evaluator.evaluate(acc,b,ADDITION) : b; }
-  if(!acc) return {geom:new THREE.BufferGeometry(), size:new THREE.Vector3(1,1,1), empty:true};
-  for(const c of holes){ acc = evaluator.evaluate(acc, brushOf(c), SUBTRACTION); }
-  let g = acc.geometry.clone();
-  if(acc.matrixWorld && !acc.matrixWorld.equals(new THREE.Matrix4())) g.applyMatrix4(acc.matrixWorld);
+  const empty = {geom:new THREE.BufferGeometry(), size:new THREE.Vector3(1,1,1), empty:true};
+  if(!solids.length) return empty;
+  let man = unionOf(solids);
+  if(holes.length){ const h = unionOf(holes); const r = man.subtract(h); man.delete(); h.delete(); man = r; }
+  if(man.isEmpty()){ man.delete(); return empty; }
+  const g = fromManifold(man);
   g.computeBoundingBox();
   const size = new THREE.Vector3(); g.boundingBox.getSize(size);
   size.x = Math.max(size.x,0.001); size.y = Math.max(size.y,0.001); size.z = Math.max(size.z,0.001);
-  return {geom:g, size, center: g.boundingBox.getCenter(new THREE.Vector3())};
+  return {geom:g, size, center: g.boundingBox.getCenter(new THREE.Vector3()), man};
 }
 function placeObj(m,o,size){
   m.position.set(o.x, o.y, o.z + o.h/2);
@@ -277,7 +308,7 @@ const meshes = new Map(); // id -> mesh
 const world = new THREE.Group(); scene.add(world);
 const matCache = {};
 function material(o){
-  if(o.hole){ return matCache.hole ||= new THREE.MeshStandardMaterial({color:0x6c7686, transparent:true, opacity:0.55, depthWrite:false, roughness:.6}); }
+  if(o.hole){ return matCache.hole ||= new THREE.MeshStandardMaterial({color:0x6c7686, transparent:true, opacity:0.55, depthWrite:false, roughness:.6, polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2}); }
   return matCache[o.color] ||= new THREE.MeshStandardMaterial({color:o.color, roughness:.55, metalness:.02});
 }
 function rebuild(){
@@ -313,10 +344,21 @@ tcontrols.addEventListener('dragging-changed', e=>{
   if(e.value){ dragBefore = snapshot(); }
   else { syncFromMesh(); }
 });
-tcontrols.addEventListener('objectChange', ()=>{ if(selected.length===1) liveProps(); });
+tcontrols.addEventListener('objectChange', ()=>{
+  const o = byId(selected[0]), m = tcontrols.object; if(!o || !m || selected.length!==1) return;
+  const step = +$('#snap').value, hz = Math.abs(m.scale.z*m.userData.size.z)/2;
+  if(tcontrols.mode==='translate' && step){
+    const q = v => Math.round(v/step)*step;
+    m.position.x = q(m.position.x); m.position.y = q(m.position.y); m.position.z = q(m.position.z-hz)+hz;
+  }
+  if(tcontrols.mode==='scale' && keepsBase(o)) m.position.z = o.z + hz;
+  liveProps();
+});
+// al escalar, la base queda en su lugar (como en Tinkercad) si la figura no está inclinada
+const keepsBase = o => !o.rx && !o.ry;
 function setSnap(){
   const s = +$('#snap').value || null;
-  tcontrols.setTranslationSnap(s);
+  tcontrols.setTranslationSnap(null);
   tcontrols.setRotationSnap(s ? THREE.MathUtils.degToRad(15) : null);
   tcontrols.setScaleSnap(null);
 }
@@ -331,7 +373,8 @@ function readMesh(o,m){
   const q = v => step ? Math.round(v/step)*step : v;
   o.w = r2(Math.max(0.1, Math.abs(m.scale.x*s.x))); o.d = r2(Math.max(0.1, Math.abs(m.scale.y*s.y))); o.h = r2(Math.max(0.1, Math.abs(m.scale.z*s.z)));
   if(tcontrols.mode==='scale' && step){ o.w = Math.max(step,q(o.w)); o.d = Math.max(step,q(o.d)); o.h = Math.max(step,q(o.h)); }
-  o.x = r2(m.position.x); o.y = r2(m.position.y); o.z = r2(m.position.z - o.h/2);
+  o.x = r2(m.position.x); o.y = r2(m.position.y);
+  if(!(tcontrols.mode==='scale' && keepsBase(o))) o.z = r2(m.position.z - o.h/2);
   const toDeg = v => Math.round(THREE.MathUtils.radToDeg(v)*10)/10;
   o.rx = toDeg(m.rotation.x); o.ry = toDeg(m.rotation.y); o.rz = toDeg(m.rotation.z);
 }
@@ -354,8 +397,13 @@ canvas.addEventListener('pointerup', e=>{
   ptr.set((e.clientX-r.left)/r.width*2-1, -(e.clientY-r.top)/r.height*2+1);
   ray.setFromCamera(ptr, camera);
   const hits = ray.intersectObjects([...meshes.values()], false);
-  const id = hits.length ? hits[0].object.userData.id : null;
-  if(e.shiftKey || e.ctrlKey || e.metaKey){
+  // los huecos son transparentes: si el rayo pasa por uno, se elige el hueco aunque esté dentro de un sólido.
+  // Con Mayús se prefiere una figura que aún no esté seleccionada, para poder sumar el hueco a la selección.
+  const ids = [...new Set(hits.map(h=>h.object.userData.id))];
+  const add = e.shiftKey || e.ctrlKey || e.metaKey;
+  const order = [...ids.filter(i=>byId(i)?.hole), ...ids.filter(i=>!byId(i)?.hole)];
+  const id = (add ? order.find(i=>!selected.includes(i)) : undefined) ?? order[0] ?? null;
+  if(add){
     if(id!=null) selected = selected.includes(id) ? selected.filter(x=>x!==id) : [...selected,id];
   } else selected = id!=null ? [id] : [];
   rebuild();
@@ -364,9 +412,13 @@ canvas.addEventListener('pointerup', e=>{
 /* ---------- Acciones ---------- */
 function addShape(type, hole){
   const o = {id:nextId++, type, name:NAMES[type], hole:!!hole, color:PALETTE[(nextId-2)%PALETTE.length],
-    w:20,d:20,h:20, x:0,y:0,z:0, rx:0,ry:0,rz:0, seg: ROUND.has(type)?48:undefined};
-  // deja la figura nueva un poco desplazada si el centro está ocupado
-  let k = 0; while(objects.some(p=>Math.abs(p.x-o.x)<1 && Math.abs(p.y-o.y)<1) && k<12){ o.x += 25; if(o.x>75){o.x=0;o.y-=25;} k++; }
+    w:type==='prisma'?17.32:20,d:20,h:20, x:0,y:0,z:0, rx:0,ry:0,rz:0, seg: ROUND.has(type)?48:undefined};
+  // busca un lugar libre en la mesa para que la figura nueva no quede encima de otra
+  const busy = (x,y) => objects.some(p=>Math.abs(p.x-x) < (p.w+o.w)/2+2 && Math.abs(p.y-y) < (p.d+o.d)/2+2);
+  outer: for(let r=0; r<=80; r+=25) for(let dy=-r; dy<=r; dy+=25) for(let dx=-r; dx<=r; dx+=25){
+    if(Math.max(Math.abs(dx),Math.abs(dy))!==r) continue;
+    if(!busy(dx,dy)){ o.x = dx; o.y = dy; break outer; }
+  }
   commit(()=>{ objects.push(o); selected=[o.id]; });
 }
 document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>addShape(b.dataset.add, b.dataset.hole)));
@@ -377,8 +429,10 @@ function dup(){
   commit(()=>{ const n=[]; for(const id of selected){ const c = structuredClone(byId(id)); c.id = nextId++; c.x = r2(c.x+10); c.y = r2(c.y-10); objects.push(c); n.push(c.id);} selected=n; });
 }
 function group(){
-  const items = selected.map(byId).filter(Boolean);
-  if(items.length<2){ toast('Selecciona al menos dos figuras (Mayús + clic) para agrupar.'); return; }
+  // con menos de dos figuras seleccionadas, se agrupa todo lo que hay en la mesa (lo más simple para los alumnos)
+  const ids = selected.length>=2 ? selected : objects.map(o=>o.id);
+  const items = ids.map(byId).filter(Boolean);
+  if(items.length<2){ toast('Necesitas al menos dos figuras en la mesa para agrupar.'); return; }
   if(items.every(o=>o.hole)){ toast('Un grupo necesita al menos una figura sólida.'); return; }
   const before = snapshot();
   // centro común en el mundo
@@ -387,14 +441,14 @@ function group(){
   let children = items.map(o=>{ const k = structuredClone(o); k.x=r2(k.x-c.x); k.y=r2(k.y-c.y); k.z=r2(k.z-c.z); return k; });
   let res = csgOf(children);
   if(res.empty){ toast('No quedó material: los huecos cubren todo.'); return; }
-  const off = res.center;
+  const off = res.center; res.man.delete();
   children = children.map(k=>({...k, x:r2(k.x-off.x), y:r2(k.y-off.y), z:r2(k.z-off.z)}));
   res = csgOf(children); groupCache.set(JSON.stringify(children), res);
   const solid = items.find(o=>!o.hole);
   const g = {id:nextId++, type:'group', name:'Grupo', hole:false, color:solid.color, children,
     w:r2(res.size.x), d:r2(res.size.y), h:r2(res.size.z), x:r2(c.x+off.x), y:r2(c.y+off.y), z:r2(c.z+off.z-res.size.z/2), rx:0,ry:0,rz:0};
   undoStack.push(before); redoStack=[];
-  objects = objects.filter(o=>!selected.includes(o.id)); objects.push(g); selected=[g.id];
+  objects = objects.filter(o=>!ids.includes(o.id)); objects.push(g); selected=[g.id];
   rebuild(); autosave(); toast('Grupo creado: se unieron los sólidos y se restaron los huecos.');
 }
 function ungroup(){
@@ -424,14 +478,14 @@ function dropToFloor(){
   commit(()=>{ o.z = r2(o.z - b.min.z); });
 }
 $('#bGroup').onclick = group; $('#bUngroup').onclick = ungroup;
-$('#bUndo').onclick = undo; $('#bRedo').onclick = redo;
+$('#bUndo').onclick = undo; $('#bRedo').onclick = redo; $('#bDup').onclick = dup;
 function updateButtons(){
   $('#bUndo').disabled = !undoStack.length; $('#bRedo').disabled = !redoStack.length;
-  $('#bGroup').disabled = selected.length<2;
+  $('#bGroup').disabled = objects.length<2; $('#bDup').disabled = !selected.length;
   const g = byId(selected[0]); $('#bUngroup').disabled = !(selected.length===1 && g && g.type==='group');
   const solids = objects.filter(o=>!o.hole).length;
   $('#hint').textContent = !objects.length ? 'Elige una figura de la izquierda para empezar. Arrastra para girar la vista, rueda para acercar.'
-    : (objects.some(o=>o.hole) ? 'Para hacer un agujero: pon un hueco encima del sólido, selecciona ambos con Mayús + clic y pulsa Agrupar.' : '');
+    : (objects.some(o=>o.hole) ? 'Para hacer un agujero: pon una figura gris (hueco) dentro del sólido y pulsa Agrupar. Si nada está seleccionado, se agrupa todo.' : '');
 }
 
 /* ---------- Panel de propiedades ---------- */
@@ -440,11 +494,14 @@ function num(id,label,val,cls='',step='0.1'){ return `<label class="field"><span
 function renderProps(){
   const p = $('#props');
   if(selected.length===0){
-    const n = objects.length;
+    const n = objects.length, sz = designSize();
     p.innerHTML = `<h2>Diseño</h2><p class="empty">${n ? `Hay ${n} ${n===1?'figura':'figuras'} en la mesa. Haz clic en una para ver y cambiar sus medidas.` : 'La mesa está vacía.'}</p>
+      ${sz ? `<div><div class="label">Tamaño de la pieza <span class="units">mm</span></div><p class="note" style="font-family:var(--f-num);font-size:13px;color:var(--fg)">${r2(sz.x)} × ${r2(sz.y)} × ${r2(sz.z)}</p>${Math.max(sz.x,sz.y)>BED?`<p class="note" style="color:var(--danger)">Ojo: la pieza es más grande que el área de impresión (${BED} mm).</p>`:''}</div>` : ''}
+      ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
       <div class="label">Atajos</div>
-      <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
+      <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
       <div class="label">Área de impresión</div><p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>`;
+    if($('#pGroupAll')) $('#pGroupAll').onclick = group;
     return;
   }
   if(selected.length>1){
@@ -491,6 +548,12 @@ function renderProps(){
   $('#pFloor').onclick = dropToFloor; $('#pDup').onclick = dup; $('#pDel').onclick = del;
   if($('#pUng')) $('#pUng').onclick = ungroup;
 }
+// medidas totales de las figuras sólidas (lo que se va a imprimir)
+function designSize(){
+  const box = new THREE.Box3();
+  for(const o of objects){ const m = meshes.get(o.id); if(m && !o.hole) box.union(new THREE.Box3().setFromObject(m, true)); }
+  return box.isEmpty() ? null : box.getSize(new THREE.Vector3());
+}
 function liveProps(){
   const o = byId(selected[0]), m = meshes.get(selected[0]); if(!o||!m) return;
   const t = structuredClone(o); readMesh(t,m);
@@ -504,6 +567,7 @@ addEventListener('keydown', e=>{
   if(mod && k==='z' && !e.shiftKey){ e.preventDefault(); undo(); return; }
   if(mod && (k==='y' || (k==='z'&&e.shiftKey))){ e.preventDefault(); redo(); return; }
   if(mod && k==='d'){ e.preventDefault(); dup(); return; }
+  if(mod && k==='a'){ e.preventDefault(); selected = objects.map(o=>o.id); rebuild(); return; }
   if(mod && k==='g'){ e.preventDefault(); e.shiftKey ? ungroup() : group(); return; }
   if(mod && k==='s'){ e.preventDefault(); saveProject(); return; }
   if(k==='delete'||k==='backspace'){ e.preventDefault(); del(); return; }
@@ -539,23 +603,41 @@ async function offer(filename, data, mime){
   setTimeout(()=>URL.revokeObjectURL(url), 2000); toast('Descargado: '+filename);
 }
 const safeName = s => (s||'pieza').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w-]+/g,'_').replace(/^_+|_+$/g,'') || 'pieza';
+// STL binario: cabecera de 80 bytes, número de triángulos y 50 bytes por triángulo (normal + 3 vértices)
+function stlBytes(man, dz){
+  const mesh = man.getMesh(), P = mesh.vertProperties, T = mesh.triVerts, np = mesh.numProp, n = T.length/3;
+  const buf = new ArrayBuffer(84 + 50*n), dv = new DataView(buf);
+  new Uint8Array(buf).set(new TextEncoder().encode('Taller 3D'));
+  dv.setUint32(80, n, true);
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), nn = new THREE.Vector3(), e = new THREE.Vector3();
+  const v = (out,i) => out.set(P[i*np], P[i*np+1], P[i*np+2]+dz);
+  for(let t=0, o=84; t<n; t++, o+=50){
+    v(a,T[3*t]); v(b,T[3*t+1]); v(c,T[3*t+2]);
+    nn.subVectors(b,a).cross(e.subVectors(c,a)).normalize();
+    const vals = [nn.x,nn.y,nn.z, a.x,a.y,a.z, b.x,b.y,b.z, c.x,c.y,c.z];
+    for(let k=0;k<12;k++) dv.setFloat32(o+4*k, vals[k] || 0, true);
+  }
+  return new Uint8Array(buf);
+}
 async function exportStl(){
   const pick = selected.length ? selected.map(byId) : objects;
   const solids = pick.filter(o=>o && !o.hole);
   if(!solids.length){ toast('No hay figuras sólidas para exportar.'); return; }
-  const grp = new THREE.Group();
-  for(const o of solids){ const src = meshes.get(o.id); const m = new THREE.Mesh(src.geometry); m.position.copy(src.position); m.rotation.copy(src.rotation); m.scale.copy(src.scale); grp.add(m); }
-  grp.updateMatrixWorld(true);
-  // apoya la pieza sobre la cama (Z mínima = 0)
-  const b = new THREE.Box3().setFromObject(grp, true); grp.position.z = -b.min.z; grp.updateMatrixWorld(true);
-  const dv = new STLExporter().parse(grp, {binary:true});
-  const bytes = new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength);
+  // todo se une en una sola pieza cerrada, apoyada sobre la cama (Z mínima = 0)
+  // los huecos que aún no están agrupados también se restan, así el STL queda igual a lo que se ve en pantalla
+  const holes = objects.filter(o=>o.hole);
+  let man = unionOf(solids);
+  if(holes.length){ const h = unionOf(holes), r = man.subtract(h); man.delete(); h.delete(); man = r; }
+  if(man.isEmpty()){ man.delete(); toast('No queda material: los huecos cubren toda la pieza.'); return; }
+  const bytes = stlBytes(man, -man.boundingBox().min[2]); man.delete();
   const base = safeName(solids.length===1 ? solids[0].name : 'diseno');
-  const looseHoles = pick.some(o=>o && o.hole);
   const dl = await downloadsP;
   if(dl) await offer(base+'.zip', zipOne(base+'.stl', bytes));
   else await offer(base+'.stl', new Blob([bytes],{type:'model/stl'}));
-  if(looseHoles) setTimeout(()=>toast('Ojo: los huecos sin agrupar no se exportan. Agrúpalos con el sólido.'), 2600);
+  const msgs = [];
+  if(selected.length) msgs.push(`Se exportó solo la selección (${solids.length} ${solids.length===1?'figura':'figuras'}). Para exportar todo, haz clic en un espacio vacío primero.`);
+  if(holes.length) msgs.push('Los huecos se restaron de la pieza exportada.');
+  msgs.forEach((m,i)=>setTimeout(()=>toast(m), 3200*(i+1)));
 }
 function saveProject(){
   const data = JSON.stringify({app:'taller3d', version:1, objects, nextId}, null, 1);
@@ -587,7 +669,7 @@ function fitView(dir){
 }
 $('#vHome').onclick = ()=>fitView(); $('#vTop').onclick = ()=>fitView(new THREE.Vector3(0,-0.001,1)); $('#vFront').onclick = ()=>fitView(new THREE.Vector3(0,-1,0.15));
 
-let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2500); }
+let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),Math.max(2500,msg.length*55)); }
 
 /* ---------- Inicio ---------- */
 function resize(){ const w = vp.clientWidth, h = vp.clientHeight; if(!w||!h) return; renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
