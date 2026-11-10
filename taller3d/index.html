@@ -397,8 +397,13 @@ canvas.addEventListener('pointerup', e=>{
   ptr.set((e.clientX-r.left)/r.width*2-1, -(e.clientY-r.top)/r.height*2+1);
   ray.setFromCamera(ptr, camera);
   const hits = ray.intersectObjects([...meshes.values()], false);
-  const id = hits.length ? hits[0].object.userData.id : null;
-  if(e.shiftKey || e.ctrlKey || e.metaKey){
+  // los huecos son transparentes: si el rayo pasa por uno, se elige el hueco aunque esté dentro de un sólido.
+  // Con Mayús se prefiere una figura que aún no esté seleccionada, para poder sumar el hueco a la selección.
+  const ids = [...new Set(hits.map(h=>h.object.userData.id))];
+  const add = e.shiftKey || e.ctrlKey || e.metaKey;
+  const order = [...ids.filter(i=>byId(i)?.hole), ...ids.filter(i=>!byId(i)?.hole)];
+  const id = (add ? order.find(i=>!selected.includes(i)) : undefined) ?? order[0] ?? null;
+  if(add){
     if(id!=null) selected = selected.includes(id) ? selected.filter(x=>x!==id) : [...selected,id];
   } else selected = id!=null ? [id] : [];
   rebuild();
@@ -478,7 +483,7 @@ function updateButtons(){
   const g = byId(selected[0]); $('#bUngroup').disabled = !(selected.length===1 && g && g.type==='group');
   const solids = objects.filter(o=>!o.hole).length;
   $('#hint').textContent = !objects.length ? 'Elige una figura de la izquierda para empezar. Arrastra para girar la vista, rueda para acercar.'
-    : (objects.some(o=>o.hole) ? 'Para hacer un agujero: pon un hueco encima del sólido, selecciona ambos con Mayús + clic y pulsa Agrupar.' : '');
+    : (objects.some(o=>o.hole) ? 'Para hacer un agujero: pon el hueco dentro del sólido. Para unirlos: clic en el sólido, Mayús + clic en el hueco (o Ctrl+A para todo) y pulsa Agrupar.' : '');
 }
 
 /* ---------- Panel de propiedades ---------- */
@@ -615,17 +620,19 @@ async function exportStl(){
   const solids = pick.filter(o=>o && !o.hole);
   if(!solids.length){ toast('No hay figuras sólidas para exportar.'); return; }
   // todo se une en una sola pieza cerrada, apoyada sobre la cama (Z mínima = 0)
-  const man = unionOf(solids);
-  if(man.isEmpty()){ man.delete(); toast('No hay material para exportar.'); return; }
+  // los huecos que aún no están agrupados también se restan, así el STL queda igual a lo que se ve en pantalla
+  const holes = objects.filter(o=>o.hole);
+  let man = unionOf(solids);
+  if(holes.length){ const h = unionOf(holes), r = man.subtract(h); man.delete(); h.delete(); man = r; }
+  if(man.isEmpty()){ man.delete(); toast('No queda material: los huecos cubren toda la pieza.'); return; }
   const bytes = stlBytes(man, -man.boundingBox().min[2]); man.delete();
   const base = safeName(solids.length===1 ? solids[0].name : 'diseno');
-  const looseHoles = pick.some(o=>o && o.hole);
   const dl = await downloadsP;
   if(dl) await offer(base+'.zip', zipOne(base+'.stl', bytes));
   else await offer(base+'.stl', new Blob([bytes],{type:'model/stl'}));
   const msgs = [];
   if(selected.length) msgs.push(`Se exportó solo la selección (${solids.length} ${solids.length===1?'figura':'figuras'}). Para exportar todo, haz clic en un espacio vacío primero.`);
-  if(looseHoles) msgs.push('Ojo: los huecos sin agrupar no se exportan. Agrúpalos con el sólido.');
+  if(holes.length) msgs.push('Los huecos se restaron de la pieza exportada.');
   msgs.forEach((m,i)=>setTimeout(()=>toast(m), 3200*(i+1)));
 }
 function saveProject(){
