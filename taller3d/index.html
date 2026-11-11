@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Taller 3D · versión 10</title>
+<title>Taller 3D · versión 11</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -167,7 +167,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
-    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 10)">? Ayuda <small style="color:var(--muted);font-size:11px">v10</small></button>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 11)">? Ayuda <small style="color:var(--muted);font-size:11px">v11</small></button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
   </header>
 
@@ -313,6 +313,11 @@ const orbit = new OrbitControls(camera, canvas);
 orbit.enableDamping = true;
 orbit.zoomToCursor = true;   // la rueda acerca hacia donde apunta el mouse
 orbit.screenSpacePanning = true;
+// Mouse como en los programas CAD: izquierdo gira, rueda (apretada) desplaza, Shift + rueda gira, derecho desplaza
+orbit.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN };
+canvas.addEventListener('pointerdown', e=>{ if(e.button===1) orbit.mouseButtons.MIDDLE = e.shiftKey ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN; }, true);
+canvas.addEventListener('mousedown', e=>{ if(e.button===1) e.preventDefault(); });   // sin el autodesplazamiento del navegador
+canvas.addEventListener('auxclick', e=>{ if(e.button===1) e.preventDefault(); });
 scene.add(new THREE.HemisphereLight(0xffffff,0x8090a0,1.6));
 const sun = new THREE.DirectionalLight(0xffffff,1.8); sun.position.set(80,-120,200); scene.add(sun);
 const fill = new THREE.DirectionalLight(0xffffff,0.5); fill.position.set(-100,80,60); scene.add(fill);
@@ -753,9 +758,9 @@ function syncFromMesh(){
 /* ---------- Selección ---------- */
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
 let downAt = null, overGizmo = false;
-canvas.addEventListener('pointerdown', e=>{ downAt = [e.clientX,e.clientY]; ptrStart = {x:e.clientX, y:e.clientY}; ptrNow.x = e.clientX; ptrNow.y = e.clientY; scaleAxis = tcontrols.axis; overGizmo = tcontrols.object && tcontrols.axis !== null; }, true);
+canvas.addEventListener('pointerdown', e=>{ if(e.button!==0){ downAt = null; return; } downAt = [e.clientX,e.clientY]; ptrStart = {x:e.clientX, y:e.clientY}; ptrNow.x = e.clientX; ptrNow.y = e.clientY; scaleAxis = tcontrols.axis; overGizmo = tcontrols.object && tcontrols.axis !== null; }, true);
 canvas.addEventListener('pointerup', e=>{
-  if(!downAt || dragging || overGizmo){ downAt = null; return; }
+  if(e.button!==0 || !downAt || dragging || overGizmo){ downAt = null; return; }
   const moved = Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]); downAt = null;
   if(moved > 5 || tcontrols.dragging) return;
   const r = canvas.getBoundingClientRect();
@@ -1110,11 +1115,13 @@ function renderProps(){
       ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
       <div class="label">Atajos <span class="units">(más en ? Ayuda)</span></div>
       <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
+      <div class="label">Mouse</div>
+      <p class="note">Botón izquierdo: girar la vista · Apretar la rueda y arrastrar: desplazar la vista · Shift + rueda apretada: girar · Girar la rueda: acercar hacia el puntero · Botón derecho: desplazar</p>
       <div class="label">Tu impresora <span class="units">volumen en mm</span></div>
       <div class="grid3">${['x','y','z'].map(k=>`<label class="field"><span class="axis-${k}">${k.toUpperCase()}</span><input type="number" data-pr="${k}" value="${PRINTER[k]}" min="20" step="5"></label>`).join('')}</div>
       <p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>
       <p class="note" id="savedAt">${savedText()}</p>
-      <p class="note">Taller 3D · <b>versión 10</b> (11 de noviembre)</p>`;
+      <p class="note">Taller 3D · <b>versión 11</b> (11 de noviembre)</p>`;
     if($('#pCheck')) $('#pCheck').onclick = checkPrint;
     p.querySelectorAll('[data-pr]').forEach(inp=>inp.onchange = ()=>{ const v = Math.max(20, +inp.value || 200); PRINTER[inp.dataset.pr] = v; try{ localStorage.setItem('taller3d-impresora', JSON.stringify(PRINTER)); }catch(e){} renderProps(); });
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
@@ -1601,11 +1608,11 @@ function updateDims(){
 
 /* ---------- Guía de bienvenida ---------- */
 const GUIDE = [
-  ['Bienvenido a Taller 3D', `<p>Aquí puedes diseñar piezas y descargarlas para imprimirlas en 3D. Todas las medidas están en <b>milímetros</b>.</p><p>Para mirar la mesa: <b>arrastra</b> con el mouse para girar la vista y usa la <b>rueda</b> para acercar o alejar.</p><p>El <b>cubo</b> de la esquina cambia la vista: haz clic en <b>FRENTE</b>, <b>ARRIBA</b>, en un borde o en una esquina. Con <b>⌂</b> vuelves a la vista general.</p>`],
+  ['Bienvenido a Taller 3D', `<p>Aquí puedes diseñar piezas y descargarlas para imprimirlas en 3D. Todas las medidas están en <b>milímetros</b>.</p><p>Para mirar la mesa: <b>arrastra</b> con el mouse para girar la vista y usa la <b>rueda</b> para acercar o alejar. Para <b>desplazar</b> la vista, aprieta la rueda y arrastra.</p><p>El <b>cubo</b> de la esquina cambia la vista: haz clic en <b>FRENTE</b>, <b>ARRIBA</b>, en un borde o en una esquina. Con <b>⌂</b> vuelves a la vista general.</p>`],
   ['1. Agrega figuras', `<p>Haz clic en una figura de la izquierda: <b>Caja</b>, <b>Cilindro</b>, <b>Estrella</b>, <b>Texto</b>…</p><p>Para moverla, arrastra las flechas de colores. Para cambiar su tamaño exacto, escribe los milímetros en el panel de la derecha.</p>`],
   ['2. Haz agujeros', `<p>Las figuras grises de <b>Huecos</b> quitan material.</p><ul><li>Pon el hueco dentro del sólido.</li><li>Pulsa <b>Unir todo en una pieza</b> (o <b>Agrupar</b>).</li></ul><p>Para centrar el agujero: pulsa <b>Elegir varias</b>, haz clic en las dos figuras y luego en <b>Centro X</b> y <b>Centro Y</b>.</p>`],
   ['3. Guarda e imprime', `<ul><li><b>Guardar</b>: crea un archivo para seguir otro día. Con <b>Abrir</b> lo recuperas.</li><li><b>Exportar STL</b>: descarga la pieza para el programa de la impresora (Cura, PrusaSlicer…).</li></ul><p>Si te equivocas, usa <b>Deshacer</b> (Ctrl+Z).</p>`],
-  ['Atajos de teclado', `<ul><li><b>Supr</b>: eliminar · <b>Ctrl+D</b>: duplicar</li><li><b>Ctrl+Z</b> / <b>Ctrl+Y</b>: deshacer / rehacer</li><li><b>Ctrl+A</b>: elegir todo · <b>Esc</b>: soltar la selección</li><li><b>Ctrl+G</b>: agrupar · <b>Ctrl+S</b>: guardar</li><li><b>Flechas</b>: mover · <b>Re Pág / Av Pág</b>: subir y bajar</li><li><b>W</b>, <b>E</b>, <b>R</b>: mover, rotar, escalar</li><li><b>Shift</b> mientras escalas: ajuste fino (0,1 mm)</li></ul>`],
+  ['Atajos de teclado', `<ul><li><b>Supr</b>: eliminar · <b>Ctrl+D</b>: duplicar</li><li><b>Ctrl+Z</b> / <b>Ctrl+Y</b>: deshacer / rehacer</li><li><b>Ctrl+A</b>: elegir todo · <b>Esc</b>: soltar la selección</li><li><b>Ctrl+G</b>: agrupar · <b>Ctrl+S</b>: guardar</li><li><b>Flechas</b>: mover · <b>Re Pág / Av Pág</b>: subir y bajar</li><li><b>W</b>, <b>E</b>, <b>R</b>: mover, rotar, escalar</li><li><b>Shift</b> mientras escalas: ajuste fino (0,1 mm)</li></ul><p><b>Mouse</b></p><ul><li><b>Izquierdo</b> arrastrando: girar la vista</li><li><b>Rueda apretada</b> arrastrando: desplazar la vista (como en los programas CAD)</li><li><b>Shift + rueda apretada</b>: girar la vista</li><li><b>Girar la rueda</b>: acercar o alejar hacia el puntero</li><li><b>Derecho</b> arrastrando: también desplaza</li></ul>`],
 ];
 let gi = 0;
 function showGuide(i){
