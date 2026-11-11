@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Taller 3D · versión 7</title>
+<title>Taller 3D · versión 8</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -141,7 +141,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <div class="seg" role="group" aria-label="Herramienta">
       <button class="btn on" data-mode="translate" title="Mover (W)">Mover</button>
       <button class="btn" data-mode="rotate" title="Rotar (E)">Rotar</button>
-      <button class="btn" data-mode="scale" title="Escalar (R)">Escalar</button>
+      <button class="btn" data-mode="scale" title="Escalar (R). Arrastra los cubitos; mantén Shift para ajuste fino de 0,1 mm">Escalar</button>
     </div>
     <select class="btn" id="snap" title="Ajuste a la cuadrícula: cuánto avanza la figura al moverla o cambiar su tamaño">
       <option value="0">Ajuste: libre</option><option value="0.5">Ajuste: 0,5 mm</option><option value="1" selected>Ajuste: 1 mm</option><option value="5">Ajuste: 5 mm</option><option value="10">Ajuste: 10 mm</option>
@@ -150,7 +150,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
-    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 7)">? Ayuda <small style="color:var(--muted);font-size:11px">v7</small></button>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 8)">? Ayuda <small style="color:var(--muted);font-size:11px">v8</small></button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
   </header>
 
@@ -529,10 +529,21 @@ tcontrols.addEventListener('dragging-changed', e=>{
 });
 tcontrols.addEventListener('objectChange', ()=>{
   const o = byId(selected[0]), m = tcontrols.object; if(!o || !m || selected.length!==1) return;
-  if(tcontrols.mode==='scale' && sizeLock && scaleStart){
-    // con el candado cerrado, el eje que más cambió arrastra a los otros dos
-    const f = ['x','y','z'].map(k=>m.scale[k]/scaleStart[k]).reduce((a,b)=>Math.abs(b-1)>Math.abs(a-1)?b:a, 1);
-    for(const k of ['x','y','z']) m.scale[k] = scaleStart[k]*Math.max(f, 0.01);
+  if(tcontrols.mode==='scale' && scaleStart){
+    // escalar con el mouse: más suave (sensibilidad reducida) y ajustado a mm enteros o al paso elegido;
+    // con Shift, ajuste fino de 0,1 mm. Con el candado cerrado, el eje que más cambió arrastra a los otros.
+    const fine = shiftDown, sens = fine ? 0.12 : 0.35, step = fine ? 0.1 : (+$('#snap').value || 1);
+    const size = m.userData.size, K = ['x','y','z'];
+    const start = K.map(k=>Math.abs(scaleStart[k]*size[k]));             // medidas en mm al empezar
+    const f = K.map(k=>Math.max(0.02, 1 + (m.scale[k]/scaleStart[k] - 1)*sens));
+    const snapMm = v => Math.max(step, Math.round(v/step)*step);
+    let mm;
+    if(sizeLock){
+      const i = [0,1,2].reduce((a,b)=>Math.abs(f[b]-1)>Math.abs(f[a]-1)?b:a, 0);
+      const r = snapMm(start[i]*f[i]) / start[i];
+      mm = start.map((v,j)=> j===i ? snapMm(v*f[i]) : Math.max(0.1, v*r));
+    } else mm = start.map((v,j)=> Math.abs(f[j]-1) < 1e-6 ? v : snapMm(v*f[j]));
+    K.forEach((k,j)=>{ m.scale[k] = Math.sign(scaleStart[k]) * mm[j]/size[k]; });
   }
   const step = +$('#snap').value, hz = Math.abs(m.scale.z*m.userData.size.z)/2;
   if(tcontrols.mode==='translate' && step){
@@ -549,7 +560,10 @@ function setLock(on){ sizeLock = on; try{ localStorage.setItem('taller3d-lock', 
 const LOCK_SVG = on => on
   ? '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
   : '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
-let scaleStart = null;
+let scaleStart = null, shiftDown = false;
+addEventListener('keydown', e=>{ if(e.key==='Shift') shiftDown = true; });
+addEventListener('keyup', e=>{ if(e.key==='Shift') shiftDown = false; });
+addEventListener('blur', ()=>{ shiftDown = false; });
 // al escalar, la base queda en su lugar (como en Tinkercad) si la figura no está inclinada
 const keepsBase = o => !o.rx && !o.ry;
 function setSnap(){
@@ -562,13 +576,13 @@ $('#snap').addEventListener('change', setSnap); setSnap();
 function setMode(mode){
   tcontrols.setMode(mode); tcontrols.setSpace(mode==='scale'?'local':'world');
   document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
+  if(mode==='scale' && tcontrols.object) toast('Escalar: arrastra los cubitos de colores. Mantén Shift para un ajuste fino.');
 }
 document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
 function readMesh(o,m){
   const s = m.userData.size, step = +$('#snap').value;
   const q = v => step ? Math.round(v/step)*step : v;
   o.w = r2(Math.max(0.1, Math.abs(m.scale.x*s.x))); o.d = r2(Math.max(0.1, Math.abs(m.scale.y*s.y))); o.h = r2(Math.max(0.1, Math.abs(m.scale.z*s.z)));
-  if(tcontrols.mode==='scale' && step && !sizeLock){ o.w = Math.max(step,q(o.w)); o.d = Math.max(step,q(o.d)); o.h = Math.max(step,q(o.h)); }
   o.x = r2(m.position.x); o.y = r2(m.position.y);
   if(!(tcontrols.mode==='scale' && keepsBase(o))) o.z = r2(m.position.z - o.h/2);
   const toDeg = v => Math.round(THREE.MathUtils.radToDeg(v)*10)/10;
@@ -799,7 +813,7 @@ function renderProps(){
       ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
       <div class="label">Atajos <span class="units">(más en ? Ayuda)</span></div>
       <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
-      <p class="note">Taller 3D · <b>versión 7</b> (11 de noviembre)</p>
+      <p class="note">Taller 3D · <b>versión 8</b> (11 de noviembre)</p>
       <div class="label">Área de impresión</div><p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>`;
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
     if($('#pSelAll')) $('#pSelAll').onclick = selectAll;
@@ -1250,7 +1264,7 @@ const GUIDE = [
   ['1. Agrega figuras', `<p>Haz clic en una figura de la izquierda: <b>Caja</b>, <b>Cilindro</b>, <b>Estrella</b>, <b>Texto</b>…</p><p>Para moverla, arrastra las flechas de colores. Para cambiar su tamaño exacto, escribe los milímetros en el panel de la derecha.</p>`],
   ['2. Haz agujeros', `<p>Las figuras grises de <b>Huecos</b> quitan material.</p><ul><li>Pon el hueco dentro del sólido.</li><li>Pulsa <b>Unir todo en una pieza</b> (o <b>Agrupar</b>).</li></ul><p>Para centrar el agujero: pulsa <b>Elegir varias</b>, haz clic en las dos figuras y luego en <b>Centro X</b> y <b>Centro Y</b>.</p>`],
   ['3. Guarda e imprime', `<ul><li><b>Guardar</b>: crea un archivo para seguir otro día. Con <b>Abrir</b> lo recuperas.</li><li><b>Exportar STL</b>: descarga la pieza para el programa de la impresora (Cura, PrusaSlicer…).</li></ul><p>Si te equivocas, usa <b>Deshacer</b> (Ctrl+Z).</p>`],
-  ['Atajos de teclado', `<ul><li><b>Supr</b>: eliminar · <b>Ctrl+D</b>: duplicar</li><li><b>Ctrl+Z</b> / <b>Ctrl+Y</b>: deshacer / rehacer</li><li><b>Ctrl+A</b>: elegir todo · <b>Esc</b>: soltar la selección</li><li><b>Ctrl+G</b>: agrupar · <b>Ctrl+S</b>: guardar</li><li><b>Flechas</b>: mover · <b>Re Pág / Av Pág</b>: subir y bajar</li><li><b>W</b>, <b>E</b>, <b>R</b>: mover, rotar, escalar</li></ul>`],
+  ['Atajos de teclado', `<ul><li><b>Supr</b>: eliminar · <b>Ctrl+D</b>: duplicar</li><li><b>Ctrl+Z</b> / <b>Ctrl+Y</b>: deshacer / rehacer</li><li><b>Ctrl+A</b>: elegir todo · <b>Esc</b>: soltar la selección</li><li><b>Ctrl+G</b>: agrupar · <b>Ctrl+S</b>: guardar</li><li><b>Flechas</b>: mover · <b>Re Pág / Av Pág</b>: subir y bajar</li><li><b>W</b>, <b>E</b>, <b>R</b>: mover, rotar, escalar</li><li><b>Shift</b> mientras escalas: ajuste fino (0,1 mm)</li></ul>`],
 ];
 let gi = 0;
 function showGuide(i){

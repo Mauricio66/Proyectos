@@ -24,7 +24,7 @@ Editor 3D sencillo, al estilo Tinkercad, para diseñar piezas y exportarlas en S
 - **Texto 3D:** pulsa *Texto* y escribe en el cuadro *Texto* del panel derecho (acepta tildes y ñ). Elige la letra *Recta* o *Clásica*. Con *Texto hueco* puedes grabar letras en una placa.
 - **Medidas en mm:** selecciona una figura y escribe su ancho, largo, alto y posición en el panel.
 - **Candado de proporción:** junto a *Tamaño mm*. Cerrado (*Proporcional*): al cambiar una medida, o al escalar con el mouse, las otras cambian en la misma proporción. Abierto (*Libre*): cada medida cambia sola.
-- **Mover, rotar y escalar:** con las herramientas de la barra o las teclas W, E y R.
+- **Mover, rotar y escalar:** con las herramientas de la barra o las teclas W, E y R. Al escalar con el mouse, el tamaño avanza en milímetros enteros (o según el *Ajuste*) y con poca sensibilidad; mantén **Shift** para un ajuste fino de 0,1 mm.
 - **Sólido o Hueco:** marca una figura como *Hueco* para que reste material.
 - **Agrupar:** pon el hueco dentro del sólido, haz clic en un espacio vacío y pulsa *Agrupar* (o *Unir todo en una pieza* en el panel derecho). Sin selección se agrupa todo; para agrupar solo algunas figuras, pulsa *Elegir varias* (abajo en la mesa) y haz clic en cada una, o usa Mayús + clic. Los huecos se restan de los sólidos y las figuras sólidas se unen. *Desagrupar* (Ctrl+Shift+G) las separa otra vez.
 - **Apoyar en la mesa:** baja la figura hasta la cuadrícula. **Centrar en la mesa:** la lleva al centro.
