@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Taller 3D · versión 9</title>
+<title>Taller 3D · versión 10</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -51,6 +51,14 @@ select.btn{padding-right:6px}
 aside{background:var(--panel);overflow:auto;min-height:0}
 .shapes{border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:6px}
 .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:4px 2px}
+.grp{display:flex;flex-direction:column;gap:6px}
+.grp+.grp{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}
+.grphead{display:flex;align-items:center;justify-content:space-between;width:100%;border:none;background:none;cursor:pointer;padding:4px 2px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;text-align:left}
+.grphead::after{content:"▾";font-size:12px;transition:transform .15s}
+.grphead[aria-expanded="false"]::after{transform:rotate(-90deg)}
+.grphead:hover{color:var(--fg)}
+.grpbody{display:flex;flex-direction:column;gap:6px}
+.grp.closed .grpbody{display:none}
 .shape{display:flex;align-items:center;gap:10px;padding:7px 8px;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer;text-align:left;width:100%}
 .shape:hover{background:var(--panel-2);border-color:var(--line)}
 .shape svg{width:30px;height:30px;flex:none}
@@ -103,7 +111,8 @@ aside{background:var(--panel);overflow:auto;min-height:0}
   body{overflow:auto}
   .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 58vh auto;height:auto;min-height:100%}
   .shapes{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line);padding:8px 16px}
-  .shapes .label,.shapes .note{display:none}
+  .shapes .label,.shapes .note,.grphead{display:none}
+  .grp,.grpbody,.grp.closed .grpbody{display:contents}
   .shape{width:auto;flex:none;flex-direction:column;gap:2px;font-size:11px;padding:6px}
   .props{border-left:none;border-top:1px solid var(--line);padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
   kbd,.sep{display:none}
@@ -158,19 +167,22 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
-    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 9)">? Ayuda <small style="color:var(--muted);font-size:11px">v9</small></button>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 10)">? Ayuda <small style="color:var(--muted);font-size:11px">v10</small></button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
   </header>
 
   <aside class="shapes" aria-label="Figuras">
-    <div class="label">Sólidos</div>
+    <div class="grp" data-grp="basicas"><button class="grphead" aria-expanded="true">Figuras básicas</button><div class="grpbody">
     <button class="shape" data-add="caja"><svg viewBox="0 0 32 32"><path d="M6 11l10-5 10 5v11l-10 5-10-5z"/><path d="M6 11l10 5 10-5M16 16v11"/></svg>Caja</button>
     <button class="shape" data-add="cilindro"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><path d="M7 8v16c0 2 4 3.5 9 3.5s9-1.5 9-3.5V8"/></svg>Cilindro</button>
     <button class="shape" data-add="esfera"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="10"/><ellipse cx="16" cy="16" rx="10" ry="3.5"/></svg>Esfera</button>
     <button class="shape" data-add="cono"><svg viewBox="0 0 32 32"><path d="M16 4L7 24c0 2 4 3.5 9 3.5s9-1.5 9-3.5z"/></svg>Cono</button>
     <button class="shape" data-add="piramide"><svg viewBox="0 0 32 32"><path d="M16 4L5 21l9 6 13-5z"/><path d="M16 4l-2 23"/></svg>Pirámide</button>
     <button class="shape" data-add="prisma"><svg viewBox="0 0 32 32"><path d="M9 6h14l4 4-4 4H9l-4-4z"/><path d="M5 10v13l4 4h14l4-4V10M9 14v13M23 14v13"/></svg>Hexágono</button>
+    <button class="shape" data-add="cuna"><svg viewBox="0 0 32 32"><path d="M4 24h17l7-5H11z"/><path d="M4 24l7-14 10 14M11 10l17 9"/></svg>Techo</button>
     <button class="shape" data-add="texto"><svg viewBox="0 0 32 32"><path d="M5 26L12 6h2l7 20M8 19h10"/><path d="M27 26v-9c0-2-1.5-3-3.5-3s-3.5 1-3.5 3M27 21c-5 0-7 1-7 3s1.5 2.5 3 2.5 4-1 4-3"/></svg>Texto</button>
+    </div></div>
+    <div class="grp" data-grp="complejas"><button class="grphead" aria-expanded="true">Figuras complejas</button><div class="grpbody">
     <button class="shape" data-add="tubo"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><ellipse cx="16" cy="8" rx="5" ry="1.8"/><path d="M7 8v16c0 2 4 3.5 9 3.5s9-1.5 9-3.5V8"/></svg>Tubo</button>
     <button class="shape" data-add="estrella"><svg viewBox="0 0 32 32"><path d="M16 4l3.5 7.5 8 .9-6 5.5 1.7 8L16 21.8 8.8 25.9l1.7-8-6-5.5 8-.9z"/></svg>Estrella</button>
     <button class="shape" data-add="corazon"><svg viewBox="0 0 32 32"><path d="M16 27C8 21 4 16.5 4 11.5 4 8 6.6 5.5 9.8 5.5c2.6 0 4.6 1.6 6.2 4 1.6-2.4 3.6-4 6.2-4 3.2 0 5.8 2.5 5.8 6 0 5-4 9.5-12 15.5z"/></svg>Corazón</button>
@@ -178,12 +190,17 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="shape" data-add="dona"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="12" ry="7"/><ellipse cx="16" cy="15" rx="5" ry="2.4"/></svg>Dona</button>
     <button class="shape" data-add="arco"><svg viewBox="0 0 32 32"><path d="M4 26V18a12 12 0 0 1 24 0v8h-5v-8a7 7 0 0 0-14 0v8z"/></svg>Arco</button>
     <button class="shape" data-add="rosca"><svg viewBox="0 0 32 32"><path d="M10 4h12v24H10z"/><path d="M10 8l12-3M10 13l12-3M10 18l12-3M10 23l12-3M10 28l12-3"/></svg>Rosca</button>
-    <button class="shape" data-add="cuna"><svg viewBox="0 0 32 32"><path d="M4 24h17l7-5H11z"/><path d="M4 24l7-14 10 14M11 10l17 9"/></svg>Techo</button>
-    <div class="label" style="margin-top:8px">Huecos</div>
+    <button class="shape" data-add="tuerca"><svg viewBox="0 0 32 32"><path d="M9 6h14l7 10-7 10H9L2 16z"/><circle cx="16" cy="16" r="5"/></svg>Tuerca</button>
+    <button class="shape" data-add="engranaje"><svg viewBox="0 0 32 32"><path d="M14 3h4l1 4 3 1.3 3.5-2.2 2.8 2.8-2.2 3.5L27.4 15l4 1v0l-4 1-1.3 3 2.2 3.5-2.8 2.8-3.5-2.2-3 1.3-1 4h-4l-1-4-3-1.3-3.5 2.2-2.8-2.8 2.2-3.5L4.6 17l-4-1 4-1 1.3-3-2.2-3.5 2.8-2.8 3.5 2.2 3-1.3z"/><circle cx="16" cy="16" r="3.5"/></svg>Engranaje</button>
+    <button class="shape" data-add="corona"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><path d="M16 7l2 2.5 3-1 .5 3 3 1-1 3 2.5 2-2.5 2 1 3-3 1-.5 3-3-1-2 2.5-2-2.5-3 1-.5-3-3-1 1-3L6.5 16 9 14l-1-3 3-1 .5-3 3 1z"/></svg>Corona</button>
+    <button class="shape" data-add="cremallera"><svg viewBox="0 0 32 32"><path d="M2 24h28v-6h-2l-1.5-5h-3L22 18h-2l-1.5-5h-3L14 18h-2l-1.5-5h-3L6 18H2z"/></svg>Cremallera</button>
+    </div></div>
+    <div class="grp holes" data-grp="huecos"><button class="grphead" aria-expanded="true">Huecos</button><div class="grpbody">
     <button class="shape holeshape" data-add="caja" data-hole="1"><svg viewBox="0 0 32 32"><path d="M6 11l10-5 10 5v11l-10 5-10-5z"/><path d="M6 11l10 5 10-5M16 16v11"/></svg>Caja hueca</button>
     <button class="shape holeshape" data-add="cilindro" data-hole="1"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><path d="M7 8v16c0 2 4 3.5 9 3.5s9-1.5 9-3.5V8"/></svg>Cilindro hueco</button>
     <button class="shape holeshape" data-add="texto" data-hole="1"><svg viewBox="0 0 32 32"><path d="M5 26L12 6h2l7 20M8 19h10"/><path d="M27 26v-9c0-2-1.5-3-3.5-3s-3.5 1-3.5 3M27 21c-5 0-7 1-7 3s1.5 2.5 3 2.5 4-1 4-3"/></svg>Texto hueco</button>
     <p class="note">Pon un hueco dentro de un sólido y pulsa <b>Agrupar</b>: queda el agujero. Con <b>Texto hueco</b> puedes grabar letras.</p>
+    </div></div>
   </aside>
 
   <main class="viewport" id="vp">
@@ -241,7 +258,7 @@ const wasm = await ManifoldModule(); wasm.setup();
 const { Manifold, Mesh: MMesh, CrossSection } = wasm;
 
 const $ = s => document.querySelector(s);
-const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',tubo:'Tubo',estrella:'Estrella',poligono:'Polígono',dona:'Dona',arco:'Arco',rosca:'Rosca',corazon:'Corazón',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
+const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',tubo:'Tubo',estrella:'Estrella',poligono:'Polígono',dona:'Dona',arco:'Arco',rosca:'Rosca',tuerca:'Tuerca',engranaje:'Engranaje',corona:'Corona dentada',cremallera:'Cremallera',corazon:'Corazón',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
 // figuras cuya forma no es una figura básica: se calculan aparte (grupos, textos y piezas STL importadas)
 const CUSTOM = new Set(['group','texto','malla']);
 const ROUND = new Set(['cilindro','esfera','cono','tubo','dona']);
@@ -355,13 +372,36 @@ function profileMan(type){
   const m2 = man.translate([0,0,-0.5]); man.delete(); return m2;
 }
 // figuras que se construyen a su tamaño real (para que el radio o la pared se mantengan en mm al cambiar el tamaño)
-const SIZED = new Set(['tubo','poligono','dona','arco','rosca']);
+const SIZED = new Set(['tubo','poligono','dona','arco','rosca','tuerca','engranaje','corona','cremallera']);
+const GEARS = new Set(['engranaje','corona']);
+// perfil de engranaje con dientes de evolvente (ángulo de presión 20°), centrado en el origen
+function gearPoints(z, m, grow=0){
+  const pa = THREE.MathUtils.degToRad(20), rp = m*z/2, ra = rp + m + grow, rf = Math.max(rp - 1.25*m + grow, 0.5), rb = rp*Math.cos(pa);
+  const inv = a => Math.tan(a) - a, thetaAt = r => r <= rb ? 0 : inv(Math.acos(rb/r));
+  const half = Math.PI/(2*z) + grow/rp, phi = r => half + inv(pa) - thetaAt(r);   // ángulo del flanco desde el centro del diente
+  const r0 = Math.max(rb, rf), N = 6, pts = [];
+  const pol = (r,a) => [r*Math.cos(a), r*Math.sin(a)];
+  for(let i=0;i<z;i++){
+    const c = i*2*Math.PI/z, cn = (i+1)*2*Math.PI/z;
+    if(rb > rf) pts.push(pol(rf, c - phi(r0)));
+    for(let k=0;k<=N;k++){ const r = r0 + (ra-r0)*k/N; pts.push(pol(r, c - Math.max(phi(r), 0.002))); }
+    for(let k=N;k>=0;k--){ const r = r0 + (ra-r0)*k/N; pts.push(pol(r, c + Math.max(phi(r), 0.002))); }
+    if(rb > rf) pts.push(pol(rf, c + phi(r0)));
+    // fondo entre dientes
+    const a0 = c + phi(r0), a1 = cn - phi(r0);
+    for(let k=1;k<4;k++) pts.push(pol(rf, a0 + (a1-a0)*k/4));
+  }
+  return pts;
+}
+// medidas de los engranajes a partir de dientes y módulo
+const gearDia = o => o.type==='corona' ? o.m*(o.teeth+2) + 2*(o.rim||Math.max(2*o.m,3)) : o.m*(o.teeth+2);
+function syncGear(o){ if(GEARS.has(o.type)){ const D = r2(gearDia(o)); o.w = D; o.d = D; } }
 const sized = o => SIZED.has(o.type) || (o.type==='caja' && o.r > 0);
 const sizedCache = new Map();
 function ellipse(rx, ry, n){ const p = []; for(let i=0;i<n;i++){ const a = i/n*2*Math.PI; p.push([rx*Math.cos(a), ry*Math.sin(a)]); } return p; }
 function sizedGeom(o){
   const w = Math.max(o.w,0.2), d = Math.max(o.d,0.2), h = Math.max(o.h,0.2);
-  const key = [o.type,w,d,h,o.r,o.wall,o.seg,o.sides,o.pitch].join('|');
+  const key = [o.type,w,d,h,o.r,o.wall,o.seg,o.sides,o.pitch,o.dia,o.clear,o.teeth,o.m,o.bore,o.rim].join('|');
   if(sizedCache.has(key)) return sizedCache.get(key);
   let man;
   if(o.type==='tubo'){
@@ -374,6 +414,44 @@ function sizedGeom(o){
     let pts = []; for(let i=0;i<n;i++){ const a = -Math.PI/2 + Math.PI/n + i*2*Math.PI/n; pts.push([Math.cos(a), Math.sin(a)]); }
     const xs = pts.map(q=>q[0]), ys = pts.map(q=>q[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     pts = pts.map(([x,y])=>[((x-x0)/(x1-x0)-0.5)*w, ((y-y0)/(y1-y0)-0.5)*d]);
+    const cs = new CrossSection([pts], 'EvenOdd'), e = cs.extrude(h); cs.delete(); man = e.translate([0,0,-h/2]); e.delete();
+  } else if(o.type==='tuerca'){
+    // tuerca: hexágono con un hueco igual a la Rosca (mismo diámetro y paso) más la holgura
+    let hex = []; for(let i=0;i<6;i++){ const a = i*Math.PI/3; hex.push([Math.cos(a), Math.sin(a)]); }
+    hex = hex.map(([x,y])=>[x/2*w, y/Math.sqrt(3)*d]);
+    const body = new CrossSection([hex], 'EvenOdd'), b = body.extrude(h); body.delete();
+    const dia = Math.min(o.dia||10, Math.min(w,d) - 1), pitch = Math.min(Math.max(o.pitch||2.5, 0.5), 50), dep = Math.min(pitch*0.45, dia/4), cl = Math.max(0, o.clear ?? 0.3);
+    const cs = new CrossSection([ellipse(dia/2 - dep/2 + cl, dia/2 - dep/2 + cl, 48).map(([x,y])=>[x+dep/2, y])], 'EvenOdd');
+    // empieza una vuelta completa más abajo: así la hélice coincide con la de una Rosca apoyada a la misma altura
+    const H = h + 2*pitch, th = cs.extrude(H, Math.max(8, Math.ceil(H/pitch*24)), 360*H/pitch); cs.delete();
+    const th2 = th.translate([0,0,-pitch]); th.delete();
+    const nut = b.subtract(th2); b.delete(); th2.delete(); man = nut.translate([0,0,-h/2]); nut.delete();
+  } else if(o.type==='engranaje' || o.type==='corona'){
+    const z = Math.min(200, Math.max(6, Math.round(o.teeth||16))), mod = Math.max(0.3, o.m||2);
+    let cs;
+    if(o.type==='engranaje'){
+      cs = new CrossSection([gearPoints(z, mod)], 'EvenOdd');
+      if(o.bore > 0){ const hole = new CrossSection([ellipse(o.bore/2, o.bore/2, 40)], 'EvenOdd'), c2 = cs.subtract(hole); cs.delete(); hole.delete(); cs = c2; }
+    } else {
+      // corona: dientes por dentro; se recorta un engranaje un poco más grande (holgura) de un anillo
+      const R = gearDia(o)/2, ring = new CrossSection([ellipse(R, R, 96)], 'EvenOdd');
+      const cut = new CrossSection([gearPoints(z, mod, 0.15)], 'EvenOdd'); cs = ring.subtract(cut); ring.delete(); cut.delete();
+    }
+    const D = gearDia({...o, teeth:z, m:mod}), e = cs.extrude(h); cs.delete();
+    const e2 = e.scale([w/D, d/D, 1]); e.delete(); man = e2.translate([0,0,-h/2]); e2.delete();
+  } else if(o.type==='cremallera'){
+    // cremallera: barra con dientes rectos (ángulo 20°) hacia atrás (+Y); el largo es el Ancho X
+    const mod = Math.max(0.3, o.m||2), p = Math.PI*mod, t = Math.tan(THREE.MathUtils.degToRad(20));
+    const add = mod, ded = 1.25*mod, base = Math.max(mod, d - add - ded), yp = -d/2 + base + ded;
+    const pts = [[-w/2, -d/2], [w/2, -d/2]];
+    const n = Math.floor(w/p);
+    const x0 = -n*p/2;
+    pts.push([w/2, yp - ded]);
+    for(let i=n-1;i>=0;i--){
+      const xc = x0 + (i+0.5)*p;
+      pts.push([xc + p/4 + ded*t, yp - ded], [xc + p/4 - add*t, yp + add], [xc - p/4 + add*t, yp + add], [xc - p/4 - ded*t, yp - ded]);
+    }
+    pts.push([-w/2, yp - ded]);
     const cs = new CrossSection([pts], 'EvenOdd'), e = cs.extrude(h); cs.delete(); man = e.translate([0,0,-h/2]); e.delete();
   } else if(o.type==='dona'){
     // dona (toroide): el grosor del aro es el Alto Z
@@ -582,16 +660,36 @@ tcontrols.addEventListener('dragging-changed', e=>{
 });
 tcontrols.addEventListener('objectChange', ()=>{
   const o = byId(selected[0]), m = tcontrols.object; if(!o || !m || selected.length!==1) return;
-  if(tcontrols.mode==='scale' && scaleStart){
-    // escalar con el mouse: más suave (sensibilidad reducida) y ajustado a mm enteros o al paso elegido;
-    // con Shift, ajuste fino de 0,1 mm. Con el candado cerrado, el eje que más cambió arrastra a los otros.
-    const fine = shiftDown, sens = fine ? 0.12 : 0.35, step = fine ? 0.1 : (+$('#snap').value || 1);
+  if(tcontrols.mode==='scale' && scaleStart && ptrStart){
+    // Escalar con el mouse según cuántos píxeles se movió el mouse (no con la cuenta de three.js, que se
+    // dispara si se agarra el cubito cerca del centro o con la vista de canto). El cubito sigue al mouse;
+    // avanza en mm enteros (o el paso elegido) y con Shift va 4 veces más lento, en décimas de mm.
+    const fine = shiftDown, step = fine ? 0.1 : (+$('#snap').value || 1), gain = fine ? 0.25 : 1;
     const size = m.userData.size, K = ['x','y','z'];
     const start = K.map(k=>Math.abs(scaleStart[k]*size[k]));             // medidas en mm al empezar
-    const f = K.map(k=>Math.max(0.02, 1 + (m.scale[k]/scaleStart[k] - 1)*sens));
+    const W = vp.clientWidth, H = vp.clientHeight, dx = ptrNow.x - ptrStart.x, dy = ptrNow.y - ptrStart.y;
+    const mmPerPx = 2*camera.position.distanceTo(m.position)*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/H;
+    const toScreen = v => { const q = v.clone().project(camera); return new THREE.Vector2((q.x+1)/2*W, (1-q.y)/2*H); };
+    const c0 = toScreen(m.position);
+    const f = [1,1,1], ax = scaleAxis || 'XYZ';
+    if(ax.length===1){
+      const i = 'XYZ'.indexOf(ax), dir = new THREE.Vector3().setComponent(i,1).applyQuaternion(m.quaternion);
+      const u = toScreen(m.position.clone().add(dir)).sub(c0);
+      if(u.length() > 1e-6){
+        u.normalize();
+        const r = vp.getBoundingClientRect(), grab = new THREE.Vector2(ptrStart.x - r.left, ptrStart.y - r.top).sub(c0);
+        const side = grab.dot(u) < 0 ? -1 : 1;                               // cubito del lado + o del lado −
+        const grow = side * (dx*u.x + dy*u.y) * mmPerPx * 2 * gain;           // los dos lados crecen: ×2
+        f[i] = Math.max(0.02, (start[i] + grow) / start[i]);
+      }
+    } else {
+      // cubito central o planos: arrastrar a la derecha o hacia arriba agranda
+      const big = Math.max(...start), g = Math.max(0.02, 1 + (dx - dy)*mmPerPx*gain*2/big);
+      for(const a of ax) f['XYZ'.indexOf(a)] = g;
+    }
     const snapMm = v => Math.max(step, Math.round(v/step)*step);
     let mm;
-    if(sizeLock){
+    if(sizeLock || ax.length > 2){
       const i = [0,1,2].reduce((a,b)=>Math.abs(f[b]-1)>Math.abs(f[a]-1)?b:a, 0);
       const r = snapMm(start[i]*f[i]) / start[i];
       mm = start.map((v,j)=> j===i ? snapMm(v*f[i]) : Math.max(0.1, v*r));
@@ -613,7 +711,9 @@ function setLock(on){ sizeLock = on; try{ localStorage.setItem('taller3d-lock', 
 const LOCK_SVG = on => on
   ? '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
   : '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
-let scaleStart = null, shiftDown = false;
+let scaleStart = null, shiftDown = false, scaleAxis = null, ptrStart = null;
+const ptrNow = {x:0, y:0};
+canvas.addEventListener('pointermove', e=>{ ptrNow.x = e.clientX; ptrNow.y = e.clientY; }, true);
 addEventListener('keydown', e=>{ if(e.key==='Shift') shiftDown = true; });
 addEventListener('keyup', e=>{ if(e.key==='Shift') shiftDown = false; });
 addEventListener('blur', ()=>{ shiftDown = false; });
@@ -644,6 +744,8 @@ function readMesh(o,m){
 function syncFromMesh(){
   const o = byId(selected[0]), m = meshes.get(selected[0]); if(!o||!m) return;
   readMesh(o,m);
+  // engranajes: si se escalaron con el mouse, el módulo se ajusta al nuevo diámetro
+  if(GEARS.has(o.type)){ const extra = o.type==='corona' ? 2*(o.rim||4) : 0; o.m = r2(Math.max(0.3, (Math.max(o.w,o.d) - extra)/(o.teeth+2))); syncGear(o); }
   if(snapshot()===dragBefore){ rebuild(); return; }
   undoStack.push(dragBefore); redoStack = []; rebuild(); autosave();
 }
@@ -651,7 +753,7 @@ function syncFromMesh(){
 /* ---------- Selección ---------- */
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
 let downAt = null, overGizmo = false;
-canvas.addEventListener('pointerdown', e=>{ downAt = [e.clientX,e.clientY]; overGizmo = tcontrols.object && tcontrols.axis !== null; }, true);
+canvas.addEventListener('pointerdown', e=>{ downAt = [e.clientX,e.clientY]; ptrStart = {x:e.clientX, y:e.clientY}; ptrNow.x = e.clientX; ptrNow.y = e.clientY; scaleAxis = tcontrols.axis; overGizmo = tcontrols.object && tcontrols.axis !== null; }, true);
 canvas.addEventListener('pointerup', e=>{
   if(!downAt || dragging || overGizmo){ downAt = null; return; }
   const moved = Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]); downAt = null;
@@ -708,12 +810,23 @@ function addShape(type, hole){
   if(type==='dona'){ o.w = 30; o.d = 30; o.h = 8; o.seg = 48; }
   if(type==='arco'){ o.w = 40; o.d = 10; o.h = 20; o.wall = 4; }
   if(type==='rosca'){ o.w = 10; o.d = 10; o.h = 30; o.pitch = 2.5; }
+  if(type==='tuerca'){ o.w = 19.6; o.d = 17; o.h = 8; o.dia = 10; o.pitch = 2.5; o.clear = 0.3; }
+  if(type==='engranaje'){ o.teeth = 16; o.m = 2; o.bore = 5; o.h = 6; syncGear(o); }
+  if(type==='corona'){ o.teeth = 30; o.m = 2; o.rim = 4; o.h = 6; syncGear(o); }
+  if(type==='cremallera'){ o.m = 2; o.w = 60; o.d = 10; o.h = 6; }
   if(type==='estrella'){ o.d = 19.02; o.h = 5; }
   if(type==='corazon'){ o.d = 18.4; o.h = 5; }
   placeFree(o);
   commit(()=>{ objects.push(o); selected=[o.id]; });
 }
 document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>addShape(b.dataset.add, b.dataset.hole)));
+// menús de figuras que se abren y cierran (se recuerda cuáles están cerrados)
+let closedGrps = []; try{ closedGrps = JSON.parse(localStorage.getItem('taller3d-menus')||'[]'); }catch(e){}
+document.querySelectorAll('.grp').forEach(g=>{
+  const h = g.querySelector('.grphead'), set = c => { g.classList.toggle('closed', c); h.setAttribute('aria-expanded', !c); };
+  set(closedGrps.includes(g.dataset.grp));
+  h.onclick = ()=>{ const c = !g.classList.contains('closed'); set(c); closedGrps = [...document.querySelectorAll('.grp.closed')].map(x=>x.dataset.grp); try{ localStorage.setItem('taller3d-menus', JSON.stringify(closedGrps)); }catch(e){} };
+});
 
 function del(){ if(!selected.length) return; commit(()=>{ objects = objects.filter(o=>!selected.includes(o.id)); selected=[]; }); }
 function dup(){
@@ -1001,7 +1114,7 @@ function renderProps(){
       <div class="grid3">${['x','y','z'].map(k=>`<label class="field"><span class="axis-${k}">${k.toUpperCase()}</span><input type="number" data-pr="${k}" value="${PRINTER[k]}" min="20" step="5"></label>`).join('')}</div>
       <p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>
       <p class="note" id="savedAt">${savedText()}</p>
-      <p class="note">Taller 3D · <b>versión 9</b> (11 de noviembre)</p>`;
+      <p class="note">Taller 3D · <b>versión 10</b> (11 de noviembre)</p>`;
     if($('#pCheck')) $('#pCheck').onclick = checkPrint;
     p.querySelectorAll('[data-pr]').forEach(inp=>inp.onchange = ()=>{ const v = Math.max(20, +inp.value || 200); PRINTER[inp.dataset.pr] = v; try{ localStorage.setItem('taller3d-impresora', JSON.stringify(PRINTER)); }catch(e){} renderProps(); });
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
@@ -1046,6 +1159,13 @@ function renderProps(){
     ${o.type==='poligono' ? `<div class="grid3"><label class="field"><span>Lados</span><input type="number" id="p_sides" data-k="sides" value="${o.sides||5}" step="1" min="3" max="24"></label></div>` : ''}
     ${o.type==='rosca' ? `<div class="grid3"><label class="field"><span>Paso mm</span><input type="number" id="p_pitch" data-k="pitch" value="${o.pitch||2.5}" step="0.5" min="0.5"></label></div><p class="note">El paso es la distancia entre una vuelta y la siguiente de la rosca.</p>` : ''}
     ${o.type==='dona' ? `<p class="note">El grosor del aro de la dona es el <b>Alto Z</b>.</p>` : ''}
+    ${o.type==='tuerca' ? `<div class="grid3"><label class="field"><span>Ø rosca mm</span><input type="number" id="p_dia" data-k="dia" value="${o.dia||10}" step="0.5" min="2"></label><label class="field"><span>Paso mm</span><input type="number" id="p_pitch" data-k="pitch" value="${o.pitch||2.5}" step="0.5" min="0.5"></label><label class="field"><span>Holgura mm</span><input type="number" id="p_clear" data-k="clear" value="${o.clear ?? 0.3}" step="0.05" min="0"></label></div>
+      <p class="note">Para que calce con una <b>Rosca</b>: usa el mismo Ø (el Ancho X de la rosca) y el mismo paso. La holgura deja espacio para que gire; 0,3 mm suele andar bien.</p>` : ''}
+    ${GEARS.has(o.type) ? `<div class="grid3"><label class="field"><span>Dientes</span><input type="number" id="p_teeth" data-k="teeth" value="${o.teeth}" step="1" min="6" max="200"></label><label class="field"><span>Módulo mm</span><input type="number" id="p_m" data-k="m" value="${o.m}" step="0.25" min="0.3"></label>
+      ${o.type==='engranaje' ? `<label class="field"><span>Agujero eje mm</span><input type="number" id="p_bore" data-k="bore" value="${o.bore||0}" step="0.5" min="0"></label>` : `<label class="field"><span>Borde mm</span><input type="number" id="p_rim" data-k="rim" value="${o.rim||4}" step="0.5" min="1"></label>`}</div>
+      <p class="note">${o.type==='engranaje' ? `Diámetro ${r2(o.m*(o.teeth+2))} mm (primitivo ${r2(o.m*o.teeth)} mm). Dos engranajes engranan si tienen el <b>mismo módulo</b>; sepáralos <b>módulo × (dientes1 + dientes2) ÷ 2</b> mm entre centros.` : `Dientes por dentro. Un engranaje de módulo ${o.m} y N dientes calza dentro; su centro va a ${o.m} × (${o.teeth} − N) ÷ 2 mm del centro de la corona.`} El grosor es el <b>Alto Z</b>.</p>` : ''}
+    ${o.type==='cremallera' ? `<div class="grid3"><label class="field"><span>Módulo mm</span><input type="number" id="p_m" data-k="m" value="${o.m}" step="0.25" min="0.3"></label></div>
+      <p class="note">El largo es el <b>Ancho X</b> y el alto con dientes es el <b>Fondo Y</b>. Calza con un engranaje del mismo módulo.</p>` : ''}
     <div class="grid3">
       ${o.hole?'':`<label class="field"><span>Color</span><input type="color" id="p_color" data-k="color" value="${o.color}"></label>`}
       ${ROUND.has(o.type)?`<label class="field" style="grid-column:span 2"><span>Suavidad (lados)</span><select id="p_seg" data-k="seg">${[12,24,48,96].map(v=>`<option ${v==o.seg?'selected':''}>${v}</option>`).join('')}</select></label>`:''}
@@ -1080,13 +1200,22 @@ function renderProps(){
     if(inp.type==='number'){ v = parseFloat(v); if(!isFinite(v)){ renderProps(); return; } }
     if(['w','d','h'].includes(k)){
       v = Math.max(0.1, v);
-      if(sizeLock){ const f = v/o[k]; commit(()=>{ o.w=r2(o.w*f); o.d=r2(o.d*f); o.h=r2(o.h*f); }); return; }
+      if(sizeLock && !(GEARS.has(o.type) && k!=='h')){ const f = v/o[k]; commit(()=>{ o.w=r2(o.w*f); o.d=r2(o.d*f); o.h=r2(o.h*f); }); return; }
     }
     if(k==='seg') v = +v;
     if(k==='r') v = Math.min(Math.max(0, v), r2(Math.min(o.w,o.d,o.h)/2));
     if(k==='wall') v = o.type==='arco' ? Math.min(Math.max(0.3, v), r2(Math.min(o.w/2,o.h) - 0.2)) : Math.min(Math.max(0.2, v), r2(Math.min(o.w,o.d)/2 - 0.1));
     if(k==='sides') v = Math.min(24, Math.max(3, Math.round(v)));
     if(k==='pitch') v = Math.min(50, Math.max(0.5, v));
+    if(k==='teeth') v = Math.min(200, Math.max(6, Math.round(v)));
+    if(k==='m') v = Math.min(20, Math.max(0.3, v));
+    if(k==='bore') v = Math.max(0, Math.min(v, r2(o.m*(o.teeth-2.5))));
+    if(k==='rim') v = Math.max(1, v);
+    if(k==='clear') v = Math.min(2, Math.max(0, v));
+    if(k==='dia') v = Math.max(2, Math.min(v, r2(Math.min(o.w,o.d) - 1)));
+    // engranajes: el tamaño sale de dientes y módulo (y al cambiar el ancho, se ajusta el módulo)
+    if(GEARS.has(o.type) && ['teeth','m','rim','w','d'].includes(k)){
+      commit(()=>{ if(k==='w' || k==='d'){ const extra = o.type==='corona' ? 2*(o.rim||4) : 0; o.m = r2(Math.max(0.3, (v - extra)/(o.teeth+2))); } else o[k] = r2(v); syncGear(o); }); return; }
     commit(()=>{ o[k] = typeof v==='number' && k!=='seg' ? r2(v) : v; });
   }));
   $('#tSolid').onclick = ()=>{ if(o.hole) commit(()=>{o.hole=false;}); };

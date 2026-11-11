@@ -14,8 +14,11 @@ Editor 3D sencillo, al estilo Tinkercad, para diseñar piezas y exportarlas en S
 
 ## Cómo usarlo
 
-- **Agregar figuras:** Caja, Cilindro, Esfera, Cono, Pirámide, Hexágono, Texto, Tubo, Estrella, Corazón, Polígono, Dona, Arco, Rosca, Techo, Caja hueca, Cilindro hueco y Texto hueco.
+- **Menús de figuras:** a la izquierda, *Figuras básicas*, *Figuras complejas* y *Huecos*; cada menú se abre y se cierra con un clic en su título.
+- **Agregar figuras:** Caja, Cilindro, Esfera, Cono, Pirámide, Hexágono, Texto, Tubo, Estrella, Corazón, Polígono, Dona, Arco, Rosca, Tuerca, Engranaje, Corona dentada, Cremallera, Techo, Caja hueca, Cilindro hueco y Texto hueco.
 - **Figuras con ajustes:** *Polígono* (número de lados), *Dona* (el grosor del aro es el Alto Z), *Arco* (grosor en mm) y *Rosca* (paso en mm).
+- **Tuerca:** rosca hembra que calza con la *Rosca* si tiene el mismo Ø y paso; la *Holgura* (0,3 mm por defecto) deja espacio para que gire.
+- **Engranajes:** *Engranaje* (dientes, módulo y agujero para el eje), *Corona dentada* (dientes por dentro) y *Cremallera* (barra dentada). Engranan si tienen el mismo módulo; distancia entre centros = módulo × (dientes1 + dientes2) ÷ 2.
 - **Repetir en patrón:** con una o varias figuras elegidas, *Repetir en patrón…* hace copias **en fila** (cantidad, separación y dirección) o **en círculo** (cantidad, ángulo total y centro), girando cada copia hacia el centro.
 - **Revisar antes de imprimir:** con nada seleccionado, el botón *✓ Revisar antes de imprimir* avisa si la pieza no cabe en tu impresora (puedes escribir su volumen), si alguna parte queda flotando en el aire y si hay paredes de menos de 0,8 mm.
 - **Guardado automático:** cada cambio se guarda en el navegador. Si se cierra o se corta la luz, al volver a abrir aparece el último diseño, y se puede seguir deshaciendo con Ctrl+Z.
