@@ -25,7 +25,7 @@
   --accent:#6b9cff; --accent-ink:#0d1420; --accent-soft:#1e2c47; --hole:#8d97a8; --danger:#ff8a80;
   --scene:#161b23; --grid-major:#4a5568; --grid-minor:#2a323f; color-scheme:dark}
 html,body{height:100%}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:14px;overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:14px;overflow:hidden}
 *{box-sizing:border-box}
 button,input,select{font:inherit;color:inherit}
 .app{height:100%;display:grid;grid-template-columns:150px minmax(0,1fr) 260px;grid-template-rows:auto minmax(0,1fr);
@@ -46,7 +46,7 @@ header{grid-column:1/-1;display:flex;align-items:center;gap:5px;flex-wrap:wrap;p
 kbd{font-family:var(--f-num);font-size:10px;color:var(--muted)}
 .spacer{flex:1}
 header .btn{font-size:13px;padding:6px 8px}
-@media (max-width:1300px) and (min-width:761px){ header .brand{font-size:0;gap:0;margin-right:2px} }
+@media (max-width:1440px) and (min-width:761px){ header .brand{font-size:0;gap:0;margin-right:2px} header{gap:4px} header .btn{padding:6px 7px} }
 select.btn{padding-right:6px}
 aside{background:var(--panel);overflow:auto;min-height:0}
 .shapes{border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:6px}
@@ -71,6 +71,8 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 .toast.show{opacity:1}
 .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:16px;line-height:1.5}
 .props{border-left:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+/* sin esto, en paneles largos el navegador aplastaba la barra Sólido/Hueco hasta hacerla desaparecer */
+.props > *{flex-shrink:0}
 .props h2{font-family:var(--f-display);font-size:17px;margin:0;text-wrap:balance}
 .empty{color:var(--muted);line-height:1.5}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -764,8 +766,11 @@ function wireTools(p){
   p.querySelectorAll('[data-align]').forEach(b=>b.onclick = ()=>{ const [a,w] = b.dataset.align.split(','); align(a,w); });
 }
 function num(id,label,val,cls='',step='0.1'){ return `<label class="field"><span class="${cls}">${label}</span><input type="number" id="p_${id}" data-k="${id}" value="${val}" step="${step}"></label>`; }
+let propsFor = '';
 function renderProps(){
   const p = $('#props');
+  // al elegir otra figura, el panel vuelve arriba (si no, Sólido/Hueco quedaba fuera de la vista)
+  const key = selected.join(','); if(key !== propsFor){ propsFor = key; requestAnimationFrame(()=>{ p.scrollTop = 0; }); }
   if(selected.length===0){
     const n = objects.length, sz = designSize();
     p.innerHTML = `<h2>Diseño</h2><p class="empty">${n ? `Hay ${n} ${n===1?'figura':'figuras'} en la mesa. Haz clic en una para ver y cambiar sus medidas.` : 'La mesa está vacía.'}</p>
@@ -781,20 +786,25 @@ function renderProps(){
     return;
   }
   if(selected.length>1){
-    p.innerHTML = `<h2>${selected.length} figuras seleccionadas</h2><p class="empty">Pulsa <b>Agrupar</b> para unirlas en una sola pieza. Los huecos se restarán de los sólidos.</p>
+    const sel = selected.map(byId).filter(Boolean), allHole = sel.every(o=>o.hole), allSolid = sel.every(o=>!o.hole);
+    p.innerHTML = `<h2>${selected.length} figuras seleccionadas</h2>
+      <div class="toggle" role="group" aria-label="Tipo de las figuras elegidas"><button id="tSolid" class="${allSolid?'on':''}">Sólido</button><button id="tHole" class="h ${allHole?'on':''}">Hueco</button></div>
+      <p class="empty">Pulsa <b>Agrupar</b> para unirlas en una sola pieza. Los huecos se restarán de los sólidos.</p>
       <div class="row"><button class="btn primary" id="pGroup">Agrupar</button><button class="btn" id="pDup">Duplicar</button><button class="btn danger" id="pDel">Eliminar</button></div>
       ${ALIGN_HTML}${TURN_HTML}${MIRROR_HTML}
       <div class="row"><button class="btn" id="pCenter" title="Llevar las figuras al centro de la mesa">Centrar en la mesa</button><button class="btn" id="pNone">Quitar selección</button></div>`;
     $('#pGroup').onclick = group; $('#pDup').onclick = dup; $('#pDel').onclick = del; $('#pCenter').onclick = centerOnBed;
     $('#pNone').onclick = ()=>{ selected = []; setMulti(false); rebuild(); };
+    $('#tSolid').onclick = ()=>{ if(!allSolid) commit(()=>sel.forEach(o=>{ o.hole = false; })); };
+    $('#tHole').onclick = ()=>{ if(!allHole) commit(()=>sel.forEach(o=>{ o.hole = true; })); };
     wireTools(p); return;
   }
   const o = byId(selected[0]); if(!o) return;
   p.innerHTML = `
+    <div class="toggle" role="group" aria-label="Tipo"><button id="tSolid" class="${o.hole?'':'on'}">Sólido</button><button id="tHole" class="h ${o.hole?'on':''}">Hueco</button></div>
     ${o.type==='texto' ? `<label class="field"><span>Texto</span><input type="text" id="p_text" value="${esc(o.text)}" maxlength="40" style="font-size:16px;padding:8px"></label>
       <label class="field"><span>Letra</span><select id="p_font">${Object.entries(FONTS).map(([k,f])=>`<option value="${k}" ${k===(o.font||'recta')?'selected':''}>${f.label}</option>`).join('')}</select></label>` : ''}
     <label class="field"><span>Nombre</span><input type="text" id="p_name" data-k="name" value="${esc(o.name)}" maxlength="40"></label>
-    <div class="toggle" role="group" aria-label="Tipo"><button id="tSolid" class="${o.hole?'':'on'}">Sólido</button><button id="tHole" class="h ${o.hole?'on':''}">Hueco</button></div>
     <div><div class="label">Tamaño <span class="units">mm</span></div><div class="grid3">
       ${num('w','Ancho X',o.w,'axis-x')}${num('d',o.type==='texto'?'Alto letra Y':'Fondo Y',o.d,'axis-y')}${num('h',o.type==='texto'?'Grosor Z':'Alto Z',o.h,'axis-z')}</div></div>
     <div><div class="label">Posición <span class="units">mm</span></div><div class="grid3">
@@ -1117,27 +1127,59 @@ cubeGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeomet
 // ejes de colores en la esquina del cubo, igual que en la mesa
 for(const [d,col] of [[[1,0,0],0xd64545],[[0,1,0],0x2f9e44],[[0,0,1],0x1f5fd1]])
   cubeGroup.add(new THREE.ArrowHelper(new THREE.Vector3(...d), new THREE.Vector3(-0.62,-0.62,-0.62), 0.55, col, 0.14, 0.09));
-function retintCube(){ for(const f of cubeFaces){ f.userData.tex.forEach(t=>t.dispose()); f.userData.tex = [faceTex(f.userData.label,false), faceTex(f.userData.label,true)]; f.material.map = f.userData.tex[f===hotFace?1:0]; } }
+function retintCube(){ for(const f of cubeFaces){ f.userData.tex.forEach(t=>t.dispose()); f.userData.tex = [faceTex(f.userData.label,false), faceTex(f.userData.label,true)]; f.material.map = f.userData.tex[0]; } hot.material.color.set(css('--accent')); }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', retintCube);
-let hotFace = null;
+// resalta la zona exacta bajo el mouse: cara, borde o esquina
+const hot = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: new THREE.Color(css('--accent')), transparent:true, opacity:0.55, depthWrite:false}));
+hot.visible = false; cubeGroup.add(hot);
 const cubeRay = new THREE.Raycaster(), cubePtr = new THREE.Vector2();
 function cubeHit(e){
   const r = cubeCv.getBoundingClientRect();
   cubePtr.set((e.clientX-r.left)/r.width*2-1, -(e.clientY-r.top)/r.height*2+1);
   cubeRay.setFromCamera(cubePtr, cubeCam);
-  return cubeRay.intersectObjects(cubeFaces, false)[0] || null;
-}
-function setHot(f){ if(f===hotFace) return; if(hotFace) hotFace.material.map = hotFace.userData.tex[0]; hotFace = f; if(f) f.material.map = f.userData.tex[1]; }
-cubeCv.addEventListener('pointermove', e=>{ const h = cubeHit(e); setHot(h ? h.object : null); cubeCv.title = h ? 'Ver desde: '+h.object.userData.label.toLowerCase() : ''; });
-cubeCv.addEventListener('pointerleave', ()=>setHot(null));
-cubeCv.addEventListener('click', e=>{
-  const h = cubeHit(e); if(!h) return;
+  const h = cubeRay.intersectObjects(cubeFaces, false)[0]; if(!h) return null;
   // cerca de un borde o esquina se mira en diagonal; en el centro de la cara, de frente
-  const p = h.point, snap = v => Math.abs(v) > 0.3 ? Math.sign(v) : 0;
-  const dir = new THREE.Vector3(snap(p.x), snap(p.y), snap(p.z));
+  const snap = v => Math.abs(v) > 0.3 ? Math.sign(v) : 0;
+  const dir = new THREE.Vector3(snap(h.point.x), snap(h.point.y), snap(h.point.z));
   if(dir.lengthSq() === 0) dir.copy(h.object.userData.normal);
-  lookFrom(dir);
+  return dir;
+}
+const NAME = {'0,0,1':'Arriba','0,0,-1':'Abajo','0,-1,0':'Frente','0,1,0':'Atrás','1,0,0':'Derecha','-1,0,0':'Izquierda'};
+function dirName(d){
+  const parts = [];
+  if(d.y) parts.push(d.y<0?'frente':'atrás'); if(d.x) parts.push(d.x>0?'derecha':'izquierda'); if(d.z) parts.push(d.z>0?'arriba':'abajo');
+  return NAME[[d.x,d.y,d.z].join(',')] || ((parts.length===3 ? 'Esquina ' : 'Borde ')+parts.join(' y ').replace(' y ', parts.length===3 ? ', ' : ' y '));
+}
+function showHot(d){
+  if(!d){ hot.visible = false; cubeCv.title = ''; return; }
+  for(const k of ['x','y','z']){ hot.position[k] = d[k]*0.4; hot.scale[k] = d[k] ? 0.21 : 0.61; }
+  hot.visible = true; cubeCv.title = 'Ver desde: '+dirName(d).toLowerCase();
+}
+// arrastrar sobre el cubo gira la vista; un clic sin arrastrar elige la vista
+let cubeDrag = null;
+cubeCv.addEventListener('pointerdown', e=>{ cubeDrag = {x:e.clientX, y:e.clientY, moved:false}; cubeCv.setPointerCapture(e.pointerId); anim = null; });
+cubeCv.addEventListener('pointermove', e=>{
+  if(cubeDrag){
+    const dx = e.clientX-cubeDrag.x, dy = e.clientY-cubeDrag.y;
+    if(!cubeDrag.moved && Math.hypot(dx,dy) < 4) return;
+    cubeDrag.moved = true; cubeDrag.x = e.clientX; cubeDrag.y = e.clientY; showHot(null);
+    const off = camera.position.clone().sub(orbit.target), sph = new THREE.Spherical();
+    // la cámara usa Z hacia arriba: se pasa a coordenadas con Y arriba para usar Spherical
+    sph.setFromCartesianCoords(off.x, off.z, -off.y);
+    sph.theta -= dx*0.012; sph.phi = Math.min(Math.PI-0.02, Math.max(0.02, sph.phi - dy*0.012));
+    const v = new THREE.Vector3().setFromSpherical(sph);
+    camera.position.set(orbit.target.x + v.x, orbit.target.y - v.z, orbit.target.z + v.y); camera.lookAt(orbit.target);
+    return;
+  }
+  showHot(cubeHit(e));
 });
+cubeCv.addEventListener('pointerup', e=>{
+  const d = cubeDrag; cubeDrag = null; if(!d) return;
+  if(d.moved){ orbit.update(); return; }
+  const dir = cubeHit(e); if(dir) lookFrom(dir);
+});
+cubeCv.addEventListener('pointerleave', ()=>{ if(!cubeDrag) showHot(null); });
+cubeCv.addEventListener('dblclick', ()=>fitView());
 function renderCube(){
   const w = cubeCv.clientWidth, h = cubeCv.clientHeight; if(!w || !h) return;
   if(cubeCv.width !== Math.round(w*cubeR.getPixelRatio())) cubeR.setSize(w, h, false);

@@ -18,7 +18,7 @@ Editor 3D sencillo, al estilo Tinkercad, para diseñar piezas y exportarlas en S
 - **Redondear esquinas:** en una caja, mueve la barra *Redondear esquinas* (radio en mm). El radio se mantiene aunque cambies el tamaño.
 - **Tubo:** cilindro hueco por dentro; escribe el grosor de la *Pared* en mm.
 - **Girar 90°:** botones Z, X e Y en el panel derecho giran la figura (o la selección) un cuarto de vuelta con un clic, sin que se hunda en la mesa.
-- **Cubo de vistas:** en la esquina de la mesa, haz clic en una cara (Frente, Arriba, Derecha…), un borde o una esquina para mirar desde ese lado. Debajo: ⟲ ⟳ giran la vista 90°, ⌂ vuelve a la vista general, ⤢ ajusta para ver todo (o lo seleccionado), y + / − acercan y alejan. La rueda del mouse acerca hacia donde apuntas.
+- **Cubo de vistas:** en la esquina de la mesa, haz clic en una cara (Frente, Arriba, Derecha…), un borde o una esquina para mirar desde ese lado (la zona se resalta al pasar el mouse). Arrastra sobre el cubo para girar la vista y haz doble clic para volver a la vista general. Debajo: ⟲ ⟳ giran la vista 90°, ⌂ vuelve a la vista general, ⤢ ajusta para ver todo (o lo seleccionado), y + / − acercan y alejan. La rueda del mouse acerca hacia donde apuntas.
 - **Medidas a la vista:** sobre lo seleccionado aparece una etiqueta con ancho × fondo × alto en mm.
 - **Ayuda:** la primera vez aparece una guía corta; se puede volver a ver con el botón *? Ayuda*, que también muestra los atajos de teclado.
 - **Texto 3D:** pulsa *Texto* y escribe en el cuadro *Texto* del panel derecho (acepta tildes y ñ). Elige la letra *Recta* o *Clásica*. Con *Texto hueco* puedes grabar letras en una placa.
