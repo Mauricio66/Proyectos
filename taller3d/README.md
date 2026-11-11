@@ -27,6 +27,12 @@ Editor 3D sencillo, al estilo Tinkercad, para diseñar piezas y exportarlas en S
 - **Girar 90°:** botones Z, X e Y en el panel derecho giran la figura (o la selección) un cuarto de vuelta con un clic, sin que se hunda en la mesa.
 - **Cubo de vistas:** en la esquina de la mesa, haz clic en una cara (Frente, Arriba, Derecha…), un borde o una esquina para mirar desde ese lado (la zona se resalta al pasar el mouse). Arrastra sobre el cubo para girar la vista y haz doble clic para volver a la vista general. Debajo: ⟲ ⟳ giran la vista 90°, ⌂ vuelve a la vista general, ⤢ ajusta para ver todo (o lo seleccionado), y + / − acercan y alejan. La rueda del mouse acerca hacia donde apuntas.
 - **Mouse como en los programas CAD (v11):** aprieta la rueda y arrastra para desplazar la vista; Shift + rueda apretada gira la vista; el botón izquierdo también gira y el derecho también desplaza. El navegador ya no activa su desplazamiento automático al apretar la rueda.
+- **Plano de trabajo (v12):** botón abajo de la mesa; haz clic en la cara de una pieza (arriba o de lado) y las figuras nuevas aparecen sobre esa cara. *× Quitar plano* lo devuelve a la mesa.
+- **Medir (v12):** botón *Medir* o tecla M; clic en dos puntos y muestra la distancia total y en X, Y, Z. El punto se pega a las esquinas.
+- **Distancia exacta (v12):** con dos figuras elegidas, el panel muestra la distancia de borde a borde y de centro a centro; al escribir un valor se mueve la segunda figura.
+- **Mis piezas (v12):** *Guardar en Mis piezas* guarda la figura o la selección con una miniatura; aparece en el menú de la izquierda para agregarla otra vez. *Exportar* e *Importar* permiten compartir la biblioteca con los alumnos.
+- **Ejercicios (v12):** modo clase con actividades paso a paso (llavero con nombre, caja con tapa, engranajes que engranan). Cada paso muestra ✓ cuando está bien hecho y tiene un botón *Ayúdame*.
+- **Importar imagen o SVG (v12):** *Importar* acepta PNG, JPG o SVG y lo convierte en una pieza con relieve (umbral, invertir, ancho y alto en mm). En un SVG, lo pintado de blanco encima se resta.
 - **Medidas a la vista:** sobre lo seleccionado aparece una etiqueta con ancho × fondo × alto en mm.
 - **Ayuda:** la primera vez aparece una guía corta; se puede volver a ver con el botón *? Ayuda*, que también muestra los atajos de teclado.
 - **Texto 3D:** pulsa *Texto* y escribe en el cuadro *Texto* del panel derecho (acepta tildes y ñ). Elige la letra *Recta* o *Clásica*. Con *Texto hueco* puedes grabar letras en una placa.
