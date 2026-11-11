@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Taller 3D</title>
+<title>Taller 3D · versión 6</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -144,7 +144,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
-    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado">? Ayuda</button>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 6)">? Ayuda <small style="color:var(--muted);font-size:11px">v6</small></button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
   </header>
 
@@ -780,6 +780,7 @@ function renderProps(){
       ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
       <div class="label">Atajos <span class="units">(más en ? Ayuda)</span></div>
       <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
+      <p class="note">Taller 3D · <b>versión 6</b> (11 de noviembre)</p>
       <div class="label">Área de impresión</div><p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>`;
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
     if($('#pSelAll')) $('#pSelAll').onclick = selectAll;
