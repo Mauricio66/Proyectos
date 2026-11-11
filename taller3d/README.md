@@ -14,7 +14,11 @@ Editor 3D sencillo, al estilo Tinkercad, para diseñar piezas y exportarlas en S
 
 ## Cómo usarlo
 
-- **Agregar figuras:** Caja, Cilindro, Esfera, Cono, Pirámide, Hexágono, Texto, Tubo, Estrella, Corazón, Techo, Caja hueca, Cilindro hueco y Texto hueco.
+- **Agregar figuras:** Caja, Cilindro, Esfera, Cono, Pirámide, Hexágono, Texto, Tubo, Estrella, Corazón, Polígono, Dona, Arco, Rosca, Techo, Caja hueca, Cilindro hueco y Texto hueco.
+- **Figuras con ajustes:** *Polígono* (número de lados), *Dona* (el grosor del aro es el Alto Z), *Arco* (grosor en mm) y *Rosca* (paso en mm).
+- **Repetir en patrón:** con una o varias figuras elegidas, *Repetir en patrón…* hace copias **en fila** (cantidad, separación y dirección) o **en círculo** (cantidad, ángulo total y centro), girando cada copia hacia el centro.
+- **Revisar antes de imprimir:** con nada seleccionado, el botón *✓ Revisar antes de imprimir* avisa si la pieza no cabe en tu impresora (puedes escribir su volumen), si alguna parte queda flotando en el aire y si hay paredes de menos de 0,8 mm.
+- **Guardado automático:** cada cambio se guarda en el navegador. Si se cierra o se corta la luz, al volver a abrir aparece el último diseño, y se puede seguir deshaciendo con Ctrl+Z.
 - **Redondear esquinas:** en una caja, mueve la barra *Redondear esquinas* (radio en mm). El radio se mantiene aunque cambies el tamaño.
 - **Tubo:** cilindro hueco por dentro; escribe el grosor de la *Pared* en mm.
 - **Girar 90°:** botones Z, X e Y en el panel derecho giran la figura (o la selección) un cuarto de vuelta con un clic, sin que se hunda en la mesa.

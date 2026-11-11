@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Taller 3D · versión 8</title>
+<title>Taller 3D · versión 9</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -121,6 +121,14 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 .guide .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
 .guide .dots i.on{background:var(--accent)}
 .guide .row{justify-content:flex-end}
+.checks{list-style:none;padding:0;margin:10px 0}
+.checks li{display:grid;grid-template-columns:24px 1fr;gap:6px;padding:6px 0;border-top:1px solid var(--line)}
+.checks li:first-child{border-top:none}
+.checks .ok{color:#2f9e44;font-weight:700}.checks .warn{color:#e8590c;font-weight:700}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0}
+.tabs button{border:none;background:var(--panel-2);padding:8px;cursor:pointer;font-weight:700}
+.tabs button.on{background:var(--accent);color:var(--accent-ink)}
+.dlgform{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
@@ -150,7 +158,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
     <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
-    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 8)">? Ayuda <small style="color:var(--muted);font-size:11px">v8</small></button>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 9)">? Ayuda <small style="color:var(--muted);font-size:11px">v9</small></button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
   </header>
 
@@ -166,6 +174,10 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="shape" data-add="tubo"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><ellipse cx="16" cy="8" rx="5" ry="1.8"/><path d="M7 8v16c0 2 4 3.5 9 3.5s9-1.5 9-3.5V8"/></svg>Tubo</button>
     <button class="shape" data-add="estrella"><svg viewBox="0 0 32 32"><path d="M16 4l3.5 7.5 8 .9-6 5.5 1.7 8L16 21.8 8.8 25.9l1.7-8-6-5.5 8-.9z"/></svg>Estrella</button>
     <button class="shape" data-add="corazon"><svg viewBox="0 0 32 32"><path d="M16 27C8 21 4 16.5 4 11.5 4 8 6.6 5.5 9.8 5.5c2.6 0 4.6 1.6 6.2 4 1.6-2.4 3.6-4 6.2-4 3.2 0 5.8 2.5 5.8 6 0 5-4 9.5-12 15.5z"/></svg>Corazón</button>
+    <button class="shape" data-add="poligono"><svg viewBox="0 0 32 32"><path d="M16 5l10.5 7.6-4 12.4h-13l-4-12.4z"/></svg>Polígono</button>
+    <button class="shape" data-add="dona"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="12" ry="7"/><ellipse cx="16" cy="15" rx="5" ry="2.4"/></svg>Dona</button>
+    <button class="shape" data-add="arco"><svg viewBox="0 0 32 32"><path d="M4 26V18a12 12 0 0 1 24 0v8h-5v-8a7 7 0 0 0-14 0v8z"/></svg>Arco</button>
+    <button class="shape" data-add="rosca"><svg viewBox="0 0 32 32"><path d="M10 4h12v24H10z"/><path d="M10 8l12-3M10 13l12-3M10 18l12-3M10 23l12-3M10 28l12-3"/></svg>Rosca</button>
     <button class="shape" data-add="cuna"><svg viewBox="0 0 32 32"><path d="M4 24h17l7-5H11z"/><path d="M4 24l7-14 10 14M11 10l17 9"/></svg>Techo</button>
     <div class="label" style="margin-top:8px">Huecos</div>
     <button class="shape holeshape" data-add="caja" data-hole="1"><svg viewBox="0 0 32 32"><path d="M6 11l10-5 10 5v11l-10 5-10-5z"/><path d="M6 11l10 5 10-5M16 16v11"/></svg>Caja hueca</button>
@@ -196,6 +208,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="dims" id="dims" hidden></div>
+    <div class="guide" id="dlg" hidden><div class="card" role="dialog" aria-modal="true" id="dlgCard"></div></div>
     <div class="guide" id="guide" hidden><div class="card" role="dialog" aria-modal="true" aria-labelledby="gTitle"><div id="gBody"></div>
       <div class="dots" id="gDots"></div>
       <div class="row"><button class="btn" id="gSkip">Cerrar</button><button class="btn" id="gPrev">Atrás</button><button class="btn primary" id="gNext">Siguiente</button></div></div></div>
@@ -228,10 +241,10 @@ const wasm = await ManifoldModule(); wasm.setup();
 const { Manifold, Mesh: MMesh, CrossSection } = wasm;
 
 const $ = s => document.querySelector(s);
-const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',tubo:'Tubo',estrella:'Estrella',corazon:'Corazón',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
+const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',tubo:'Tubo',estrella:'Estrella',poligono:'Polígono',dona:'Dona',arco:'Arco',rosca:'Rosca',corazon:'Corazón',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
 // figuras cuya forma no es una figura básica: se calculan aparte (grupos, textos y piezas STL importadas)
 const CUSTOM = new Set(['group','texto','malla']);
-const ROUND = new Set(['cilindro','esfera','cono','tubo']);
+const ROUND = new Set(['cilindro','esfera','cono','tubo','dona']);
 const PALETTE = ['#e8590c','#1f9d55','#1f5fd1','#c2255c','#f2b705','#7048e8','#0c8599'];
 const r2 = v => Math.round(v*100)/100;
 
@@ -243,11 +256,24 @@ let undoStack = [], redoStack = [];
 const snapshot = () => JSON.stringify({objects, nextId});
 function restore(s){ const d = JSON.parse(s); objects = d.objects; nextId = d.nextId; selected = selected.filter(id=>objects.some(o=>o.id===id)); rebuild(); }
 function commit(fn){ undoStack.push(snapshot()); if(undoStack.length>100) undoStack.shift(); redoStack=[]; fn&&fn(); rebuild(); autosave(); }
-function undo(){ if(!undoStack.length) return; redoStack.push(snapshot()); restore(undoStack.pop()); autosave(); }
-function redo(){ if(!redoStack.length) return; undoStack.push(snapshot()); restore(redoStack.pop()); autosave(); }
-let savedMeshKeys = '';
+function undo(){ if(!undoStack.length){ toast('No hay nada más para deshacer.'); return; } redoStack.push(snapshot()); restore(undoStack.pop()); autosave(); }
+function redo(){ if(!redoStack.length){ toast('No hay nada para rehacer.'); return; } undoStack.push(snapshot()); restore(redoStack.pop()); autosave(); }
+let savedMeshKeys = '', savedAt = null, histTimer = null;
+// el historial de deshacer también se guarda, así se puede deshacer aunque se haya cerrado el navegador
+function saveHistory(){
+  clearTimeout(histTimer); histTimer = null;
+  try{
+    const u = undoStack.slice(-40), r = redoStack.slice(-40);
+    let txt = JSON.stringify({u, r});
+    while(txt.length > 1.5e6 && (u.length || r.length)){ u.length ? u.shift() : r.shift(); txt = JSON.stringify({u, r}); }
+    localStorage.setItem('taller3d-historial', txt);
+  }catch(e){ try{ localStorage.removeItem('taller3d-historial'); }catch(_){} }
+}
+addEventListener('pagehide', ()=>{ if(histTimer) saveHistory(); });
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden && histTimer) saveHistory(); });
 function autosave(){
-  try{ localStorage.setItem('taller3d-proyecto', snapshot()); }catch(e){}
+  try{ localStorage.setItem('taller3d-proyecto', snapshot()); savedAt = new Date(); const el = document.getElementById('savedAt'); if(el) el.textContent = savedText(); }catch(e){}
+  clearTimeout(histTimer); histTimer = setTimeout(saveHistory, 600);
   // las piezas importadas se guardan aparte, solo cuando cambian
   const keys = [...new Set(meshesIn(objects))].sort().join(',');
   if(keys === savedMeshKeys) return;
@@ -255,6 +281,7 @@ function autosave(){
   try{ if(keys) localStorage.setItem('taller3d-mallas', JSON.stringify(packMeshes(objects))); else localStorage.removeItem('taller3d-mallas'); }
   catch(e){ try{ localStorage.removeItem('taller3d-mallas'); }catch(_){} toast('La pieza importada es muy grande para el guardado automático. Usa Guardar para no perderla.'); }
 }
+const savedText = () => savedAt ? `✓ Guardado automático a las ${savedAt.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}` : '✓ Guardado automático activado';
 const byId = id => objects.find(o=>o.id===id);
 
 /* ---------- Escena ---------- */
@@ -328,18 +355,44 @@ function profileMan(type){
   const m2 = man.translate([0,0,-0.5]); man.delete(); return m2;
 }
 // figuras que se construyen a su tamaño real (para que el radio o la pared se mantengan en mm al cambiar el tamaño)
-const sized = o => o.type==='tubo' || (o.type==='caja' && o.r > 0);
+const SIZED = new Set(['tubo','poligono','dona','arco','rosca']);
+const sized = o => SIZED.has(o.type) || (o.type==='caja' && o.r > 0);
 const sizedCache = new Map();
 function ellipse(rx, ry, n){ const p = []; for(let i=0;i<n;i++){ const a = i/n*2*Math.PI; p.push([rx*Math.cos(a), ry*Math.sin(a)]); } return p; }
 function sizedGeom(o){
   const w = Math.max(o.w,0.2), d = Math.max(o.d,0.2), h = Math.max(o.h,0.2);
-  const key = o.type==='tubo' ? `tubo|${w}|${d}|${h}|${o.wall}|${o.seg||48}` : `caja|${w}|${d}|${h}|${o.r}`;
+  const key = [o.type,w,d,h,o.r,o.wall,o.seg,o.sides,o.pitch].join('|');
   if(sizedCache.has(key)) return sizedCache.get(key);
   let man;
   if(o.type==='tubo'){
     const n = o.seg||48, wall = Math.min(Math.max(o.wall||2, 0.2), Math.min(w,d)/2 - 0.1);
     const cs = new CrossSection([ellipse(w/2,d/2,n), ellipse(w/2-wall,d/2-wall,n).reverse()], 'EvenOdd');
     const e = cs.extrude(h); cs.delete(); man = e.translate([0,0,-h/2]); e.delete();
+  } else if(o.type==='poligono'){
+    // polígono regular con un lado plano adelante, estirado para llenar ancho × fondo
+    const n = Math.min(24, Math.max(3, Math.round(o.sides||5)));
+    let pts = []; for(let i=0;i<n;i++){ const a = -Math.PI/2 + Math.PI/n + i*2*Math.PI/n; pts.push([Math.cos(a), Math.sin(a)]); }
+    const xs = pts.map(q=>q[0]), ys = pts.map(q=>q[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    pts = pts.map(([x,y])=>[((x-x0)/(x1-x0)-0.5)*w, ((y-y0)/(y1-y0)-0.5)*d]);
+    const cs = new CrossSection([pts], 'EvenOdd'), e = cs.extrude(h); cs.delete(); man = e.translate([0,0,-h/2]); e.delete();
+  } else if(o.type==='dona'){
+    // dona (toroide): el grosor del aro es el Alto Z
+    const r = h/2, R = Math.max(w/2 - r, r*0.05 + 0.05), n = o.seg||48;
+    const cs = new CrossSection([ellipse(r, r, 32).map(([x,y])=>[x+R, y])], 'EvenOdd');
+    const e = cs.revolve(n); cs.delete(); man = e.scale([1, d/w, 1]); e.delete();
+  } else if(o.type==='arco'){
+    // arco de pie (como un puente): media elipse con grosor, hondo según Fondo Y
+    const t = Math.min(Math.max(o.wall||3, 0.3), Math.min(w/2, h) - 0.2), n = 48, pts = [];
+    for(let i=0;i<=n;i++){ const a = Math.PI*i/n; pts.push([w/2*Math.cos(a), h*Math.sin(a)]); }
+    for(let i=n;i>=0;i--){ const a = Math.PI*i/n; pts.push([(w/2-t)*Math.cos(a), (h-t)*Math.sin(a)]); }
+    const cs = new CrossSection([pts], 'EvenOdd'), e = cs.extrude(d); cs.delete();
+    const r1 = e.rotate([90,0,0]); e.delete(); man = r1.translate([0, d/2, -h/2]); r1.delete();
+  } else if(o.type==='rosca'){
+    // rosca simple: círculo corrido hacia un lado y extruido con giro = hélice
+    const pitch = Math.min(Math.max(o.pitch||2.5, 0.5), 50), dep = Math.min(pitch*0.45, w/4), n = 48;
+    const cs = new CrossSection([ellipse(w/2 - dep/2, w/2 - dep/2, n).map(([x,y])=>[x+dep/2, y])], 'EvenOdd');
+    const e = cs.extrude(h, Math.max(8, Math.ceil(h/pitch*24)), 360*h/pitch); cs.delete();
+    const e2 = e.scale([1, d/w, 1]); e.delete(); man = e2.translate([0,0,-h/2]); e2.delete();
   } else {
     // caja redondeada: envoltura de 8 esferas puestas en las esquinas
     const r = Math.min(o.r, Math.min(w,d,h)/2 - 0.01), seg = 24, ss = [];
@@ -651,6 +704,10 @@ function addShape(type, hole){
   const o = {id:nextId++, type, name:NAMES[type], hole:!!hole, color:PALETTE[(nextId-2)%PALETTE.length],
     w:type==='prisma'?17.32:20,d:20,h:20, x:0,y:0,z:0, rx:0,ry:0,rz:0, seg: ROUND.has(type)?48:undefined};
   if(type==='tubo') o.wall = 2;
+  if(type==='poligono'){ o.sides = 5; o.h = 10; }
+  if(type==='dona'){ o.w = 30; o.d = 30; o.h = 8; o.seg = 48; }
+  if(type==='arco'){ o.w = 40; o.d = 10; o.h = 20; o.wall = 4; }
+  if(type==='rosca'){ o.w = 10; o.d = 10; o.h = 30; o.pitch = 2.5; }
   if(type==='estrella'){ o.d = 19.02; o.h = 5; }
   if(type==='corazon'){ o.d = 18.4; o.h = 5; }
   placeFree(o);
@@ -761,6 +818,132 @@ function turn90(axis){
     const dz = r2(minZ - nb.min.z); if(dz){ items.forEach(o=>{ o.z = r2(o.z + dz); }); rebuild(); autosave(); }
   }
 }
+/* ---------- Ventana de diálogo (revisar, repetir) ---------- */
+function openDlg(html, wire){
+  $('#dlgCard').innerHTML = html; $('#dlg').hidden = false;
+  $('#dlgCard').querySelectorAll('[data-close]').forEach(b=>b.onclick = closeDlg);
+  wire && wire($('#dlgCard'));
+  const f = $('#dlgCard').querySelector('input,button.primary,button'); f && f.focus();
+}
+function closeDlg(){ $('#dlg').hidden = true; }
+$('#dlg').addEventListener('click', e=>{ if(e.target.id==='dlg') closeDlg(); });
+$('#dlg').addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Escape') closeDlg(); });
+
+/* ---------- Repetir en patrón ---------- */
+// rota una figura alrededor del eje Z del mundo (posición y orientación)
+function rotateAboutZ(o, ang, cx, cy, spin){
+  const c = Math.cos(ang), s = Math.sin(ang), dx = o.x - cx, dy = o.y - cy;
+  o.x = r2(cx + dx*c - dy*s); o.y = r2(cy + dx*s + dy*c);
+  if(spin){
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(...['rx','ry','rz'].map(k=>THREE.MathUtils.degToRad(o[k])), 'XYZ'));
+    q.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1), ang));
+    const e = new THREE.Euler().setFromQuaternion(q, 'XYZ'), deg = v => { const d = Math.round(THREE.MathUtils.radToDeg(v)*10)/10; return Object.is(d,-0) ? 0 : d; };
+    o.rx = deg(e.x); o.ry = deg(e.y); o.rz = deg(e.z);
+  }
+}
+let patMode = 'fila';
+function patternDlg(){
+  const items = selected.map(byId).filter(Boolean); if(!items.length) return;
+  const box = new THREE.Box3(); items.forEach(o=>box.union(new THREE.Box3().setFromObject(meshes.get(o.id), true)));
+  const sz = box.getSize(new THREE.Vector3());
+  const html = () => `<div class="step">Repetir en patrón</div><h3>Hacer copias de ${items.length===1 ? esc(items[0].name) : items.length+' figuras'}</h3>
+    <div class="tabs"><button data-pm="fila" class="${patMode==='fila'?'on':''}">En fila</button><button data-pm="circulo" class="${patMode==='circulo'?'on':''}">En círculo</button></div>
+    ${patMode==='fila' ? `<p class="note">Copias en línea recta, por ejemplo para una rejilla o una fila de agujeros.</p>
+      <div class="dlgform">
+        <label class="field"><span>Cantidad total</span><input type="number" id="pt_n" value="4" min="2" max="60" step="1"></label>
+        <label class="field"><span>Separación mm (centro a centro)</span><input type="number" id="pt_gap" value="${r2(sz.x+5)}" step="0.5"></label>
+        <label class="field"><span>Dirección</span><select id="pt_dir"><option value="x">Hacia la derecha (X)</option><option value="y">Hacia atrás (Y)</option><option value="z">Hacia arriba (Z)</option></select></label>
+      </div>`
+    : `<p class="note">Copias alrededor de un centro, por ejemplo agujeros en un disco o los dientes de un engranaje. Pon la figura a la distancia del centro que quieras antes de repetir.</p>
+      <div class="dlgform">
+        <label class="field"><span>Cantidad total</span><input type="number" id="pt_n" value="6" min="2" max="120" step="1"></label>
+        <label class="field"><span>Ángulo total (°)</span><input type="number" id="pt_ang" value="360" min="1" max="360" step="1"></label>
+        <label class="field"><span>Centro X mm</span><input type="number" id="pt_cx" value="0" step="0.5"></label>
+        <label class="field"><span>Centro Y mm</span><input type="number" id="pt_cy" value="0" step="0.5"></label>
+      </div>
+      <label class="check note"><input type="checkbox" id="pt_spin" checked> Girar cada copia hacia el centro</label>`}
+    <div class="row" style="margin-top:12px"><button class="btn" data-close>Cancelar</button><button class="btn primary" id="pt_go">Hacer copias</button></div>`;
+  const wire = card => {
+    card.querySelectorAll('[data-pm]').forEach(b=>b.onclick = ()=>{ patMode = b.dataset.pm; openDlg(html(), wire); });
+    if(card.querySelector('#pt_dir')) card.querySelector('#pt_dir').onchange = e=>{ card.querySelector('#pt_gap').value = r2(sz.getComponent('xyz'.indexOf(e.target.value))+5); };
+    card.querySelector('#pt_go').onclick = ()=>{
+      const n = Math.min(120, Math.max(2, Math.round(+card.querySelector('#pt_n').value || 2))), out = [];
+      if(patMode==='fila'){
+        const gap = +card.querySelector('#pt_gap').value || 0, ax = card.querySelector('#pt_dir').value;
+        commit(()=>{ for(let i=1;i<n;i++) for(const o of items){ const c = structuredClone(o); c.id = nextId++; c[ax] = r2(c[ax] + gap*i); objects.push(c); out.push(c.id); } selected = [...items.map(o=>o.id), ...out]; });
+      } else {
+        const tot = Math.min(360, Math.max(1, +card.querySelector('#pt_ang').value || 360));
+        const step = THREE.MathUtils.degToRad(tot >= 360 ? 360/n : tot/(n-1));
+        const cx = +card.querySelector('#pt_cx').value || 0, cy = +card.querySelector('#pt_cy').value || 0, spin = card.querySelector('#pt_spin').checked;
+        commit(()=>{ for(let i=1;i<n;i++) for(const o of items){ const c = structuredClone(o); c.id = nextId++; rotateAboutZ(c, step*i, cx, cy, spin); objects.push(c); out.push(c.id); } selected = [...items.map(o=>o.id), ...out]; });
+      }
+      closeDlg(); toast(`Listo: ${n} en total. Si no te gusta, pulsa Deshacer (Ctrl+Z).`);
+    };
+  };
+  openDlg(html(), wire);
+}
+
+/* ---------- Revisar antes de imprimir ---------- */
+let PRINTER = {x:200, y:200, z:200};
+try{ PRINTER = {...PRINTER, ...JSON.parse(localStorage.getItem('taller3d-impresora')||'{}')}; }catch(e){}
+const MIN_WALL = 0.8;  // mm: menos que esto suele salir mal en una impresora FDM con boquilla de 0,4 mm
+// grosor de pared aproximado: rayos hacia adentro desde puntos al azar de la superficie (según el área)
+function thinFraction(man){
+  const g0 = fromManifold(man), g = g0.index ? g0.toNonIndexed() : g0, pos = g.attributes.position, nt = pos.count/3;
+  const mesh = new THREE.Mesh(g, new THREE.MeshBasicMaterial({side: THREE.DoubleSide}));
+  const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), N = new THREE.Vector3(), E = new THREE.Vector3();
+  const cum = new Float64Array(nt); let tot = 0;
+  for(let t=0;t<nt;t++){ A.fromBufferAttribute(pos,3*t); B.fromBufferAttribute(pos,3*t+1); C.fromBufferAttribute(pos,3*t+2); tot += N.subVectors(B,A).cross(E.subVectors(C,A)).length()/2; cum[t] = tot; }
+  const samples = nt > 20000 ? 250 : 500, rc = new THREE.Raycaster(); rc.far = MIN_WALL;
+  let thin = 0, minT = Infinity, seed = 12345; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  for(let k=0;k<samples;k++){
+    const r = rnd()*tot; let lo = 0, hi = nt-1; while(lo<hi){ const m = (lo+hi)>>1; if(cum[m] < r) lo = m+1; else hi = m; }
+    A.fromBufferAttribute(pos,3*lo); B.fromBufferAttribute(pos,3*lo+1); C.fromBufferAttribute(pos,3*lo+2);
+    N.subVectors(B,A).cross(E.subVectors(C,A)).normalize();
+    const u = rnd(), v = rnd()*(1-u), P = A.clone().multiplyScalar(1-u-v).addScaledVector(B,u).addScaledVector(C,v);
+    rc.set(P.addScaledVector(N, -0.002), N.clone().negate());
+    // solo cuenta si el rayo sale por la cara opuesta (no por una cara vecina en una esquina)
+    const dir = rc.ray.direction;
+    const hit = rc.intersectObject(mesh, false).find(h=>h.distance > 0.02 && h.face && h.face.normal.dot(dir) > 0.5);
+    if(hit){ thin++; minT = Math.min(minT, hit.distance); }
+  }
+  g.dispose(); return {frac: thin/samples, minT};
+}
+async function checkPrint(){
+  const solids = objects.filter(o=>!o.hole && !isOpenMesh(o)), holes = objects.filter(o=>o.hole && !isOpenMesh(o));
+  if(!objects.some(o=>!o.hole)){ toast('No hay figuras sólidas para revisar.'); return; }
+  if(objects.some(o=>baseGeom(o).pending)){ toast('Espera un momento: todavía se está cargando la letra.'); return; }
+  openDlg(`<div class="step">Revisar antes de imprimir</div><h3>Revisando la pieza…</h3><p class="note">Esto toma unos segundos.</p>`);
+  await new Promise(r=>setTimeout(r, 60));
+  const items = [], f = v => (Math.round(v*10)/10).toString().replace('.',',');
+  let man = solids.length ? unionOf(solids) : null;
+  if(man && holes.length){ const h = unionOf(holes), r = man.subtract(h); man.delete(); h.delete(); man = r; }
+  if(!man || man.isEmpty()){ man && man.delete(); openDlg(`<h3>No queda material</h3><p>Los huecos cubren toda la pieza.</p><div class="row"><button class="btn primary" data-close>Cerrar</button></div>`); return; }
+  const bb = man.boundingBox(), size = [0,1,2].map(i=>bb.max[i]-bb.min[i]);
+  // 1) tamaño de la impresora
+  const fits = size[0] <= PRINTER.x && size[1] <= PRINTER.y && size[2] <= PRINTER.z;
+  items.push([fits, fits ? `Cabe en tu impresora: la pieza mide ${f(size[0])} × ${f(size[1])} × ${f(size[2])} mm (la impresora, ${PRINTER.x} × ${PRINTER.y} × ${PRINTER.z} mm).`
+    : `Es más grande que tu impresora: mide ${f(size[0])} × ${f(size[1])} × ${f(size[2])} mm y la impresora ${PRINTER.x} × ${PRINTER.y} × ${PRINTER.z} mm. Achícala con el candado cerrado.`]);
+  // 2) piezas flotando
+  const comps = man.decompose(), minZ = bb.min[2];
+  const floating = comps.filter(c=>c.boundingBox().min[2] > minZ + 0.05).length;
+  items.push([!floating, floating ? `${floating} ${floating===1?'parte queda flotando':'partes quedan flotando'} en el aire, sin tocar la mesa ni otra figura. La impresora no puede imprimir en el aire: bájala con "Apoyar en la mesa" o júntala con otra figura.`
+    : (comps.length > 1 ? `Todo apoya en la mesa. Son ${comps.length} piezas separadas: se imprimirán sueltas.` : 'Todo apoya en la mesa y es una sola pieza.')]);
+  if(minZ > 0.05) items.push([true, `La pieza está ${f(minZ)} mm sobre la mesa; al exportar se apoya sola en Z = 0.`]);
+  comps.forEach(c=>c.delete());
+  // 3) paredes delgadas
+  const th = thinFraction(man); man.delete();
+  const thinBad = th.frac > 0.02;
+  items.push([!thinBad, thinBad ? `Hay paredes o partes muy delgadas (cerca de ${f(th.minT)} mm). Lo recomendable es al menos ${f(MIN_WALL)} mm, o pueden salir rotas o no imprimirse.`
+    : `Las paredes tienen al menos ${f(MIN_WALL)} mm de grosor (las puntas finas aisladas no cuentan).`]);
+  if(objects.some(o=>!o.hole && isOpenMesh(o))) items.push([false, 'Hay una pieza importada con errores (no es cerrada): no se pudo revisar y se exportará tal cual.']);
+  const bad = items.filter(i=>!i[0]).length;
+  openDlg(`<div class="step">Revisar antes de imprimir</div><h3>${bad ? `Hay ${bad} ${bad===1?'cosa':'cosas'} por revisar` : '¡Lista para imprimir!'}</h3>
+    <ul class="checks">${items.map(([ok,t])=>`<li><span class="${ok?'ok':'warn'}">${ok?'✓':'⚠'}</span><span>${t}</span></li>`).join('')}</ul>
+    <div class="row"><button class="btn" data-close>Cerrar</button><button class="btn primary" id="ck_stl">Exportar STL</button></div>`,
+    card=>{ card.querySelector('#ck_stl').onclick = ()=>{ closeDlg(); exportStl(); }; });
+}
+
 function centerOnBed(){
   const items = selected.map(byId).filter(Boolean); if(!items.length) return;
   const box = new THREE.Box3(); items.forEach(o=>box.union(new THREE.Box3().setFromObject(meshes.get(o.id), true)));
@@ -808,13 +991,19 @@ function renderProps(){
   if(selected.length===0){
     const n = objects.length, sz = designSize();
     p.innerHTML = `<h2>Diseño</h2><p class="empty">${n ? `Hay ${n} ${n===1?'figura':'figuras'} en la mesa. Haz clic en una para ver y cambiar sus medidas.` : 'La mesa está vacía.'}</p>
-      ${sz ? `<div><div class="label">Tamaño de la pieza <span class="units">mm</span></div><p class="note" style="font-family:var(--f-num);font-size:13px;color:var(--fg)">${r2(sz.x)} × ${r2(sz.y)} × ${r2(sz.z)}</p>${Math.max(sz.x,sz.y)>BED?`<p class="note" style="color:var(--danger)">Ojo: la pieza es más grande que el área de impresión (${BED} mm).</p>`:''}</div>` : ''}
+      ${sz ? `<div><div class="label">Tamaño de la pieza <span class="units">mm</span></div><p class="note" style="font-family:var(--f-num);font-size:13px;color:var(--fg)">${r2(sz.x)} × ${r2(sz.y)} × ${r2(sz.z)}</p>${(sz.x>PRINTER.x||sz.y>PRINTER.y||sz.z>PRINTER.z)?`<p class="note" style="color:var(--danger)">Ojo: la pieza es más grande que tu impresora (${PRINTER.x} × ${PRINTER.y} × ${PRINTER.z} mm).</p>`:''}</div>` : ''}
+      ${objects.some(o=>!o.hole) ? `<div><button class="btn" id="pCheck" style="width:100%;justify-content:center;padding:9px">✓ Revisar antes de imprimir</button></div>` : ''}
       ${n>=2 ? `<div class="row"><button class="btn" id="pSelAll" style="flex:1;justify-content:center">Seleccionar todo</button><button class="btn" id="pMulti" style="flex:1;justify-content:center">Elegir varias</button></div>` : ''}
       ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
       <div class="label">Atajos <span class="units">(más en ? Ayuda)</span></div>
       <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar</p>
-      <p class="note">Taller 3D · <b>versión 8</b> (11 de noviembre)</p>
-      <div class="label">Área de impresión</div><p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>`;
+      <div class="label">Tu impresora <span class="units">volumen en mm</span></div>
+      <div class="grid3">${['x','y','z'].map(k=>`<label class="field"><span class="axis-${k}">${k.toUpperCase()}</span><input type="number" data-pr="${k}" value="${PRINTER[k]}" min="20" step="5"></label>`).join('')}</div>
+      <p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>
+      <p class="note" id="savedAt">${savedText()}</p>
+      <p class="note">Taller 3D · <b>versión 9</b> (11 de noviembre)</p>`;
+    if($('#pCheck')) $('#pCheck').onclick = checkPrint;
+    p.querySelectorAll('[data-pr]').forEach(inp=>inp.onchange = ()=>{ const v = Math.max(20, +inp.value || 200); PRINTER[inp.dataset.pr] = v; try{ localStorage.setItem('taller3d-impresora', JSON.stringify(PRINTER)); }catch(e){} renderProps(); });
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
     if($('#pSelAll')) $('#pSelAll').onclick = selectAll;
     if($('#pMulti')) $('#pMulti').onclick = ()=>setMulti(true);
@@ -827,7 +1016,8 @@ function renderProps(){
       <p class="empty">Pulsa <b>Agrupar</b> para unirlas en una sola pieza. Los huecos se restarán de los sólidos.</p>
       <div class="row"><button class="btn primary" id="pGroup">Agrupar</button><button class="btn" id="pDup">Duplicar</button><button class="btn danger" id="pDel">Eliminar</button></div>
       ${ALIGN_HTML}${TURN_HTML}${MIRROR_HTML}
-      <div class="row"><button class="btn" id="pCenter" title="Llevar las figuras al centro de la mesa">Centrar en la mesa</button><button class="btn" id="pNone">Quitar selección</button></div>`;
+      <div class="row"><button class="btn" id="pPattern" title="Hacer copias en fila o en círculo">Repetir en patrón…</button><button class="btn" id="pCenter" title="Llevar las figuras al centro de la mesa">Centrar en la mesa</button><button class="btn" id="pNone">Quitar selección</button></div>`;
+    $('#pPattern').onclick = patternDlg;
     $('#pGroup').onclick = group; $('#pDup').onclick = dup; $('#pDel').onclick = del; $('#pCenter').onclick = centerOnBed;
     $('#pNone').onclick = ()=>{ selected = []; setMulti(false); rebuild(); };
     $('#tSolid').onclick = ()=>{ if(!allSolid) commit(()=>sel.forEach(o=>{ o.hole = false; })); };
@@ -852,6 +1042,10 @@ function renderProps(){
       <input type="range" id="p_rr" min="0" max="${r2(Math.min(o.w,o.d,o.h)/2)}" step="0.5" value="${o.r||0}" aria-label="Radio de las esquinas">
       <label class="field"><input type="number" id="p_r" data-k="r" value="${o.r||0}" step="0.5" min="0"></label></div></div>` : ''}
     ${o.type==='tubo' ? `<div class="grid3"><label class="field"><span>Pared mm</span><input type="number" id="p_wall" data-k="wall" value="${o.wall||2}" step="0.5" min="0.2"></label></div>` : ''}
+    ${o.type==='arco' ? `<div class="grid3"><label class="field"><span>Grosor mm</span><input type="number" id="p_wall" data-k="wall" value="${o.wall||3}" step="0.5" min="0.3"></label></div>` : ''}
+    ${o.type==='poligono' ? `<div class="grid3"><label class="field"><span>Lados</span><input type="number" id="p_sides" data-k="sides" value="${o.sides||5}" step="1" min="3" max="24"></label></div>` : ''}
+    ${o.type==='rosca' ? `<div class="grid3"><label class="field"><span>Paso mm</span><input type="number" id="p_pitch" data-k="pitch" value="${o.pitch||2.5}" step="0.5" min="0.5"></label></div><p class="note">El paso es la distancia entre una vuelta y la siguiente de la rosca.</p>` : ''}
+    ${o.type==='dona' ? `<p class="note">El grosor del aro de la dona es el <b>Alto Z</b>.</p>` : ''}
     <div class="grid3">
       ${o.hole?'':`<label class="field"><span>Color</span><input type="color" id="p_color" data-k="color" value="${o.color}"></label>`}
       ${ROUND.has(o.type)?`<label class="field" style="grid-column:span 2"><span>Suavidad (lados)</span><select id="p_seg" data-k="seg">${[12,24,48,96].map(v=>`<option ${v==o.seg?'selected':''}>${v}</option>`).join('')}</select></label>`:''}
@@ -860,6 +1054,7 @@ function renderProps(){
       <button class="btn" id="pFloor" title="Bajar la figura hasta la mesa">Apoyar en la mesa</button>
       <button class="btn" id="pCenter" title="Llevar la figura al centro de la mesa">Centrar en la mesa</button>
       <button class="btn" id="pDup">Duplicar</button>
+      <button class="btn" id="pPattern" title="Hacer copias en fila o en círculo">Repetir en patrón…</button>
       ${o.type==='group'?'<button class="btn" id="pUng">Desagrupar</button>':''}
       <button class="btn danger" id="pDel">Eliminar</button>
     </div>
@@ -889,11 +1084,14 @@ function renderProps(){
     }
     if(k==='seg') v = +v;
     if(k==='r') v = Math.min(Math.max(0, v), r2(Math.min(o.w,o.d,o.h)/2));
-    if(k==='wall') v = Math.min(Math.max(0.2, v), r2(Math.min(o.w,o.d)/2 - 0.1));
+    if(k==='wall') v = o.type==='arco' ? Math.min(Math.max(0.3, v), r2(Math.min(o.w/2,o.h) - 0.2)) : Math.min(Math.max(0.2, v), r2(Math.min(o.w,o.d)/2 - 0.1));
+    if(k==='sides') v = Math.min(24, Math.max(3, Math.round(v)));
+    if(k==='pitch') v = Math.min(50, Math.max(0.5, v));
     commit(()=>{ o[k] = typeof v==='number' && k!=='seg' ? r2(v) : v; });
   }));
   $('#tSolid').onclick = ()=>{ if(o.hole) commit(()=>{o.hole=false;}); };
   $('#tHole').onclick = ()=>{ if(!o.hole) commit(()=>{o.hole=true;}); };
+  $('#pPattern').onclick = patternDlg;
   $('#pFloor').onclick = dropToFloor; $('#pDup').onclick = dup; $('#pDel').onclick = del; $('#pCenter').onclick = centerOnBed;
   if($('#pUng')) $('#pUng').onclick = ungroup;
 }
@@ -911,7 +1109,11 @@ function liveProps(){
 
 /* ---------- Teclado ---------- */
 addEventListener('keydown', e=>{
-  if(e.target.matches('input,select,textarea') || !$('#guide').hidden) return;
+  const modZ = (e.ctrlKey||e.metaKey) && ['z','y'].includes(e.key.toLowerCase());
+  // en un cuadro de medida sin cambios, Ctrl+Z / Ctrl+Y deshacen en el diseño (no solo en el cuadro)
+  if(modZ && e.target.matches('input[type=number],input[type=text]') && e.target.value === e.target.defaultValue && $('#guide').hidden && $('#dlg').hidden){
+    e.preventDefault(); e.target.blur(); (e.key.toLowerCase()==='y' || e.shiftKey) ? redo() : undo(); return; }
+  if(e.target.matches('input,select,textarea') || !$('#guide').hidden || !$('#dlg').hidden) return;
   const mod = e.ctrlKey||e.metaKey, k = e.key.toLowerCase();
   if(mod && k==='z' && !e.shiftKey){ e.preventDefault(); undo(); return; }
   if(mod && (k==='y' || (k==='z'&&e.shiftKey))){ e.preventDefault(); redo(); return; }
@@ -995,11 +1197,16 @@ async function exportStl(){
   // los huecos que aún no están agrupados también se restan, así el STL queda igual a lo que se ve en pantalla
   const closed = solids.filter(o=>!isOpenMesh(o)), open = solids.filter(isOpenMesh);
   const holes = objects.filter(o=>o.hole && !isOpenMesh(o));
-  const parts = [];
+  const parts = []; let floatN = 0, tooBig = false;
   if(closed.length){
     let man = unionOf(closed);
     if(holes.length){ const h = unionOf(holes), r = man.subtract(h); man.delete(); h.delete(); man = r; }
-    if(!man.isEmpty()) parts.push(manCoords(man));
+    if(!man.isEmpty()){
+      parts.push(manCoords(man));
+      const comps = man.decompose(), mz = man.boundingBox().min[2];
+      floatN = comps.filter(c=>c.boundingBox().min[2] > mz + 0.05).length; comps.forEach(c=>c.delete());
+      const b = man.boundingBox(); tooBig = b.max[0]-b.min[0] > PRINTER.x || b.max[1]-b.min[1] > PRINTER.y || b.max[2]-b.min[2] > PRINTER.z;
+    }
     man.delete();
   }
   open.forEach(o=>parts.push(openCoords(o)));
@@ -1014,6 +1221,8 @@ async function exportStl(){
   if(selected.length) msgs.push(`Se exportó solo la selección (${solids.length} ${solids.length===1?'figura':'figuras'}). Para exportar todo, haz clic en un espacio vacío primero.`);
   if(holes.length) msgs.push('Los huecos se restaron de la pieza exportada.');
   if(open.length) msgs.push('La pieza importada con errores se exportó tal cual, sin unir ni restar huecos.');
+  if(floatN) msgs.unshift(`Ojo: ${floatN} ${floatN===1?'parte queda flotando':'partes quedan flotando'} en el aire. Usa "Revisar antes de imprimir".`);
+  if(tooBig) msgs.unshift('Ojo: la pieza es más grande que tu impresora.');
   msgs.forEach((m,i)=>setTimeout(()=>toast(m), 3200*(i+1)));
 }
 // nombre del proyecto: se usa para el archivo al guardar y exportar
@@ -1235,10 +1444,13 @@ function sample(){
     {id:3,type:'cuna',name:'Adorno',hole:false,color:'#1f9d55',w:16,d:4,h:8,x:10,y:0,z:4,rx:0,ry:0,rz:0},
   ]; nextId = 4;
 }
-try{ const s = localStorage.getItem('taller3d-proyecto'); if(s){ const d = JSON.parse(s); objects = d.objects||[]; nextId = d.nextId||1; } else sample(); }catch(e){ sample(); }
+let recovered = false;
+try{ const s = localStorage.getItem('taller3d-proyecto'); if(s){ const d = JSON.parse(s); objects = d.objects||[]; nextId = d.nextId||1; recovered = objects.length > 0; } else sample(); }catch(e){ sample(); }
+try{ const h = JSON.parse(localStorage.getItem('taller3d-historial') || 'null'); if(h && recovered){ undoStack = h.u||[]; redoStack = h.r||[]; } }catch(e){}
 try{ const m = localStorage.getItem('taller3d-mallas'); if(m) unpackMeshes(JSON.parse(m)); savedMeshKeys = [...new Set(meshesIn(objects))].sort().join(','); }catch(e){}
 try{ await ensureFonts(objects); }catch(e){}
 rebuild(); fitView(null, true); $('#loading').hidden = true;
+if(recovered) setTimeout(()=>toast('Se recuperó tu último diseño (guardado automático).' + (undoStack.length ? ' Puedes deshacer los cambios anteriores con Ctrl+Z.' : '')), 600);
 
 /* ---------- Medidas sobre la figura ---------- */
 // muestra ancho × fondo × alto (lo que ocupa en la mesa) encima de lo seleccionado
