@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Taller 3D · versión 12</title>
+<title>Taller 3D · versión 18</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -30,8 +30,57 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-
 button,input,select{font:inherit;color:inherit}
 .app{height:100%;display:grid;grid-template-columns:150px minmax(0,1fr) 260px;grid-template-rows:auto minmax(0,1fr);
   padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
-header{grid-column:1/-1;display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
-  background:var(--panel);border-bottom:1px solid var(--line)}
+header{grid-column:1/-1;background:var(--panel);border-bottom:1px solid var(--line);min-width:0}
+header .topbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:7px max(16px,env(safe-area-inset-right,0px)) 7px max(16px,env(safe-area-inset-left,0px))}
+/* barra de herramientas: un botón con dibujo y nombre para cada función (antes muchas solo estaban en el teclado o en el panel) */
+.toolbar{display:flex;align-items:stretch;gap:2px;padding:4px max(12px,env(safe-area-inset-right,0px)) 5px max(12px,env(safe-area-inset-left,0px));border-top:1px solid var(--line);background:var(--panel-2);overflow-x:auto;scrollbar-width:thin}
+.tgrp{display:flex;align-items:stretch;gap:1px;padding:0 3px;position:relative}
+.tgrp+.tgrp{border-left:1px solid var(--line)}
+.tbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:50px;padding:4px 4px 3px;border:1px solid transparent;border-radius:7px;background:none;cursor:pointer;font-size:11.5px;line-height:1.1;white-space:nowrap;color:var(--fg)}
+.tbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tbtn:hover:not(:disabled){background:var(--panel);border-color:var(--line)}
+.tbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.tbtn:disabled{opacity:.38;cursor:default}
+.tbtn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.tbtn.danger:not(:disabled){color:var(--danger)}
+.tbtn .caret{font-size:9px;margin-left:1px;opacity:.7}
+.tbtn .hole-ic{stroke:var(--hole);stroke-dasharray:3 2}
+.tbsel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:2px 4px;font-size:11.5px;color:var(--muted)}
+.tbsel select{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:3px 4px;font-size:12.5px;color:var(--fg);cursor:pointer}
+.tbmenu{position:fixed;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgb(0 0 0 / .18);padding:8px;display:grid;gap:4px;min-width:180px}
+.tbmenu .mh{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin:2px 4px}
+.tbmenu .btn{justify-content:flex-start}
+.tbmenu .g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.tbmenu .g3 .btn{justify-content:center;font-size:12.5px;padding:6px 4px}
+.tbmenu .note{margin:2px 4px 0;max-width:230px}
+/* v15: elegir si el espejo da vuelta la figura o hace una copia */
+.tbmenu .seg{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;margin-bottom:2px}
+.tbmenu .seg button{border:1px solid transparent;background:none;border-radius:6px;padding:5px 6px;font-size:12.5px;cursor:pointer;color:var(--fg);line-height:1.2}
+.tbmenu .seg button[aria-checked="true"]{background:var(--panel);border-color:var(--accent);color:var(--accent);font-weight:700}
+/* v15: vista explosiva */
+.xpanel{position:absolute;left:50%;bottom:56px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;box-shadow:0 6px 20px rgb(0 0 0 / .15);display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;z-index:3;max-width:calc(100% - 24px)}
+.xpanel b{font-size:13px}
+.xpanel label{display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}
+.xpanel input[type=range]{width:150px;accent-color:var(--accent)}
+.xpanel select{border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:3px 4px;font-size:12.5px;color:var(--fg)}
+.xpanel output{font-family:var(--f-num);font-size:12.5px;min-width:3.5ch;text-align:right}
+.xpanel .xrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;width:100%}
+.xpanel .xstep{font-size:12.5px;color:var(--accent);font-weight:700;width:100%;text-align:center}
+/* v17: números de las piezas (globos) y lista de piezas, como en un plano de armado */
+.xlabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.xnum{position:absolute;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:var(--panel);color:var(--fg);border:2px solid var(--fg);font:700 12.5px/20px var(--f-num);text-align:center;box-shadow:0 1px 4px rgb(0 0 0 / .2)}
+.xnum.hole{border-style:dashed;color:var(--muted)}
+.xnum.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);z-index:1}
+.xlist{position:absolute;left:12px;top:12px;width:min(270px,calc(100% - 170px));max-height:calc(100% - 190px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgb(0 0 0 / .12);padding:8px 10px;z-index:3}
+.xlist h3{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.xlist ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.xlist li{display:grid;grid-template-columns:22px 12px 1fr;align-items:center;gap:7px;padding:3px 4px;border-radius:6px;font-size:12.5px;cursor:default}
+.xlist li:hover,.xlist li.on{background:var(--accent-soft)}
+.xlist li .n{font:700 12px var(--f-num);text-align:center;border:1.5px solid var(--fg);border-radius:50%;width:20px;height:20px;line-height:17px}
+.xlist li .sw{width:12px;height:12px;border-radius:3px;border:1px solid rgb(0 0 0 / .2)}
+.xlist li .sw.hole{background:repeating-linear-gradient(45deg,var(--hole) 0 2px,transparent 2px 4px)!important;border-color:var(--hole)}
+.xlist li small{display:block;color:var(--muted);font-family:var(--f-num);font-size:11px}
+@media (max-width:700px){.xlist{display:none}}
 .brand{font-family:var(--f-display);font-size:19px;letter-spacing:-.01em;margin-right:6px;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .brand i{width:18px;height:18px;border:2px solid var(--accent);border-radius:3px;display:inline-block;position:relative;transform:rotate(-8deg)}
 .brand i::after{content:"";position:absolute;inset:3px;border:2px dashed var(--hole);border-radius:50%}
@@ -46,7 +95,7 @@ header{grid-column:1/-1;display:flex;align-items:center;gap:5px;flex-wrap:wrap;p
 kbd{font-family:var(--f-num);font-size:10px;color:var(--muted)}
 .spacer{flex:1}
 header .btn{font-size:13px;padding:6px 8px}
-@media (max-width:1440px) and (min-width:761px){ header .brand{font-size:0;gap:0;margin-right:2px} header{gap:4px} header .btn{padding:6px 7px} }
+@media (max-width:1100px) and (min-width:761px){ header .brand{font-size:0;gap:0;margin-right:2px} }
 select.btn{padding-right:6px}
 aside{background:var(--panel);overflow:auto;min-height:0}
 .shapes{border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:6px}
@@ -78,7 +127,32 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 .toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1}
 .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:16px;line-height:1.5}
-.props{border-left:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.props{border-left:1px solid var(--line);padding:0 14px 14px;display:flex;flex-direction:column;gap:0}
+/* v14: el panel se arma con secciones iguales (título, unidades a la derecha y una línea entre ellas), con el mismo estilo suave de la barra de herramientas */
+.phead{position:sticky;top:0;z-index:2;background:var(--panel);margin:0 -14px;padding:12px 14px 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.phead .kind{display:flex;align-items:center;gap:6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.phead .kind .dot{width:9px;height:9px;border-radius:3px;flex:none;border:1px solid rgb(0 0 0 / .15)}
+.phead .kind .dot.h{background:repeating-linear-gradient(45deg,var(--hole) 0 2px,transparent 2px 4px)!important;border-color:var(--hole)}
+.pname{font-family:var(--f-display);font-size:18px;font-weight:700;border:1px solid transparent;border-radius:6px;background:none;padding:2px 6px;margin:0 -6px;width:calc(100% + 12px);color:var(--fg)}
+.pname:hover{border-color:var(--line)}.pname:focus{border-color:var(--accent);background:var(--panel-2);outline:none}
+.psec{padding:12px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.phead+.psec{border-top:none}
+.psec-h{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px}
+.psec-h .label{margin:0}
+.psec .grid3+.label,.psec .grid3+.sub{margin-top:4px}
+.sub{font-size:11px;color:var(--muted);font-weight:700}
+.pbig{font-family:var(--f-num);font-size:15px;font-variant-numeric:tabular-nums}
+.pfoot{padding-top:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.ptip{font-size:12px;color:var(--muted);line-height:1.45;background:var(--panel-2);border-radius:8px;padding:8px 10px}
+.btn.wide{width:100%;justify-content:center;padding:9px}
+.keys{display:grid;grid-template-columns:1fr auto;grid-auto-flow:row dense;gap:5px 10px;align-items:baseline;font-size:12.5px;margin-top:8px}
+.keys kbd{grid-column:2;justify-self:end!important;font-size:11px;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;white-space:nowrap;justify-self:start}
+.keys span{grid-column:1;color:var(--muted)}
+details.psec summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between}
+details.psec summary::-webkit-details-marker{display:none}
+details.psec summary::after{content:"▾";font-size:12px;color:var(--muted);transition:transform .15s}
+details.psec:not([open]) summary::after{transform:rotate(-90deg)}
+details.psec summary .label{margin:0}
 .props .field,.props .grid3,.props .row{flex:none}
 /* sin esto, en paneles largos el navegador aplastaba la barra Sólido/Hueco hasta hacerla desaparecer */
 .props > *{flex-shrink:0}
@@ -98,10 +172,13 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 .lock:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .abtn{justify-content:center;padding:7px 4px;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .axis-x{color:#d64545}.axis-y{color:#2f9e44}.axis-z{color:var(--accent)}
-.toggle{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none;min-height:40px}
-.toggle button{border:none;background:var(--panel-2);padding:8px;cursor:pointer;min-height:38px;font-weight:700}
-.toggle button.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
-.toggle button.on.h{background:var(--hole);color:#fff}
+.toggle{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);flex:none}
+.toggle button{border:1px solid transparent;background:none;border-radius:6px;padding:6px 8px;cursor:pointer;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px}
+.toggle button:hover{color:var(--fg)}
+.toggle button.on{background:var(--panel);border-color:var(--accent);color:var(--accent);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+.toggle button.on.h{border-color:var(--hole);color:var(--fg)}
+.toggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8}
+.toggle .h svg circle{stroke-dasharray:2.5 2}
 .row{display:flex;gap:6px;flex-wrap:wrap}
 .btn.danger{color:var(--danger)}
 .check{display:flex;gap:8px;align-items:center;cursor:pointer}
@@ -116,6 +193,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
   .shape{width:auto;flex:none;flex-direction:column;gap:2px;font-size:11px;padding:6px}
   .props{border-left:none;border-top:1px solid var(--line);padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
   kbd,.sep{display:none}
+  .toolbar{padding-left:8px;padding-right:8px}
 }
 /* medidas sobre la figura elegida */
 .dims{position:absolute;left:0;top:0;pointer-events:none;background:var(--panel);color:var(--fg);border:1px solid var(--accent);border-radius:6px;padding:3px 8px;font-family:var(--f-num);font-size:12px;white-space:nowrap;transform:translate(-50%,-100%);box-shadow:0 2px 6px rgb(0 0 0 / .12)}
@@ -163,6 +241,7 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 
 <div class="app">
   <header>
+   <div class="topbar">
     <div class="brand"><i></i>Taller 3D</div>
     <button class="btn" id="bNew" title="Empezar un diseño nuevo">Nuevo</button>
     <button class="btn" id="bOpen" title="Abrir un proyecto guardado (.json) o una pieza STL">Abrir</button>
@@ -172,23 +251,47 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <span class="sep"></span>
     <button class="btn" id="bUndo" title="Deshacer (Ctrl+Z)">↶ Deshacer</button>
     <button class="btn" id="bRedo" title="Rehacer (Ctrl+Y)">↷ Rehacer</button>
-    <button class="btn" id="bDup" title="Duplicar la selección (Ctrl+D)">Duplicar</button>
-    <span class="sep"></span>
-    <div class="seg" role="group" aria-label="Herramienta">
-      <button class="btn on" data-mode="translate" title="Mover (W)">Mover</button>
-      <button class="btn" data-mode="rotate" title="Rotar (E)">Rotar</button>
-      <button class="btn" data-mode="scale" title="Escalar (R). Arrastra los cubitos; mantén Shift para ajuste fino de 0,1 mm">Escalar</button>
-    </div>
-    <select class="btn" id="snap" title="Ajuste a la cuadrícula: cuánto avanza la figura al moverla o cambiar su tamaño">
-      <option value="0">Ajuste: libre</option><option value="0.5">Ajuste: 0,5 mm</option><option value="1" selected>Ajuste: 1 mm</option><option value="5">Ajuste: 5 mm</option><option value="10">Ajuste: 10 mm</option>
-    </select>
-    <span class="sep"></span>
-    <button class="btn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)">Agrupar</button>
-    <button class="btn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)">Desagrupar</button>
     <span class="spacer"></span>
     <button class="btn" id="bClass" title="Modo clase: ejercicios paso a paso (llavero, caja con tapa, engranajes)">Ejercicios</button>
-    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 12)">? Ayuda <small style="color:var(--muted);font-size:11px">v12</small></button>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 18)">? Ayuda <small style="color:var(--muted);font-size:11px">v18</small></button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
+   </div>
+   <div class="toolbar" role="toolbar" aria-label="Herramientas">
+    <div class="tgrp" role="group" aria-label="Herramienta del mouse">
+      <button class="tbtn on" id="tMove" title="Mover (W): arrastra las flechas de colores" data-mode="translate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/></svg><span>Mover</span></button>
+      <button class="tbtn" id="tRot" title="Rotar (E): arrastra los anillos de colores" data-mode="rotate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12A7.5 7.5 0 1 1 17 6.4"/><path d="M19 3v4.5h-4.5"/></svg><span>Rotar</span></button>
+      <button class="tbtn" id="tScale" title="Escalar (R): arrastra los cubitos; mantén Shift para ajuste fino de 0,1 mm" data-mode="scale"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-9h9v9z"/><path d="M13 11l7-7M14.5 4H20v5.5"/></svg><span>Escalar</span></button>
+      <label class="tbsel" title="Ajuste a la cuadrícula: cuánto avanza la figura al moverla o cambiar su tamaño"><select id="snap">
+        <option value="0">Libre</option><option value="0.5">0,5 mm</option><option value="1" selected>1 mm</option><option value="5">5 mm</option><option value="10">10 mm</option>
+      </select><span>Ajuste</span></label>
+    </div>
+    <div class="tgrp" role="group" aria-label="Elegir y editar">
+      <button class="tbtn" id="tSelAll" title="Elegir todas las figuras (Ctrl+A)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5" stroke-dasharray="3 2.4"/><path d="M8 12.2l2.8 2.8L16.5 9"/></svg><span>Todo</span></button>
+      <button class="tbtn" id="bMulti" title="Elegir varias: cada clic suma o quita una figura de la selección (o Mayús + clic)" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M17 4v6M14 7h6"/></svg><span>Elegir varias</span></button>
+      <button class="tbtn" id="bDup" title="Duplicar la selección (Ctrl+D)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg><span>Duplicar</span></button>
+      <button class="tbtn danger" id="tDel" title="Eliminar la selección (Supr)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9.5 7V4.5h5V7M6 7l1 13h10l1-13M10 11v5.5M14 11v5.5"/></svg><span>Eliminar</span></button>
+    </div>
+    <div class="tgrp" role="group" aria-label="Combinar">
+      <button class="tbtn" id="tbHole" title="Hueco: la figura elegida resta material (clic otra vez para volverla sólida) (H)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><circle class="hole-ic" cx="12" cy="12" r="4.5"/></svg><span>Hueco</span></button>
+      <button class="tbtn" id="bGroup" title="Agrupar: une las figuras sólidas y resta los huecos. Sin selección, agrupa todo (Ctrl+G)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h10v6h6v10H10v-6H4z"/></svg><span>Agrupar</span></button>
+      <button class="tbtn" id="bUngroup" title="Separar un grupo en sus figuras (Ctrl+Shift+G)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M14 4.5l5.5 5.5M4.5 14l5.5 5.5" stroke-dasharray="2 2"/></svg><span>Desagrupar</span></button>
+    </div>
+    <div class="tgrp" role="group" aria-label="Acomodar">
+      <button class="tbtn" id="tTurn" title="Girar 90° la selección en Z, X o Y" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V5M5 20h15"/><path d="M5 11a9 9 0 0 1 9 9"/><path d="M11.5 16.8l2.5 3.2 2.8-2.9"/></svg><span>Girar 90°<b class="caret">▾</b></span></button>
+      <button class="tbtn" id="tMirror" title="Reflejar (espejo) la selección en X, Y o Z" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18" stroke-dasharray="2 2"/><path d="M9 6 3 18h6zM15 6l6 12h-6z"/></svg><span>Reflejar<b class="caret">▾</b></span></button>
+      <button class="tbtn" id="tAlign" title="Alinear varias figuras (por un borde o por el centro) (L)" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v18"/><rect x="7.5" y="5.5" width="12" height="5" rx="1"/><rect x="7.5" y="13.5" width="7" height="5" rx="1"/></svg><span>Alinear<b class="caret">▾</b></span></button>
+      <button class="tbtn" id="tFloor" title="Apoyar en la mesa: baja la figura hasta la cuadrícula (D)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"/><rect x="8" y="11" width="8" height="7" rx="1"/><path d="M12 2.5v5.5M9.5 5.5 12 8l2.5-2.5"/></svg><span>A la mesa</span></button>
+      <button class="tbtn" id="tCenter" title="Llevar la selección al centro de la mesa"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="1.6"/></svg><span>Centrar</span></button>
+    </div>
+    <div class="tgrp" role="group" aria-label="Herramientas">
+      <button class="tbtn" id="tExplode" title="Vista explosiva: separa las piezas para ver cómo está armado el diseño (no cambia nada) (X)" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M3.5 3.5h4v4h-4zM16.5 3.5h4v4h-4zM3.5 16.5h4v4h-4zM16.5 16.5h4v4h-4z"/><path d="M8.5 8.5 7 7M15.5 8.5 17 7M8.5 15.5 7 17M15.5 15.5 17 17"/></svg><span>Explosión</span></button>
+      <button class="tbtn" id="bRuler" title="Medir (M): haz clic en dos puntos para ver la distancia en mm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16.5 16.5 3 21 7.5 7.5 21z"/><path d="M7 12.5l2 2M10 9.5l1.5 1.5M13 6.5l2 2"/></svg><span>Medir</span></button>
+      <button class="tbtn" id="bPlane" title="Plano de trabajo: haz clic en la cara de una pieza y las figuras nuevas aparecen sobre ella"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 17 7 9h14.5L17 17z"/><path d="M9.5 13h10M11.5 9l-4 8M16 9l-4 8"/></svg><span>Plano</span></button>
+      <button class="tbtn" id="tPattern" title="Repetir en patrón: hacer copias en fila o en círculo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="9" width="5.5" height="6" rx="1"/><rect x="9.25" y="9" width="5.5" height="6" rx="1"/><rect x="16" y="9" width="5.5" height="6" rx="1"/></svg><span>Patrón</span></button>
+      <button class="tbtn" id="tLib" title="Guardar la selección en Mis piezas para usarla otra vez"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-6-4-6 4z"/><path d="M12 7.5v5M9.5 10h5"/></svg><span>Mis piezas</span></button>
+      <button class="tbtn" id="tCheck" title="Revisar antes de imprimir: tamaño, partes flotando y paredes delgadas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M8 12.3l2.8 2.8L16.3 9.4"/></svg><span>Revisar</span></button>
+    </div>
+   </div>
   </header>
 
   <aside class="shapes" aria-label="Figuras">
@@ -211,6 +314,12 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <button class="shape" data-add="arco"><svg viewBox="0 0 32 32"><path d="M4 26V18a12 12 0 0 1 24 0v8h-5v-8a7 7 0 0 0-14 0v8z"/></svg>Arco</button>
     <button class="shape" data-add="rosca"><svg viewBox="0 0 32 32"><path d="M10 4h12v24H10z"/><path d="M10 8l12-3M10 13l12-3M10 18l12-3M10 23l12-3M10 28l12-3"/></svg>Rosca</button>
     <button class="shape" data-add="tuerca"><svg viewBox="0 0 32 32"><path d="M9 6h14l7 10-7 10H9L2 16z"/><circle cx="16" cy="16" r="5"/></svg>Tuerca</button>
+    <button class="shape" data-add="perno"><svg viewBox="0 0 32 32"><path d="M8 4h16l3 3-3 3H8L5 7z"/><path d="M12 10v18h8V10M12 14l8-2M12 19l8-2M12 24l8-2"/></svg>Perno</button>
+    <button class="shape" data-add="arandela"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="15" rx="12" ry="6"/><ellipse cx="16" cy="15" rx="5" ry="2.5"/><path d="M4 15v3c0 3.3 5.4 6 12 6s12-2.7 12-6v-3"/></svg>Arandela</button>
+    <button class="shape" data-add="codo"><svg viewBox="0 0 32 32"><path d="M5 26V14a9 9 0 0 1 9-9h13v8H14a1 1 0 0 0-1 1v12z"/><ellipse cx="27" cy="9" rx="1.5" ry="4"/><ellipse cx="9" cy="26" rx="4" ry="1.5"/></svg>Tubo en L</button>
+    <button class="shape" data-add="te"><svg viewBox="0 0 32 32"><path d="M3 6h26v8H20v13h-8V14H3z"/><ellipse cx="3" cy="10" rx="1.5" ry="4"/><ellipse cx="29" cy="10" rx="1.5" ry="4"/><ellipse cx="16" cy="27" rx="4" ry="1.5"/></svg>Tubo en T</button>
+    <button class="shape" data-add="cruz"><svg viewBox="0 0 32 32"><path d="M12 3h8v9h9v8h-9v9h-8v-9H3v-8h9z"/><ellipse cx="16" cy="3" rx="4" ry="1.5"/><ellipse cx="29" cy="16" rx="1.5" ry="4"/></svg>Tubo en X</button>
+    <button class="shape" data-add="escuadra"><svg viewBox="0 0 32 32"><path d="M5 4h5v17h17v5H5z"/><path d="M10 4l4-2v16h15l-2 3M27 21l2-3"/></svg>Escuadra</button>
     <button class="shape" data-add="engranaje"><svg viewBox="0 0 32 32"><path d="M14 3h4l1 4 3 1.3 3.5-2.2 2.8 2.8-2.2 3.5L27.4 15l4 1v0l-4 1-1.3 3 2.2 3.5-2.8 2.8-3.5-2.2-3 1.3-1 4h-4l-1-4-3-1.3-3.5 2.2-2.8-2.8 2.2-3.5L4.6 17l-4-1 4-1 1.3-3-2.2-3.5 2.8-2.8 3.5 2.2 3-1.3z"/><circle cx="16" cy="16" r="3.5"/></svg>Engranaje</button>
     <button class="shape" data-add="corona"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><path d="M16 7l2 2.5 3-1 .5 3 3 1-1 3 2.5 2-2.5 2 1 3-3 1-.5 3-3-1-2 2.5-2-2.5-3 1-.5-3-3-1 1-3L6.5 16 9 14l-1-3 3-1 .5-3 3 1z"/></svg>Corona</button>
     <button class="shape" data-add="cremallera"><svg viewBox="0 0 32 32"><path d="M2 24h28v-6h-2l-1.5-5h-3L22 18h-2l-1.5-5h-3L14 18h-2l-1.5-5h-3L6 18H2z"/></svg>Cremallera</button>
@@ -246,13 +355,28 @@ aside{background:var(--panel);overflow:auto;min-height:0}
     <div class="hud">
       <button class="btn" id="vTop" title="Vista desde arriba">Arriba</button>
       <button class="btn" id="vFront" title="Vista de frente">Frente</button>
-      <button class="btn" id="bPlane" title="Plano de trabajo: haz clic en la cara de una pieza y las figuras nuevas aparecen sobre ella">Plano de trabajo</button>
       <button class="btn" id="bPlaneOff" hidden title="Volver el plano de trabajo a la mesa">× Quitar plano</button>
-      <button class="btn" id="bRuler" title="Medir: haz clic en dos puntos para ver la distancia en mm">Medir</button>
-      <button class="btn" id="bMulti" aria-pressed="false" title="Activado: cada clic suma o quita una figura de la selección">Elegir varias</button>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="tbmenu" id="tbMenu" role="menu" hidden></div>
     <div class="dims" id="dims" hidden></div>
+    <div class="xpanel" id="xpanel" role="group" aria-label="Vista explosiva" hidden>
+      <b>Vista explosiva</b>
+      <label title="Cuánto se separan las piezas">Separación <input type="range" id="xAmt" min="0" max="100" step="1" value="60"><output id="xOut">60 %</output></label>
+      <label title="Hacia dónde sale cada pieza">Dirección <select id="xMode"><option value="auto">Según cómo encaja (360°)</option><option value="arriba">Siempre hacia arriba</option></select></label>
+      <label title="Mirar en isométrico, como en un plano técnico: los tres ejes con el mismo ángulo y sin perspectiva"><input type="checkbox" id="xIso" checked> Isométrica</label>
+      <label title="Líneas punteadas desde cada pieza hasta el lugar donde va"><input type="checkbox" id="xLines" checked> Líneas guía</label>
+      <label title="Muestra también las figuras que forman cada grupo (los huecos se ven en gris)"><input type="checkbox" id="xGroups" checked> Abrir los grupos</label>
+      <label title="Números en cada pieza y la lista de piezas, como en un plano de armado"><input type="checkbox" id="xNums" checked> Números</label>
+      <div class="xrow">
+        <button class="btn" id="xPlay" title="Las piezas se van a su lugar una por una, en el orden de armado">▶ Ver cómo se arma</button>
+        <button class="btn" id="xPng" title="Descargar esta vista como imagen PNG (con los números y la lista de piezas) para hacer guías">⬇ Imagen PNG</button>
+        <button class="btn primary" id="xOff" title="Volver a la vista normal (Esc)">Armar de nuevo</button>
+      </div>
+      <div class="xstep" id="xStep" hidden></div>
+    </div>
+    <div class="xlabels" id="xlabels" hidden></div>
+    <div class="xlist" id="xlist" hidden></div>
     <div class="ruler" id="ruler" hidden></div>
     <div class="lesson" id="lesson" hidden></div>
     <div class="guide" id="dlg" hidden><div class="card" role="dialog" aria-modal="true" id="dlgCard"></div></div>
@@ -289,7 +413,7 @@ const wasm = await ManifoldModule(); wasm.setup();
 const { Manifold, Mesh: MMesh, CrossSection } = wasm;
 
 const $ = s => document.querySelector(s);
-const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',tubo:'Tubo',estrella:'Estrella',poligono:'Polígono',dona:'Dona',arco:'Arco',rosca:'Rosca',tuerca:'Tuerca',engranaje:'Engranaje',corona:'Corona dentada',cremallera:'Cremallera',corazon:'Corazón',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
+const NAMES = {caja:'Caja',cilindro:'Cilindro',esfera:'Esfera',cono:'Cono',piramide:'Pirámide',prisma:'Hexágono',cuna:'Techo',tubo:'Tubo',estrella:'Estrella',poligono:'Polígono',dona:'Dona',arco:'Arco',rosca:'Rosca',tuerca:'Tuerca',perno:'Perno',arandela:'Arandela',codo:'Tubo en L',te:'Tubo en T',cruz:'Tubo en X',escuadra:'Escuadra',engranaje:'Engranaje',corona:'Corona dentada',cremallera:'Cremallera',corazon:'Corazón',texto:'Texto',malla:'Pieza importada',group:'Grupo'};
 // figuras cuya forma no es una figura básica: se calculan aparte (grupos, textos y piezas STL importadas)
 const CUSTOM = new Set(['group','texto','malla']);
 const ROUND = new Set(['cilindro','esfera','cono','tubo','dona']);
@@ -301,9 +425,10 @@ let objects = [];      // figuras de primer nivel
 let nextId = 1;
 let selected = [];     // ids
 let undoStack = [], redoStack = [];
+const explode = {on:false, shown:0, target:0, items:[], from:0, t0:0, play:null};   // vista explosiva (v15)
 const snapshot = () => JSON.stringify({objects, nextId});
 function restore(s){ const d = JSON.parse(s); objects = d.objects; nextId = d.nextId; selected = selected.filter(id=>objects.some(o=>o.id===id)); rebuild(); }
-function commit(fn){ undoStack.push(snapshot()); if(undoStack.length>100) undoStack.shift(); redoStack=[]; fn&&fn(); rebuild(); autosave(); }
+function commit(fn){ if(explode.on) setExplode(false, true); undoStack.push(snapshot()); if(undoStack.length>100) undoStack.shift(); redoStack=[]; fn&&fn(); rebuild(); autosave(); }
 function undo(){ if(!undoStack.length){ toast('No hay nada más para deshacer.'); return; } redoStack.push(snapshot()); restore(undoStack.pop()); autosave(); }
 function redo(){ if(!redoStack.length){ toast('No hay nada para rehacer.'); return; } undoStack.push(snapshot()); restore(redoStack.pop()); autosave(); }
 let savedMeshKeys = '', savedAt = null, histTimer = null;
@@ -408,7 +533,7 @@ function profileMan(type){
   const m2 = man.translate([0,0,-0.5]); man.delete(); return m2;
 }
 // figuras que se construyen a su tamaño real (para que el radio o la pared se mantengan en mm al cambiar el tamaño)
-const SIZED = new Set(['tubo','poligono','dona','arco','rosca','tuerca','engranaje','corona','cremallera']);
+const SIZED = new Set(['perno','codo','te','cruz','escuadra','tubo','poligono','dona','arco','rosca','tuerca','engranaje','corona','cremallera']);
 const GEARS = new Set(['engranaje','corona']);
 // perfil de engranaje con dientes de evolvente (ángulo de presión 20°), centrado en el origen
 function gearPoints(z, m, grow=0){
@@ -437,13 +562,44 @@ const sizedCache = new Map();
 function ellipse(rx, ry, n){ const p = []; for(let i=0;i<n;i++){ const a = i/n*2*Math.PI; p.push([rx*Math.cos(a), ry*Math.sin(a)]); } return p; }
 function sizedGeom(o){
   const w = Math.max(o.w,0.2), d = Math.max(o.d,0.2), h = Math.max(o.h,0.2);
-  const key = [o.type,w,d,h,o.r,o.wall,o.seg,o.sides,o.pitch,o.dia,o.clear,o.teeth,o.m,o.bore,o.rim].join('|');
+  const key = [o.type,w,d,h,o.r,o.wall,o.seg,o.sides,o.pitch,o.dia,o.clear,o.teeth,o.m,o.bore,o.rim,o.head].join('|');
   if(sizedCache.has(key)) return sizedCache.get(key);
   let man;
   if(o.type==='tubo'){
     const n = o.seg||48, wall = Math.min(Math.max(o.wall||2, 0.2), Math.min(w,d)/2 - 0.1);
     const cs = new CrossSection([ellipse(w/2,d/2,n), ellipse(w/2-wall,d/2-wall,n).reverse()], 'EvenOdd');
     const e = cs.extrude(h); cs.delete(); man = e.translate([0,0,-h/2]); e.delete();
+  } else if(o.type==='codo' || o.type==='te' || o.type==='cruz'){
+    // tubos de unión acostados en la mesa: el diámetro del tubo es el Alto Z; los brazos llegan hasta el Ancho X y el Fondo Y
+    const R = h/2, n = o.seg||48, wall = Math.min(Math.max(o.wall||2, 0.2), R - 0.2), r = R - wall;
+    const W = Math.max(w, 2*R), Dd = Math.max(d, 2*R);
+    const armX = (x0, x1, rad, y) => { const c = Manifold.cylinder(x1-x0, rad, rad, n), a = c.rotate([0,90,0]); c.delete(); const b = a.translate([x0, y, 0]); a.delete(); return b; };
+    const armY = (y0, y1, rad, x) => { const c = Manifold.cylinder(y1-y0, rad, rad, n), a = c.rotate([-90,0,0]); c.delete(); const b = a.translate([x, y0, 0]); a.delete(); return b; };
+    const ball = (rad, x, y) => { const sp = Manifold.sphere(rad, n), b = sp.translate([x, y, 0]); sp.delete(); return b; };
+    const build = (rad, ext) => {
+      if(o.type==='codo'){ const xj = -W/2 + R, yj = -Dd/2 + R; return [armX(xj, W/2+ext, rad, yj), armY(yj, Dd/2+ext, rad, xj), ball(rad, xj, yj)]; }
+      if(o.type==='te'){ const yj = -Dd/2 + R; return [armX(-W/2-ext, W/2+ext, rad, yj), armY(yj, Dd/2+ext, rad, 0)]; }
+      return [armX(-W/2-ext, W/2+ext, rad, 0), armY(-Dd/2-ext, Dd/2+ext, rad, 0)];
+    };
+    const A = build(R, 0), B = build(r, 1), outer = Manifold.union(A), inner = Manifold.union(B);
+    A.forEach(m=>m.delete()); B.forEach(m=>m.delete());
+    man = outer.subtract(inner); outer.delete(); inner.delete();
+  } else if(o.type==='escuadra'){
+    // escuadra (perfil en L): una pata acostada (Ancho X) y otra parada (Alto Z), de largo Fondo Y
+    const t = Math.min(Math.max(o.wall||3, 0.3), Math.min(w, h) - 0.2);
+    const pts = [[-w/2,-h/2],[w/2,-h/2],[w/2,-h/2+t],[-w/2+t,-h/2+t],[-w/2+t,h/2],[-w/2,h/2]];
+    const cs = new CrossSection([pts], 'EvenOdd'), e = cs.extrude(d); cs.delete();
+    const r1 = e.rotate([90,0,0]); e.delete(); man = r1.translate([0, d/2, 0]); r1.delete();
+  } else if(o.type==='perno'){
+    // perno: cabeza hexagonal abajo y rosca hacia arriba; calza con una Tuerca del mismo Ø y paso
+    const dia = Math.min(o.dia||10, Math.min(w,d) - 1), pitch = Math.min(Math.max(o.pitch||2.5, 0.5), 50);
+    const hh = Math.min(Math.max(o.head||dia*0.7, 0.5), h - 1), L = h - hh, dep = Math.min(pitch*0.45, dia/4);
+    let hex = []; for(let i=0;i<6;i++){ const a = i*Math.PI/3; hex.push([Math.cos(a)/2*w, Math.sin(a)/Math.sqrt(3)*d]); }
+    const hcs = new CrossSection([hex], 'EvenOdd'), head = hcs.extrude(hh); hcs.delete();
+    const cs = new CrossSection([ellipse(dia/2 - dep/2, dia/2 - dep/2, 48).map(([x,y])=>[x+dep/2, y])], 'EvenOdd');
+    const sh = cs.extrude(L + 0.01, Math.max(8, Math.ceil(L/pitch*24)), 360*L/pitch); cs.delete();
+    const sh2 = sh.translate([0,0,hh - 0.01]); sh.delete();
+    const b = head.add(sh2); head.delete(); sh2.delete(); man = b.translate([0,0,-h/2]); b.delete();
   } else if(o.type==='poligono'){
     // polígono regular con un lado plano adelante, estirado para llenar ancho × fondo
     const n = Math.min(24, Math.max(3, Math.round(o.sides||5)));
@@ -680,7 +836,8 @@ function rebuild(){
     m.add(edges);
     world.add(m); meshes.set(o.id,m);
   }
-  if(selected.length===1 && meshes.has(selected[0])) tcontrols.attach(meshes.get(selected[0]));
+  if(selected.length===1 && meshes.has(selected[0]) && !explode.on) tcontrols.attach(meshes.get(selected[0]));
+  if(explode.on) buildExplode();
   renderProps(); updateButtons(); updateLesson();
 }
 
@@ -794,6 +951,7 @@ canvas.addEventListener('pointerup', e=>{
   if(e.button!==0 || !downAt || dragging || overGizmo){ downAt = null; return; }
   const moved = Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]); downAt = null;
   if(moved > 5 || tcontrols.dragging) return;
+  if(explode.on) return;
   if(tool){ toolClick(e); return; }
   const r = canvas.getBoundingClientRect();
   ptr.set((e.clientX-r.left)/r.width*2-1, -(e.clientY-r.top)/r.height*2+1);
@@ -813,7 +971,7 @@ canvas.addEventListener('pointerup', e=>{
 
 // botón "Elegir varias": cada clic suma o quita figuras, sin tener que mantener Mayús
 let multiMode = false;
-function setMulti(on){ multiMode = on; $('#bMulti').classList.toggle('on', on); $('#bMulti').setAttribute('aria-pressed', on); $('#bMulti').textContent = on ? '✓ Elegir varias' : 'Elegir varias';
+function setMulti(on){ multiMode = on; $('#bMulti').classList.toggle('on', on); $('#bMulti').setAttribute('aria-pressed', on); 
   if(on) toast('Haz clic en cada figura que quieras elegir. Clic de nuevo para quitarla.'); }
 $('#bMulti').onclick = ()=>setMulti(!multiMode);
 
@@ -842,7 +1000,12 @@ function addShape(type, hole){
   if(type==='texto') return addText(hole);
   const o = {id:nextId++, type, name:NAMES[type], hole:!!hole, color:PALETTE[(nextId-2)%PALETTE.length],
     w:type==='prisma'?17.32:20,d:20,h:20, x:0,y:0,z:0, rx:0,ry:0,rz:0, seg: ROUND.has(type)?48:undefined};
+  if(type==='arandela'){ o.type = 'tubo'; o.name = 'Arandela'; o.seg = 48; o.w = 20; o.d = 20; o.h = 2; o.wall = 5.5; }
   if(type==='tubo') o.wall = 2;
+  if(type==='perno'){ o.w = 19.6; o.d = 17; o.h = 37; o.dia = 10; o.pitch = 2.5; o.head = 7; }
+  if(type==='codo' || type==='te' || type==='cruz'){ o.w = 40; o.d = 40; o.h = 12; o.wall = 2; o.seg = 48; }
+  if(type==='te') o.d = 26;
+  if(type==='escuadra'){ o.w = 30; o.d = 20; o.h = 30; o.wall = 3; }
   if(type==='poligono'){ o.sides = 5; o.h = 10; }
   if(type==='dona'){ o.w = 30; o.d = 30; o.h = 8; o.seg = 48; }
   if(type==='arco'){ o.w = 40; o.d = 10; o.h = 20; o.wall = 4; }
@@ -919,25 +1082,37 @@ function ungroup(){
   });
 }
 function dropToFloor(){
-  const id = selected[0], o = byId(id), m = meshes.get(id); if(!o) return;
-  const b = new THREE.Box3().setFromObject(m, true);
-  commit(()=>{ o.z = r2(o.z - b.min.z); });
+  const items = selected.map(byId).filter(Boolean); if(!items.length) return;
+  const lows = items.map(o=>new THREE.Box3().setFromObject(meshes.get(o.id), true).min.z);
+  commit(()=>{ items.forEach((o,i)=>{ o.z = r2(o.z - lows[i]); }); });
 }
 // Reflejar (espejo) en un eje del mundo: cambia el signo del eje, ajusta el giro y refleja la posición
-function mirror(axis){
-  const items = selected.map(byId).filter(Boolean); if(!items.length) return;
+// copy = true: deja la original y pone al lado una copia en espejo, pegada al borde de la selección
+// (como un espejo apoyado en el lado derecho, atrás o arriba). Sirve para piezas simétricas.
+let mirrorCopy = false;
+try{ mirrorCopy = localStorage.getItem('taller3d-espejo') === 'copia'; }catch(e){}
+function mirror(axis, copy = mirrorCopy){
+  let items = selected.map(byId).filter(Boolean); if(!items.length) return;
   const i = 'xyz'.indexOf(axis);
   let c;
-  if(items.length===1){ const o = items[0]; c = [o.x, o.y, o.z+o.h/2][i]; }
-  else { const box = new THREE.Box3(); items.forEach(o=>box.union(new THREE.Box3().setFromObject(meshes.get(o.id), true))); c = box.getCenter(new THREE.Vector3()).getComponent(i); }
-  commit(()=>{ for(const o of items){
+  const box = new THREE.Box3(); items.forEach(o=>box.union(new THREE.Box3().setFromObject(meshes.get(o.id), true)));
+  if(copy) c = box.max.getComponent(i);
+  else if(items.length===1){ const o = items[0]; c = [o.x, o.y, o.z+o.h/2][i]; }
+  else c = box.getCenter(new THREE.Vector3()).getComponent(i);
+  commit(()=>{
+    if(copy){
+      items = items.map(o=>{ const k = structuredClone(o); k.id = nextId++; if(k.name && !/ \(espejo\)$/.test(k.name)) k.name += ' (espejo)'; objects.push(k); return k; });
+      selected = items.map(o=>o.id);
+    }
+    for(const o of items){
     if(axis==='x'){ o.ry = -o.ry; o.rz = -o.rz; o.x = r2(2*c - o.x); }
     if(axis==='y'){ o.rx = -o.rx; o.rz = -o.rz; o.y = r2(2*c - o.y); }
     if(axis==='z'){ o.rx = -o.rx; o.ry = -o.ry; const zc = 2*c - (o.z + o.h/2); o.z = r2(zc - o.h/2); }
     const f = 'm'+axis; if(o[f]) delete o[f]; else o[f] = true;
     for(const k of ['rx','ry','rz']) if(Object.is(o[k],-0)) o[k] = 0;
   }});
-  toast(`Reflejado en ${axis.toUpperCase()} (espejo).`);
+  const side = {x:'a la derecha', y:'atrás', z:'arriba'}[axis];
+  toast(copy ? `Copia en espejo (${axis.toUpperCase()}) creada ${side}. La copia quedó elegida.` : `Reflejado en ${axis.toUpperCase()} (espejo).`);
 }
 // Alinear: lleva las figuras al borde o centro común de toda la selección
 function align(axis, where){
@@ -1107,6 +1282,7 @@ function updateButtons(){
   $('#bUndo').disabled = !undoStack.length; $('#bRedo').disabled = !redoStack.length;
   $('#bGroup').disabled = objects.length<2; $('#bDup').disabled = !selected.length;
   const g = byId(selected[0]); $('#bUngroup').disabled = !(selected.length===1 && g && g.type==='group');
+  updateToolbar();
   const solids = objects.filter(o=>!o.hole).length;
   $('#hint').textContent = !objects.length ? 'Elige una figura de la izquierda para empezar. Arrastra para girar la vista, rueda para acercar.'
     : (objects.some(o=>o.hole) ? 'Para hacer un agujero: pon una figura gris (hueco) dentro del sólido y pulsa Agrupar. Si nada está seleccionado, se agrupa todo.' : '');
@@ -1114,24 +1290,9 @@ function updateButtons(){
 
 /* ---------- Panel de propiedades ---------- */
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const MIRROR_HTML = `<div><div class="label">Reflejar <span class="units">espejo</span></div><div class="grid3">
-  <button class="btn abtn" data-mirror="x" title="Dar vuelta de izquierda a derecha"><span class="axis-x">⇋</span> X</button>
-  <button class="btn abtn" data-mirror="y" title="Dar vuelta de adelante hacia atrás"><span class="axis-y">⇅</span> Y</button>
-  <button class="btn abtn" data-mirror="z" title="Dar vuelta de arriba hacia abajo"><span class="axis-z">⇵</span> Z</button></div></div>`;
-const TURN_HTML = `<div><div class="label">Girar 90° <span class="units">un clic</span></div><div class="grid3">
-  <button class="btn abtn" data-turn="z" title="Girar 90° sobre la mesa"><span class="axis-z">↻</span> Z</button>
-  <button class="btn abtn" data-turn="x" title="Volcar 90° hacia atrás"><span class="axis-x">↻</span> X</button>
-  <button class="btn abtn" data-turn="y" title="Volcar 90° hacia el lado"><span class="axis-y">↻</span> Y</button></div></div>`;
-const ALIGN_HTML = `<div><div class="label">Alinear</div><div class="grid3" style="row-gap:5px">
-  <button class="btn abtn" data-align="x,min" title="Alinear por el borde izquierdo">Izquierda</button><button class="btn abtn" data-align="x,mid" title="Centrar de izquierda a derecha">Centro X</button><button class="btn abtn" data-align="x,max" title="Alinear por el borde derecho">Derecha</button>
-  <button class="btn abtn" data-align="y,min" title="Alinear por el borde de adelante">Adelante</button><button class="btn abtn" data-align="y,mid" title="Centrar de adelante hacia atrás">Centro Y</button><button class="btn abtn" data-align="y,max" title="Alinear por el borde de atrás">Atrás</button>
-  <button class="btn abtn" data-align="z,min" title="Alinear por abajo">Abajo</button><button class="btn abtn" data-align="z,mid" title="Centrar en altura">Centro Z</button><button class="btn abtn" data-align="z,max" title="Alinear por arriba">Arriba</button>
-  </div><p class="note" style="margin-top:6px">Para centrar un agujero en una pieza: elige las dos y pulsa <b>Centro X</b> y <b>Centro Y</b>.</p></div>`;
-function wireTools(p){
-  p.querySelectorAll('[data-mirror]').forEach(b=>b.onclick = ()=>mirror(b.dataset.mirror));
-  p.querySelectorAll('[data-turn]').forEach(b=>b.onclick = ()=>turn90(b.dataset.turn));
-  p.querySelectorAll('[data-align]').forEach(b=>b.onclick = ()=>{ const [a,w] = b.dataset.align.split(','); align(a,w); });
-}
+const TOGGLE_HTML = (solid, hole) => `<div class="toggle" role="group" aria-label="Sólido o hueco"><button id="tSolid" class="${solid?'on':''}" aria-pressed="${solid}" title="Sólido: la figura tiene material"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" fill-opacity=".25"/></svg>Sólido</button><button id="tHole" class="h ${hole?'on':''}" aria-pressed="${hole}" title="Hueco: la figura quita material (H)"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/></svg>Hueco</button></div>`;
+const KIND = o => o.type==='group' ? 'Grupo' : o.type==='malla' ? 'Pieza importada' : (document.querySelector(`.shape[data-add="${o.type}"]:not([data-hole])`)?.textContent.trim() || o.type);
+const SEC = (title, units, body, extra='') => `<section class="psec"><div class="psec-h"><div class="label">${title}${units?` <span class="units">${units}</span>`:''}</div>${extra}</div>${body}</section>`;
 function num(id,label,val,cls='',step='0.1'){ return `<label class="field"><span class="${cls}">${label}</span><input type="number" id="p_${id}" data-k="${id}" value="${val}" step="${step}"></label>`; }
 let propsFor = '';
 function renderProps(){
@@ -1139,91 +1300,86 @@ function renderProps(){
   // al elegir otra figura, el panel vuelve arriba (si no, Sólido/Hueco quedaba fuera de la vista)
   const key = selected.join(','); if(key !== propsFor){ propsFor = key; requestAnimationFrame(()=>{ p.scrollTop = 0; }); }
   if(selected.length===0){
-    const n = objects.length, sz = designSize();
-    p.innerHTML = `<h2>Diseño</h2><p class="empty">${n ? `Hay ${n} ${n===1?'figura':'figuras'} en la mesa. Haz clic en una para ver y cambiar sus medidas.` : 'La mesa está vacía.'}</p>
-      ${sz ? `<div><div class="label">Tamaño de la pieza <span class="units">mm</span></div><p class="note" style="font-family:var(--f-num);font-size:13px;color:var(--fg)">${r2(sz.x)} × ${r2(sz.y)} × ${r2(sz.z)}</p>${(sz.x>PRINTER.x||sz.y>PRINTER.y||sz.z>PRINTER.z)?`<p class="note" style="color:var(--danger)">Ojo: la pieza es más grande que tu impresora (${PRINTER.x} × ${PRINTER.y} × ${PRINTER.z} mm).</p>`:''}</div>` : ''}
-      ${objects.some(o=>!o.hole) ? `<div><button class="btn" id="pCheck" style="width:100%;justify-content:center;padding:9px">✓ Revisar antes de imprimir</button></div>` : ''}
-      ${n>=2 ? `<div class="row"><button class="btn" id="pSelAll" style="flex:1;justify-content:center">Seleccionar todo</button><button class="btn" id="pMulti" style="flex:1;justify-content:center">Elegir varias</button></div>` : ''}
-      ${n>=2 ? `<div><button class="btn primary" id="pGroupAll" style="width:100%;justify-content:center;padding:10px">Unir todo en una pieza</button><p class="note" style="margin-top:6px">Une todas las figuras de la mesa. Las grises (huecos) se restan y dejan el agujero.</p></div>` : ''}
-      <div class="label">Atajos <span class="units">(más en ? Ayuda)</span></div>
-      <p class="note">Supr: eliminar · Ctrl+D: duplicar · Ctrl+A: seleccionar todo · Ctrl+G: agrupar · Flechas: mover según el paso · Re Pág / Av Pág: subir y bajar · W, E, R: mover, rotar, escalar · M: medir · Esc: soltar o apagar la herramienta</p>
-      <div class="label">Mouse</div>
-      <p class="note">Botón izquierdo: girar la vista · Apretar la rueda y arrastrar: desplazar la vista · Shift + rueda apretada: girar · Girar la rueda: acercar hacia el puntero · Botón derecho: desplazar</p>
-      <div class="label">Tu impresora <span class="units">volumen en mm</span></div>
-      <div class="grid3">${['x','y','z'].map(k=>`<label class="field"><span class="axis-${k}">${k.toUpperCase()}</span><input type="number" data-pr="${k}" value="${PRINTER[k]}" min="20" step="5"></label>`).join('')}</div>
-      <p class="note">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>
-      <p class="note" id="savedAt">${savedText()}</p>
-      <p class="note">Taller 3D · <b>versión 12</b> (11 de noviembre)</p>`;
-    if($('#pCheck')) $('#pCheck').onclick = checkPrint;
+    const n = objects.length, sz = designSize(), holes = objects.filter(o=>o.hole).length;
+    const big = sz && (sz.x>PRINTER.x||sz.y>PRINTER.y||sz.z>PRINTER.z);
+    p.innerHTML = `<div class="phead"><div class="kind">Diseño</div><h2>${n ? `${n} ${n===1?'figura':'figuras'} en la mesa` : 'La mesa está vacía'}</h2>${n?'<p class="note" style="margin:0">Haz clic en una figura para ver y cambiar sus medidas.</p>':''}</div>
+      ${sz ? SEC('Tamaño de la pieza','mm', `<div class="pbig">${r2(sz.x)} × ${r2(sz.y)} × ${r2(sz.z)}</div>
+        ${big?`<p class="note" style="color:var(--danger);margin:0">Ojo: es más grande que tu impresora (${PRINTER.x} × ${PRINTER.y} × ${PRINTER.z} mm).</p>`:''}
+        ${n>=2 ? `<button class="btn primary wide" id="pGroupAll">Unir todo en una pieza</button><p class="note" style="margin:0">Une todas las figuras de la mesa.${holes?' Las grises (huecos) se restan y dejan el agujero.':''}</p>` : ''}`)
+        : `<section class="psec"><p class="ptip">Elige una figura de la izquierda para empezar. Después haz clic en ella para ver y cambiar sus medidas aquí.</p></section>`}
+      ${SEC('Tu impresora','volumen en mm', `<div class="grid3">${['x','y','z'].map(k=>`<label class="field"><span class="axis-${k}">${k.toUpperCase()}</span><input type="number" data-pr="${k}" value="${PRINTER[k]}" min="20" step="5"></label>`).join('')}</div>
+        <p class="note" style="margin:0">La cuadrícula mide ${BED} × ${BED} mm. Cada cuadro pequeño es de 5 mm y cada línea fuerte, 10 mm.</p>`)}
+      <details class="psec" id="pKeys"><summary><span class="label">Atajos de teclado</span></summary><div class="keys">
+        <kbd>W E R</kbd><span>mover, rotar, escalar</span><kbd>Flechas</kbd><span>mover según el ajuste</span><kbd>Re Pág · Av Pág</kbd><span>subir y bajar</span>
+        <kbd>Ctrl+D</kbd><span>duplicar</span><kbd>Supr</kbd><span>eliminar</span><kbd>Ctrl+A</kbd><span>elegir todo</span>
+        <kbd>Ctrl+G</kbd><span>agrupar</span><kbd>H</kbd><span>hueco o sólido</span><kbd>D</kbd><span>apoyar en la mesa</span><kbd>L</kbd><span>alinear</span>
+        <kbd>M</kbd><span>medir</span><kbd>Ctrl+Z · Ctrl+Y</kbd><span>deshacer / rehacer</span><kbd>Esc</kbd><span>soltar o apagar la herramienta</span></div></details>
+      <details class="psec" id="pMouse"><summary><span class="label">Mouse</span></summary><div class="keys">
+        <kbd>Izquierdo</kbd><span>girar la vista</span><kbd>Rueda apretada</kbd><span>desplazar la vista</span><kbd>Shift + rueda</kbd><span>girar la vista</span>
+        <kbd>Girar la rueda</kbd><span>acercar hacia el puntero</span><kbd>Derecho</kbd><span>desplazar</span></div></details>
+      <div class="pfoot"><p class="note" id="savedAt" style="margin:0">${savedText()}</p><p class="note" style="margin:0">Taller 3D · <b>versión 18</b> (17 de noviembre)</p></div>`;
     p.querySelectorAll('[data-pr]').forEach(inp=>inp.onchange = ()=>{ const v = Math.max(20, +inp.value || 200); PRINTER[inp.dataset.pr] = v; try{ localStorage.setItem('taller3d-impresora', JSON.stringify(PRINTER)); }catch(e){} renderProps(); });
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
-    if($('#pSelAll')) $('#pSelAll').onclick = selectAll;
-    if($('#pMulti')) $('#pMulti').onclick = ()=>setMulti(true);
+    // se recuerda si dejaste abiertos los atajos
+    for(const id of ['pKeys','pMouse']){ const d = $('#'+id); try{ d.open = localStorage.getItem('taller3d-'+id)==='1'; }catch(e){} d.ontoggle = ()=>{ try{ localStorage.setItem('taller3d-'+id, d.open?'1':'0'); }catch(e){} }; }
     return;
   }
   if(selected.length>1){
     const sel = selected.map(byId).filter(Boolean), allHole = sel.every(o=>o.hole), allSolid = sel.every(o=>!o.hole);
-    p.innerHTML = `<h2>${selected.length} figuras seleccionadas</h2>
-      <div class="toggle" role="group" aria-label="Tipo de las figuras elegidas"><button id="tSolid" class="${allSolid?'on':''}">Sólido</button><button id="tHole" class="h ${allHole?'on':''}">Hueco</button></div>
-      <p class="empty">Pulsa <b>Agrupar</b> para unirlas en una sola pieza. Los huecos se restarán de los sólidos.</p>
-      <div class="row"><button class="btn primary" id="pGroup">Agrupar</button><button class="btn" id="pDup">Duplicar</button><button class="btn danger" id="pDel">Eliminar</button></div>
-      ${selected.length===2 ? DIST_HTML(sel[0], sel[1]) : ''}
-      ${ALIGN_HTML}${TURN_HTML}${MIRROR_HTML}
-      <div class="row"><button class="btn" id="pLib" title="Guardar estas figuras para usarlas otra vez">Guardar en Mis piezas</button><button class="btn" id="pPattern" title="Hacer copias en fila o en círculo">Repetir en patrón…</button><button class="btn" id="pCenter" title="Llevar las figuras al centro de la mesa">Centrar en la mesa</button><button class="btn" id="pNone">Quitar selección</button></div>`;
-    $('#pPattern').onclick = patternDlg; $('#pLib').onclick = addToLibrary;
+    const nh = sel.filter(o=>o.hole).length;
+    p.innerHTML = `<div class="phead"><div class="kind">Selección</div><h2>${selected.length} figuras elegidas</h2>${TOGGLE_HTML(allSolid, allHole)}</div>
+      ${SEC('Combinar','', `<button class="btn primary wide" id="pGroup">Agrupar en una pieza</button>
+        <p class="note" style="margin:0">${nh && nh<sel.length ? `Los ${nh===1?'hueco se resta':nh+' huecos se restan'} de los sólidos.` : 'Las figuras se unen en una sola pieza.'} Para centrar un agujero, usa <b>Alinear</b> en la barra de arriba.</p>`)}
+      ${selected.length===2 ? `<section class="psec">${DIST_HTML(sel[0], sel[1])}</section>` : ''}
+      <div class="pfoot"><button class="btn" id="pNone" style="align-self:flex-start">Quitar selección</button></div>`;
     if(selected.length===2) wireDist(p, sel[0], sel[1]);
-    $('#pGroup').onclick = group; $('#pDup').onclick = dup; $('#pDel').onclick = del; $('#pCenter').onclick = centerOnBed;
+    $('#pGroup').onclick = group;
     $('#pNone').onclick = ()=>{ selected = []; setMulti(false); rebuild(); };
     $('#tSolid').onclick = ()=>{ if(!allSolid) commit(()=>sel.forEach(o=>{ o.hole = false; })); };
     $('#tHole').onclick = ()=>{ if(!allHole) commit(()=>sel.forEach(o=>{ o.hole = true; })); };
-    wireTools(p); return;
+    return;
   }
   const o = byId(selected[0]); if(!o) return;
-  p.innerHTML = `
-    <div class="toggle" role="group" aria-label="Tipo"><button id="tSolid" class="${o.hole?'':'on'}">Sólido</button><button id="tHole" class="h ${o.hole?'on':''}">Hueco</button></div>
-    ${o.type==='texto' ? `<label class="field"><span>Texto</span><input type="text" id="p_text" value="${esc(o.text)}" maxlength="40" style="font-size:16px;padding:8px"></label>
-      <label class="field"><span>Letra</span><select id="p_font">${Object.entries(FONTS).map(([k,f])=>`<option value="${k}" ${k===(o.font||'recta')?'selected':''}>${f.label}</option>`).join('')}</select></label>` : ''}
-    <label class="field"><span>Nombre</span><input type="text" id="p_name" data-k="name" value="${esc(o.name)}" maxlength="40"></label>
-    <div><div class="sizehead"><div class="label">Tamaño <span class="units">mm</span></div>
-      <button class="lock ${sizeLock?'on':''}" id="pLock" aria-pressed="${sizeLock}" title="${sizeLock?'Cerrado: al cambiar una medida, las otras cambian en proporción. Clic para abrir.':'Abierto: cada medida cambia sola. Clic para cerrar y mantener la proporción.'}">${LOCK_SVG(sizeLock)}${sizeLock?'Proporcional':'Libre'}</button></div><div class="grid3">
-      ${num('w','Ancho X',o.w,'axis-x')}${num('d',o.type==='texto'?'Alto letra Y':'Fondo Y',o.d,'axis-y')}${num('h',o.type==='texto'?'Grosor Z':'Alto Z',o.h,'axis-z')}</div></div>
-    <div><div class="label">Posición <span class="units">mm</span></div><div class="grid3">
-      ${num('x','X',o.x,'axis-x')}${num('y','Y',o.y,'axis-y')}${num('z','Elevación',o.z,'axis-z')}</div></div>
-    <div><div class="label">Rotación <span class="units">grados</span></div><div class="grid3">
-      ${num('rx','X',o.rx,'axis-x','1')}${num('ry','Y',o.ry,'axis-y','1')}${num('rz','Z',o.rz,'axis-z','1')}</div></div>
-    ${o.type==='caja' ? `<div><div class="label">Redondear esquinas <span class="units">radio en mm</span></div>
-      <div style="display:grid;grid-template-columns:1fr 70px;gap:8px;align-items:center">
+  const field = (id,label,val,attrs) => `<label class="field"><span>${label}</span><input type="number" id="p_${id}" data-k="${id}" value="${val}" ${attrs}></label>`;
+  const shapeOpts = [
+    o.type==='caja' ? `<div style="display:grid;grid-template-columns:1fr 70px;gap:8px;align-items:center">
       <input type="range" id="p_rr" min="0" max="${r2(Math.min(o.w,o.d,o.h)/2)}" step="0.5" value="${o.r||0}" aria-label="Radio de las esquinas">
-      <label class="field"><input type="number" id="p_r" data-k="r" value="${o.r||0}" step="0.5" min="0"></label></div></div>` : ''}
-    ${o.type==='tubo' ? `<div class="grid3"><label class="field"><span>Pared mm</span><input type="number" id="p_wall" data-k="wall" value="${o.wall||2}" step="0.5" min="0.2"></label></div>` : ''}
-    ${o.type==='arco' ? `<div class="grid3"><label class="field"><span>Grosor mm</span><input type="number" id="p_wall" data-k="wall" value="${o.wall||3}" step="0.5" min="0.3"></label></div>` : ''}
-    ${o.type==='poligono' ? `<div class="grid3"><label class="field"><span>Lados</span><input type="number" id="p_sides" data-k="sides" value="${o.sides||5}" step="1" min="3" max="24"></label></div>` : ''}
-    ${o.type==='rosca' ? `<div class="grid3"><label class="field"><span>Paso mm</span><input type="number" id="p_pitch" data-k="pitch" value="${o.pitch||2.5}" step="0.5" min="0.5"></label></div><p class="note">El paso es la distancia entre una vuelta y la siguiente de la rosca.</p>` : ''}
-    ${o.type==='dona' ? `<p class="note">El grosor del aro de la dona es el <b>Alto Z</b>.</p>` : ''}
-    ${o.type==='tuerca' ? `<div class="grid3"><label class="field"><span>Ø rosca mm</span><input type="number" id="p_dia" data-k="dia" value="${o.dia||10}" step="0.5" min="2"></label><label class="field"><span>Paso mm</span><input type="number" id="p_pitch" data-k="pitch" value="${o.pitch||2.5}" step="0.5" min="0.5"></label><label class="field"><span>Holgura mm</span><input type="number" id="p_clear" data-k="clear" value="${o.clear ?? 0.3}" step="0.05" min="0"></label></div>
-      <p class="note">Para que calce con una <b>Rosca</b>: usa el mismo Ø (el Ancho X de la rosca) y el mismo paso. La holgura deja espacio para que gire; 0,3 mm suele andar bien.</p>` : ''}
-    ${GEARS.has(o.type) ? `<div class="grid3"><label class="field"><span>Dientes</span><input type="number" id="p_teeth" data-k="teeth" value="${o.teeth}" step="1" min="6" max="200"></label><label class="field"><span>Módulo mm</span><input type="number" id="p_m" data-k="m" value="${o.m}" step="0.25" min="0.3"></label>
-      ${o.type==='engranaje' ? `<label class="field"><span>Agujero eje mm</span><input type="number" id="p_bore" data-k="bore" value="${o.bore||0}" step="0.5" min="0"></label>` : `<label class="field"><span>Borde mm</span><input type="number" id="p_rim" data-k="rim" value="${o.rim||4}" step="0.5" min="1"></label>`}</div>
-      <p class="note">${o.type==='engranaje' ? `Diámetro ${r2(o.m*(o.teeth+2))} mm (primitivo ${r2(o.m*o.teeth)} mm). Dos engranajes engranan si tienen el <b>mismo módulo</b>; sepáralos <b>módulo × (dientes1 + dientes2) ÷ 2</b> mm entre centros.` : `Dientes por dentro. Un engranaje de módulo ${o.m} y N dientes calza dentro; su centro va a ${o.m} × (${o.teeth} − N) ÷ 2 mm del centro de la corona.`} El grosor es el <b>Alto Z</b>.</p>` : ''}
-    ${o.type==='cremallera' ? `<div class="grid3"><label class="field"><span>Módulo mm</span><input type="number" id="p_m" data-k="m" value="${o.m}" step="0.25" min="0.3"></label></div>
-      <p class="note">El largo es el <b>Ancho X</b> y el alto con dientes es el <b>Fondo Y</b>. Calza con un engranaje del mismo módulo.</p>` : ''}
-    <div class="grid3">
-      ${o.hole?'':`<label class="field"><span>Color</span><input type="color" id="p_color" data-k="color" value="${o.color}"></label>`}
-      ${ROUND.has(o.type)?`<label class="field" style="grid-column:span 2"><span>Suavidad (lados)</span><select id="p_seg" data-k="seg">${[12,24,48,96].map(v=>`<option ${v==o.seg?'selected':''}>${v}</option>`).join('')}</select></label>`:''}
-    </div>
-    <div class="row">
-      <button class="btn" id="pFloor" title="Bajar la figura hasta la mesa">Apoyar en la mesa</button>
-      <button class="btn" id="pCenter" title="Llevar la figura al centro de la mesa">Centrar en la mesa</button>
-      <button class="btn" id="pDup">Duplicar</button>
-      <button class="btn" id="pPattern" title="Hacer copias en fila o en círculo">Repetir en patrón…</button>
-      <button class="btn" id="pLib" title="Guardar esta pieza para usarla otra vez o compartirla">Guardar en Mis piezas</button>
-      ${o.type==='group'?'<button class="btn" id="pUng">Desagrupar</button>':''}
-      <button class="btn danger" id="pDel">Eliminar</button>
-    </div>
-    ${TURN_HTML}${MIRROR_HTML}
-    ${o.type==='group'?`<p class="note">Grupo de ${o.children.length} figuras. Desagrúpalo para editar cada una por separado.</p>`:''}
-    ${o.type==='malla' && isOpenMesh(o)?`<p class="note" style="color:var(--danger)">Esta pieza importada tiene errores (no es cerrada). Se puede mover, escalar y exportar, pero no unir ni hacerle agujeros.</p>`:''}`;
-  wireTools(p);
+      <label class="field"><input type="number" id="p_r" data-k="r" value="${o.r||0}" step="0.5" min="0" aria-label="Radio en mm"></label></div>` : '',
+    o.type==='tubo' ? `<div class="grid3">${field('wall','Pared mm',o.wall||2,'step="0.5" min="0.2"')}</div>` : '',
+    ['codo','te','cruz'].includes(o.type) ? `<div class="grid3">${field('wall','Pared mm',o.wall||2,'step="0.5" min="0.2"')}</div><p class="note" style="margin:0">El <b>Alto Z</b> es el diámetro del tubo. Los brazos llegan hasta el Ancho X y el Fondo Y.</p>` : '',
+    o.type==='escuadra' ? `<div class="grid3">${field('wall','Grosor mm',o.wall||3,'step="0.5" min="0.3"')}</div><p class="note" style="margin:0">Una pata acostada (Ancho X) y otra parada (Alto Z); el largo es el Fondo Y.</p>` : '',
+    o.type==='perno' ? `<div class="grid3">${field('dia','Ø rosca mm',o.dia||10,'step="0.5" min="2"')}${field('pitch','Paso mm',o.pitch||2.5,'step="0.5" min="0.5"')}${field('head','Cabeza mm',o.head||7,'step="0.5" min="0.5"')}</div>
+      <p class="note" style="margin:0">Calza con una <b>Tuerca</b> del mismo Ø y paso. El largo total es el Alto Z (cabeza + rosca).</p>` : '',
+    o.type==='arco' ? `<div class="grid3">${field('wall','Grosor mm',o.wall||3,'step="0.5" min="0.3"')}</div>` : '',
+    o.type==='poligono' ? `<div class="grid3">${field('sides','Lados',o.sides||5,'step="1" min="3" max="24"')}</div>` : '',
+    o.type==='rosca' ? `<div class="grid3">${field('pitch','Paso mm',o.pitch||2.5,'step="0.5" min="0.5"')}</div><p class="note" style="margin:0">El paso es la distancia entre una vuelta y la siguiente de la rosca.</p>` : '',
+    o.type==='dona' ? `<p class="note" style="margin:0">El grosor del aro de la dona es el <b>Alto Z</b>.</p>` : '',
+    o.type==='tuerca' ? `<div class="grid3">${field('dia','Ø rosca mm',o.dia||10,'step="0.5" min="2"')}${field('pitch','Paso mm',o.pitch||2.5,'step="0.5" min="0.5"')}${field('clear','Holgura mm',o.clear ?? 0.3,'step="0.05" min="0"')}</div>
+      <p class="note" style="margin:0">Para que calce con una <b>Rosca</b>: usa el mismo Ø (el Ancho X de la rosca) y el mismo paso. La holgura deja espacio para que gire; 0,3 mm suele andar bien.</p>` : '',
+    GEARS.has(o.type) ? `<div class="grid3">${field('teeth','Dientes',o.teeth,'step="1" min="6" max="200"')}${field('m','Módulo mm',o.m,'step="0.25" min="0.3"')}
+      ${o.type==='engranaje' ? field('bore','Eje mm',o.bore||0,'step="0.5" min="0" title="Agujero para el eje"') : field('rim','Borde mm',o.rim||4,'step="0.5" min="1"')}</div>
+      <p class="note" style="margin:0">${o.type==='engranaje' ? `Diámetro ${r2(o.m*(o.teeth+2))} mm (primitivo ${r2(o.m*o.teeth)} mm). Dos engranajes engranan si tienen el <b>mismo módulo</b>; sepáralos <b>módulo × (dientes1 + dientes2) ÷ 2</b> mm entre centros.` : `Dientes por dentro. Un engranaje de módulo ${o.m} y N dientes calza dentro; su centro va a ${o.m} × (${o.teeth} − N) ÷ 2 mm del centro de la corona.`} El grosor es el <b>Alto Z</b>.</p>` : '',
+    o.type==='cremallera' ? `<div class="grid3">${field('m','Módulo mm',o.m,'step="0.25" min="0.3"')}</div>
+      <p class="note" style="margin:0">El largo es el <b>Ancho X</b> y el alto con dientes es el <b>Fondo Y</b>. Calza con un engranaje del mismo módulo.</p>` : '',
+  ].join('');
+  const shapeTitle = {caja:['Redondear esquinas','radio en mm'], poligono:['Forma',''], rosca:['Rosca',''], tuerca:['Tuerca',''], perno:['Perno',''], codo:['Forma',''], te:['Forma',''], cruz:['Forma',''], escuadra:['Forma',''], cremallera:['Dientes',''], engranaje:['Dientes',''], corona:['Dientes',''], tubo:['Forma',''], arco:['Forma',''], dona:['Forma','']}[o.type] || ['Forma',''];
+  const looks = (o.hole ? '' : `<label class="field">${ROUND.has(o.type)?'<span>Color</span>':''}<input type="color" aria-label="Color" id="p_color" data-k="color" value="${o.color}"></label>`)
+    + (ROUND.has(o.type) ? `<label class="field" style="grid-column:span 2"><span>Suavidad (lados)</span><select id="p_seg" data-k="seg">${[12,24,48,96].map(v=>`<option ${v==o.seg?'selected':''}>${v}</option>`).join('')}</select></label>` : '');
+  p.innerHTML = `
+    <div class="phead"><div class="kind"><span class="dot ${o.hole?'h':''}" style="background:${o.hole?'transparent':esc(o.color||'#999')}"></span>${esc(KIND(o))}${o.hole?' · hueco':''}</div>
+      <input type="text" class="pname" id="p_name" data-k="name" value="${esc(o.name)}" maxlength="40" aria-label="Nombre de la figura" title="Clic para cambiar el nombre">
+      ${TOGGLE_HTML(!o.hole, o.hole)}</div>
+    ${o.type==='texto' ? SEC('Texto','', `<label class="field"><input type="text" id="p_text" value="${esc(o.text)}" maxlength="40" style="font-size:16px;padding:8px" aria-label="Texto"></label>
+      <label class="field"><span>Letra</span><select id="p_font">${Object.entries(FONTS).map(([k,f])=>`<option value="${k}" ${k===(o.font||'recta')?'selected':''}>${f.label}</option>`).join('')}</select></label>`) : ''}
+    ${SEC('Tamaño','mm', `<div class="grid3">${num('w','Ancho X',o.w,'axis-x')}${num('d',o.type==='texto'?'Alto letra Y':'Fondo Y',o.d,'axis-y')}${num('h',o.type==='texto'?'Grosor Z':'Alto Z',o.h,'axis-z')}</div>`,
+      `<button class="lock ${sizeLock?'on':''}" id="pLock" aria-pressed="${sizeLock}" title="${sizeLock?'Cerrado: al cambiar una medida, las otras cambian en proporción. Clic para abrir.':'Abierto: cada medida cambia sola. Clic para cerrar y mantener la proporción.'}">${LOCK_SVG(sizeLock)}${sizeLock?'Proporcional':'Libre'}</button>`)}
+    ${SEC('Posición','mm', `<div class="grid3">${num('x','X',o.x,'axis-x')}${num('y','Y',o.y,'axis-y')}${num('z','Elevación',o.z,'axis-z')}</div>`)}
+    ${SEC('Rotación','grados', `<div class="grid3">${num('rx','X',o.rx,'axis-x','1')}${num('ry','Y',o.ry,'axis-y','1')}${num('rz','Z',o.rz,'axis-z','1')}</div>`)}
+    ${shapeOpts ? SEC(shapeTitle[0], shapeTitle[1], shapeOpts) : ''}
+    ${looks ? SEC(o.hole ? 'Aspecto' : 'Color', '', `<div class="grid3">${looks}</div>`) : ''}
+    ${o.type==='group'?`<section class="psec"><p class="ptip">Grupo de ${o.children.length} figuras. Usa <b>Desagrupar</b> en la barra de arriba para editar cada una por separado.</p></section>`:''}
+    ${o.type==='malla' && isOpenMesh(o)?`<section class="psec"><p class="note" style="color:var(--danger);margin:0">Esta pieza importada tiene errores (no es cerrada). Se puede mover, escalar y exportar, pero no unir ni hacerle agujeros.</p></section>`:''}`;
+  $('#p_name').addEventListener('keydown', e=>{ if(e.key==='Enter') e.target.blur(); });
   if($('#p_rr')){ const rr = $('#p_rr');
     rr.oninput = ()=>{ $('#p_r').value = rr.value; };
     rr.onchange = ()=>{ const v = +rr.value; if(v!==(o.r||0)) commit(()=>{ o.r = v; }); }; }
@@ -1246,7 +1402,9 @@ function renderProps(){
     }
     if(k==='seg') v = +v;
     if(k==='r') v = Math.min(Math.max(0, v), r2(Math.min(o.w,o.d,o.h)/2));
-    if(k==='wall') v = o.type==='arco' ? Math.min(Math.max(0.3, v), r2(Math.min(o.w/2,o.h) - 0.2)) : Math.min(Math.max(0.2, v), r2(Math.min(o.w,o.d)/2 - 0.1));
+    if(k==='wall' && ['codo','te','cruz'].includes(o.type)) v = Math.min(Math.max(0.2, v), r2(o.h/2 - 0.2));
+    else if(k==='wall' && o.type==='escuadra') v = Math.min(Math.max(0.3, v), r2(Math.min(o.w,o.h) - 0.2));
+    else if(k==='wall') v = o.type==='arco' ? Math.min(Math.max(0.3, v), r2(Math.min(o.w/2,o.h) - 0.2)) : Math.min(Math.max(0.2, v), r2(Math.min(o.w,o.d)/2 - 0.1));
     if(k==='sides') v = Math.min(24, Math.max(3, Math.round(v)));
     if(k==='pitch') v = Math.min(50, Math.max(0.5, v));
     if(k==='teeth') v = Math.min(200, Math.max(6, Math.round(v)));
@@ -1254,6 +1412,7 @@ function renderProps(){
     if(k==='bore') v = Math.max(0, Math.min(v, r2(o.m*(o.teeth-2.5))));
     if(k==='rim') v = Math.max(1, v);
     if(k==='clear') v = Math.min(2, Math.max(0, v));
+    if(k==='head') v = Math.min(Math.max(0.5, v), r2(o.h - 1));
     if(k==='dia') v = Math.max(2, Math.min(v, r2(Math.min(o.w,o.d) - 1)));
     // engranajes: el tamaño sale de dientes y módulo (y al cambiar el ancho, se ajusta el módulo)
     if(GEARS.has(o.type) && ['teeth','m','rim','w','d'].includes(k)){
@@ -1262,9 +1421,6 @@ function renderProps(){
   }));
   $('#tSolid').onclick = ()=>{ if(o.hole) commit(()=>{o.hole=false;}); };
   $('#tHole').onclick = ()=>{ if(!o.hole) commit(()=>{o.hole=true;}); };
-  $('#pPattern').onclick = patternDlg; $('#pLib').onclick = addToLibrary;
-  $('#pFloor').onclick = dropToFloor; $('#pDup').onclick = dup; $('#pDel').onclick = del; $('#pCenter').onclick = centerOnBed;
-  if($('#pUng')) $('#pUng').onclick = ungroup;
 }
 // medidas totales de las figuras sólidas (lo que se va a imprimir)
 function designSize(){
@@ -1293,8 +1449,13 @@ addEventListener('keydown', e=>{
   if(mod && k==='g'){ e.preventDefault(); e.shiftKey ? ungroup() : group(); return; }
   if(mod && k==='s'){ e.preventDefault(); saveProject(); return; }
   if(k==='delete'||k==='backspace'){ e.preventDefault(); del(); return; }
+  if(k==='escape' && explode.on){ setExplode(false); return; }
+  if(!mod && k==='x'){ setExplode(!explode.on); return; }
   if(k==='escape'){ if(tool || rulerLine.visible){ if(tool) setTool(tool); clearRuler(); return; } selected=[]; setMulti(false); rebuild(); return; }
   if(!mod && k==='m'){ setTool('medir'); return; }
+  if(!mod && k==='h' && selected.length){ toggleHole(); return; }
+  if(!mod && k==='d' && selected.length){ dropToFloor(); return; }
+  if(!mod && k==='l' && selected.length>1){ openTbMenu('tAlign', true); return; }
   if(!mod && k==='w') setMode('translate'); if(!mod && k==='e') setMode('rotate'); if(!mod && k==='r') setMode('scale');
   const step = +$('#snap').value || 1;
   const mv = {arrowleft:[-step,0,0],arrowright:[step,0,0],arrowup:[0,step,0],arrowdown:[0,-step,0],pageup:[0,0,step],pagedown:[0,0,-step]}[k];
@@ -1485,6 +1646,11 @@ function stepAnim(){
 const safeDir = d => { d = d.clone().normalize(); if(Math.abs(d.z) > 0.999) d.set(0, -0.002, Math.sign(d.z)).normalize(); return d; };
 function sceneBox(onlySel){
   const box = new THREE.Box3();
+  if(explode.on && explode.items.length){
+    // en la vista explosiva: el espacio que ocupan las piezas ya separadas
+    const keep = explode.shown; explode.shown = explode.target; placeExplode(); xworld.updateMatrixWorld(true);
+    box.setFromObject(xworld, true); explode.shown = keep; placeExplode(); return box;
+  }
   const ids = onlySel && selected.length ? selected : [...meshes.keys()];
   for(const id of ids){ const m = meshes.get(id); if(m) box.union(new THREE.Box3().setFromObject(m, true)); }
   return box;
@@ -1606,6 +1772,389 @@ function renderCube(){
 }
 
 let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),Math.max(2500,msg.length*55)); }
+
+/* ---------- Vista explosiva (v15) ---------- */
+// Solo cambia el dibujo: las figuras guardadas no se mueven. Se dibuja aparte (xworld) y la mesa normal se oculta.
+// Las piezas que se tocan o se meten una en otra forman un "conjunto": dentro de él se levantan una sobre otra
+// en línea recta (de abajo hacia arriba, y los huecos al final, como si salieran de la pieza).
+// Los conjuntos separados se alejan del centro del diseño.
+const xworld = new THREE.Group(); scene.add(xworld);
+const xEdgeMat = new THREE.LineBasicMaterial({color:0x2b3442, transparent:true, opacity:0.35});
+// líneas guía punteadas (de dónde sale cada pieza), como en un plano de armado
+const xGuideMat = new THREE.LineDashedMaterial({color:0x1f5fd1, dashSize:2, gapSize:1.5, transparent:true, opacity:0.8, depthTest:false});
+const xguides = new THREE.LineSegments(new THREE.BufferGeometry(), xGuideMat); xguides.renderOrder = 5; xguides.raycast = ()=>{}; xguides.frustumCulled = false; scene.add(xguides);
+// Isométrica: cámara de muy poco ángulo y lejana, así se ve casi sin perspectiva (como un plano técnico).
+// Al cambiar el ángulo se aleja la cámara en la misma proporción, para que la pieza no salte de tamaño.
+const ISO_DIR = new THREE.Vector3(1,-1,1), FOV_NORMAL = camera.fov, FOV_ISO = 3;
+function setIso(on){
+  const f = on ? FOV_ISO : FOV_NORMAL; if(camera.fov === f) return;
+  anim = null;
+  const dir = camera.position.clone().sub(orbit.target), d = dir.length();
+  const nd = d*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/Math.tan(THREE.MathUtils.degToRad(f)/2);
+  camera.position.copy(orbit.target).add(dir.normalize().multiplyScalar(nd));
+  camera.fov = f; camera.near = on ? 5 : 0.5; camera.far = on ? 200000 : 5000; camera.updateProjectionMatrix(); orbit.update();
+}
+function xLeaves(list, parent, open, out = []){
+  for(const o of list){
+    const {size} = baseGeom(o);
+    placeObj(_tmp, o, size); _tmp.updateMatrix();
+    const M = parent ? parent.clone().multiply(_tmp.matrix) : _tmp.matrix.clone();
+    if(open && o.type==='group' && o.children?.length) xLeaves(o.children, M, open, out);
+    else out.push({o, M});
+  }
+  return out;
+}
+function buildExplode(){
+  for(const m of xworld.children) m.children.forEach(c=>c.geometry.dispose());
+  xworld.clear();
+  const leaves = xLeaves(objects, null, $('#xGroups').checked);
+  const boxes = leaves.map(L=>{ const g = baseGeom(L.o).geom; if(!g.boundingBox) g.computeBoundingBox(); return g.boundingBox.clone().applyMatrix4(L.M); });
+  const all = new THREE.Box3(); boxes.forEach(b=>all.union(b));
+  const C = all.isEmpty() ? new THREE.Vector3() : all.getCenter(new THREE.Vector3());
+  // conjuntos: piezas cuyas cajas se tocan
+  const root = leaves.map((_,i)=>i), find = i => root[i]===i ? i : (root[i] = find(root[i]));
+  for(let i=0;i<boxes.length;i++) for(let j=i+1;j<boxes.length;j++) if(boxes[i].clone().expandByScalar(0.05).intersectsBox(boxes[j])) root[find(i)] = find(j);
+  const sets = new Map(); leaves.forEach((_,i)=>{ const r = find(i); sets.has(r) ? sets.get(r).push(i) : sets.set(r,[i]); });
+  const off = leaves.map(()=>new THREE.Vector3()), order = [];
+  const mode = $('#xMode').value;
+  // esquinas de la caja de cada pieza, girada con la pieza (sirve para piezas inclinadas, como un perno de lado)
+  const corners = leaves.map(L=>{ const b = baseGeom(L.o).geom.boundingBox, out = [];
+    for(let n=0;n<8;n++) out.push(new THREE.Vector3(n&1 ? b.max.x : b.min.x, n&2 ? b.max.y : b.min.y, n&4 ? b.max.z : b.min.z).applyMatrix4(L.M));
+    return out; });
+  for(const list of sets.values()){
+    if(mode !== 'arriba'){ explodeDirectional(list, leaves, boxes, corners, C, sets.size > 1, off, order); continue; }
+    const sb = new THREE.Box3(); list.forEach(i=>sb.union(boxes[i]));
+    const sc = sb.getCenter(new THREE.Vector3()), gap = Math.max(4, sb.getSize(new THREE.Vector3()).length()*0.2);
+    const out = sets.size > 1 ? new THREE.Vector3(sc.x - C.x, sc.y - C.y, 0) : new THREE.Vector3();
+    list.sort((a,b)=>(leaves[a].o.hole?1:0)-(leaves[b].o.hole?1:0) || boxes[a].min.z-boxes[b].min.z || a-b);
+    let top = -Infinity;
+    for(const i of list){
+      const b = boxes[i], c = b.getCenter(new THREE.Vector3());
+      const lift = top === -Infinity ? 0 : Math.max(0, top + gap - b.min.z);
+      top = Math.max(top, b.max.z + lift);
+      off[i].set(out.x, out.y, lift);   // dentro del conjunto, solo hacia arriba (como en un plano de armado)
+      order.push(i);                     // orden de armado: de abajo hacia arriba, los huecos al final
+    }
+  }
+  const step = new Array(leaves.length); order.forEach((i,n)=>{ step[i] = n+1; });
+  explode.items = leaves.map((L,i)=>{
+    const m = new THREE.Mesh(baseGeom(L.o).geom, material(L.o));
+    m.matrixAutoUpdate = false; if(L.o.hole) m.renderOrder = 2;
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(baseGeom(L.o).geom, 25), L.o.hole ? new THREE.LineBasicMaterial({color:0x4a5260}) : xEdgeMat);
+    e.raycast = ()=>{}; m.add(e); xworld.add(m);
+    const p = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3(); L.M.decompose(p,q,sc);
+    const sz = baseGeom(L.o).size, f = v => (Math.round(v*10)/10).toString().replace('.',',');
+    return {m, M:L.M, dir:off[i], c:boxes[i].getCenter(new THREE.Vector3()), top:boxes[i].max.z - boxes[i].getCenter(new THREE.Vector3()).z,
+      n:step[i], f:1, o:L.o, name:L.o.name || NAMES[L.o.type] || 'Pieza', hole:!!L.o.hole, color:L.o.color,
+      dims:`${f(Math.abs(sc.x)*sz.x)} × ${f(Math.abs(sc.y)*sz.y)} × ${f(Math.abs(sc.z)*sz.z)} mm`};
+  });
+  explode.items.sort((a,b)=>a.n-b.n);
+  stopPlay(true);
+  buildLabels();
+  placeExplode();
+  return leaves.length;
+}
+// Explosión según cómo encaja: la pieza más grande queda quieta; cada pieza sale por el lado donde
+// menos choca con las piezas más grandes (arriba, a un lado, adelante… o a lo largo de su propio eje si está girada).
+// Las piezas alargadas (pernos, pasadores, ejes) salen a lo largo de su eje.
+// Así un perno puesto de lado sale de lado, y una tapa sale hacia arriba.
+const WORLD_DIRS = [[0,0,1],[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,-1]].map(a=>new THREE.Vector3(...a));
+function projRange(pts, ax){ let a = Infinity, b = -Infinity; for(const p of pts){ const v = p.dot(ax); if(v<a) a = v; if(v>b) b = v; } return [a,b]; }
+function dirFrame(d){ const a = Math.abs(d.z) < 0.9 ? new THREE.Vector3(0,0,1) : new THREE.Vector3(1,0,0); const u = new THREE.Vector3().crossVectors(d,a).normalize(); return [u, new THREE.Vector3().crossVectors(d,u)]; }
+const ovl = (a,b) => Math.min(a[1],b[1]) - Math.max(a[0],b[0]) > 0.01;
+// cuánto hay que mover P en la dirección d para que no choque con Q (0 si ya está libre)
+function clearAlong(P, Q, d, fr, sp = 0, sq = 0){
+  if(!ovl(projRange(P, fr[0]), projRange(Q, fr[0])) || !ovl(projRange(P, fr[1]), projRange(Q, fr[1]))) return 0;
+  return Math.max(0, projRange(Q, d)[1] + sq - (projRange(P, d)[0] + sp));
+}
+function explodeDirectional(list, leaves, boxes, corners, C, many, off, order){
+  const sb = new THREE.Box3(); list.forEach(i=>sb.union(boxes[i]));
+  const sc = sb.getCenter(new THREE.Vector3()), D = sb.getSize(new THREE.Vector3()).length(), gap = Math.max(4, D*0.2);
+  const out = many ? new THREE.Vector3(sc.x - C.x, sc.y - C.y, 0) : new THREE.Vector3();
+  const vol = i => { const c = corners[i]; return c[1].distanceTo(c[0]) * c[2].distanceTo(c[0]) * c[4].distanceTo(c[0]); };
+  // de la más grande a la más chica; los huecos al final
+  const seq = [...list].sort((a,b)=>(leaves[a].o.hole?1:0)-(leaves[b].o.hole?1:0) || vol(b)-vol(a) || a-b);
+  const placed = [];
+  for(const i of seq){
+    if(!placed.length){ off[i].copy(out); placed.push({i, d:new THREE.Vector3(), t:0}); order.push(i); continue; }
+    const c = corners[i], edges = [c[1].clone().sub(c[0]), c[2].clone().sub(c[0]), c[4].clone().sub(c[0])];
+    const lens = edges.map(e=>e.length()), k = lens.indexOf(Math.max(...lens));
+    let dirs;
+    if(lens.every((l,j)=>j===k || lens[k] >= 1.4*l)){
+      // pieza alargada (perno, pasador, eje): sale a lo largo de su propio eje, hacia el lado más corto
+      const e = edges[k].clone().normalize(); dirs = [e, e.clone().negate()];
+    } else {
+      dirs = [...WORLD_DIRS];
+      // sus propios ejes, si la pieza está girada
+      for(const e of edges){
+        if(e.lengthSq() < 1e-6) continue; e.normalize();
+        for(const s of [e, e.clone().negate()]) if(!dirs.some(w=>w.dot(s) > 0.995)) dirs.push(s);
+      }
+    }
+    let best = null;
+    for(const d of dirs){
+      const fr = dirFrame(d);
+      let t = 0; for(const q of placed) t = Math.max(t, clearAlong(c, corners[q.i], d, fr));
+      const score = t + (d.z < -0.5 ? D*0.5 : 0) - (d.z > 0.5 ? 0.001 : 0);
+      if(!best || score < best.score - 1e-6) best = {d, t, score, fr};
+    }
+    // que no choque con las piezas que ya salieron
+    let t = best.t + gap;
+    for(let it=0; it<placed.length; it++){
+      let moved = false;
+      for(const q of placed){
+        if(!q.t) continue;
+        const sh = q.d.clone().multiplyScalar(q.t), Q = corners[q.i].map(p=>p.clone().add(sh)), P = c.map(p=>p.clone().addScaledVector(best.d, t));
+        if(clearAlong(P, Q, best.d, best.fr) > 0 && ovl(projRange(P, best.d), projRange(Q, best.d))){
+          t += clearAlong(P, Q, best.d, best.fr) + gap*0.5; moved = true; }
+      }
+      if(!moved) break;
+    }
+    off[i].copy(best.d).multiplyScalar(t).add(out);
+    placed.push({i, d:best.d, t}); order.push(i);
+  }
+}
+const _xm = new THREE.Matrix4();
+function placeExplode(){
+  const k = explode.shown;   // 100 % = las piezas quedan del todo separadas
+  const pts = [];
+  for(const it of explode.items){
+    const ki = k*it.f;   // f: 1 = separada, 0 = en su lugar (animación de armado)
+    it.m.matrix.copy(_xm.makeTranslation(it.dir.x*ki, it.dir.y*ki, it.dir.z*ki).multiply(it.M)); it.m.matrixWorldNeedsUpdate = true;
+    if(it.dir.lengthSq()*ki*ki > 1) pts.push(it.c.x, it.c.y, it.c.z, it.c.x+it.dir.x*ki, it.c.y+it.dir.y*ki, it.c.z+it.dir.z*ki);
+  }
+  const g = xguides.geometry; g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); g.computeBoundingSphere(); xguides.computeLineDistances();
+  xguides.visible = explode.items.length > 0 && $('#xLines').checked;
+}
+function setExplode(on, quiet){
+  if(on === explode.on) return;
+  if(on){
+    if(!objects.length){ toast('Agrega figuras para ver la vista explosiva.'); return; }
+    if(tool) setTool(tool); clearRuler(); closeTbMenu();
+    explode.on = true; selected = []; setMulti(false);
+    rebuild();   // suelta la selección y arma las piezas separadas
+    world.visible = false;
+    if(explode.items.length < 2) toast('Solo hay una pieza: agrega más figuras o marca «Abrir los grupos» para separarlas.');
+    else if(!quiet) toast('Vista isométrica explosiva: las piezas se separan solo para mirar. Tu diseño no cambia.');
+    explodeTo(+$('#xAmt').value/100);
+    const iso = $('#xIso').checked; setIso(iso);
+    fitView(iso ? ISO_DIR.clone() : camera.position.clone().sub(orbit.target));
+  } else {
+    explode.on = false;
+    setIso(false);
+    if(!quiet) fitView(camera.position.clone().sub(orbit.target));
+    if(quiet){ explode.shown = 0; endExplode(); }
+    else explodeTo(0);
+  }
+  $('#xpanel').hidden = !explode.on; showLabels();
+  $('#tExplode').classList.toggle('on', explode.on); $('#tExplode').setAttribute('aria-pressed', explode.on);
+  updateToolbar();
+}
+function endExplode(){
+  for(const m of xworld.children) m.children.forEach(c=>c.geometry.dispose());
+  xworld.clear(); explode.items = []; xguides.visible = false; world.visible = true; stopPlay(true); buildLabels(); showLabels(); rebuild();
+}
+function explodeTo(v){ explode.from = explode.shown; explode.target = v; explode.t0 = performance.now(); }
+function stepExplode(){
+  if(explode.play) stepPlay();
+  if(explode.items.length) placeLabels();
+  if(explode.shown === explode.target && (explode.on || !explode.items.length)) return;
+  const t = Math.min(1, (performance.now() - explode.t0)/450), e = 1 - Math.pow(1-t, 3);
+  explode.shown = explode.from + (explode.target - explode.from)*e;
+  if(t >= 1) explode.shown = explode.target;
+  placeExplode();
+  if(!explode.on && explode.shown === 0) endExplode();
+}
+$('#tExplode').onclick = ()=>setExplode(!explode.on);
+$('#xOff').onclick = ()=>setExplode(false);
+$('#xAmt').addEventListener('input', e=>{ $('#xOut').textContent = e.target.value+' %'; explode.shown = explode.target = e.target.value/100; placeExplode(); });
+$('#xAmt').addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Escape'){ e.target.blur(); setExplode(false); } });
+$('#xAmt').addEventListener('change', e=>e.target.blur());
+$('#xIso').addEventListener('change', e=>{ setIso(e.target.checked); fitView(e.target.checked ? ISO_DIR.clone() : camera.position.clone().sub(orbit.target)); e.target.blur(); });
+$('#xMode').addEventListener('change', e=>{ buildExplode(); fitView(camera.position.clone().sub(orbit.target)); e.target.blur(); });
+try{ const m = localStorage.getItem('taller3d-explosion'); if(m) $('#xMode').value = m; }catch(e){}
+$('#xMode').addEventListener('change', e=>{ try{ localStorage.setItem('taller3d-explosion', e.target.value); }catch(_){} });
+$('#xNums').addEventListener('change', e=>{ showLabels(); e.target.blur(); });
+$('#xPlay').onclick = ()=>explode.play ? stopPlay() : startPlay();
+$('#xPng').onclick = explodePng;
+$('#xLines').addEventListener('change', e=>{ placeExplode(); e.target.blur(); });
+$('#xGroups').addEventListener('change', ()=>{ const n = buildExplode(); if(n < 2) toast('Solo hay una pieza para separar.'); });
+
+/* ---------- Números, lista de piezas, animación de armado e imagen (v17) ---------- */
+const escHtml = t => String(t).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function buildLabels(){
+  const L = $('#xlabels'), list = $('#xlist');
+  L.innerHTML = explode.items.map(it=>`<div class="xnum${it.hole?' hole':''}" data-n="${it.n}">${it.n}</div>`).join('');
+  list.innerHTML = explode.items.length ? `<h3>Piezas (${explode.items.length}) · orden de armado</h3><ol>${explode.items.map(it=>
+    `<li data-n="${it.n}"><span class="n">${it.n}</span><span class="sw${it.hole?' hole':''}" style="background:${it.hole?'':escHtml(it.color||'#888')}"></span><span>${escHtml(it.name)}${it.hole?' <i>(hueco)</i>':''}<small>${it.dims}</small></span></li>`).join('')}</ol>` : '';
+  list.querySelectorAll('li').forEach(li=>{
+    li.onmouseenter = ()=>markPart(+li.dataset.n, true); li.onmouseleave = ()=>markPart(+li.dataset.n, false); });
+}
+function markPart(n, on){
+  $('#xlabels').querySelector(`[data-n="${n}"]`)?.classList.toggle('on', on);
+  $('#xlist').querySelector(`li[data-n="${n}"]`)?.classList.toggle('on', on);
+}
+function showLabels(){
+  const on = explode.on && $('#xNums').checked && explode.items.length > 0;
+  $('#xlabels').hidden = !on; $('#xlist').hidden = !on;
+  $('#hint').style.visibility = explode.on ? 'hidden' : '';
+}
+const _lp = new THREE.Vector3();
+// dónde va el globo de cada pieza en la pantalla (arriba de la pieza, donde está ahora)
+function labelPos(it){
+  const k = explode.shown*it.f;
+  _lp.set(it.c.x + it.dir.x*k, it.c.y + it.dir.y*k, it.c.z + it.dir.z*k + it.top).project(camera);
+  return _lp.z > 1 ? null : [(_lp.x+1)/2*vp.clientWidth, (1-_lp.y)/2*vp.clientHeight - 14];
+}
+function placeLabels(){
+  if($('#xlabels').hidden) return;
+  const els = $('#xlabels').children;
+  explode.items.forEach((it,i)=>{ const el = els[i]; if(!el) return; const p = labelPos(it);
+    el.style.display = p ? '' : 'none'; if(p) el.style.transform = `translate(${p[0]}px,${p[1]}px)` + (el.classList.contains('on') ? ' scale(1.25)' : ''); });
+}
+// Animación: empieza con todo separado y cada pieza va a su lugar, en orden; al final se vuelve a separar
+function startPlay(){
+  if(explode.items.length < 2){ toast('Se necesitan al menos dos piezas para ver cómo se arma.'); return; }
+  if(+$('#xAmt').value < 30){ $('#xAmt').value = 60; $('#xOut').textContent = '60 %'; }
+  explode.target = explode.shown = +$('#xAmt').value/100;
+  explode.items.forEach(it=>{ it.f = 1; });
+  explode.play = {i:0, t0:performance.now(), phase:'move'};
+  $('#xPlay').textContent = '■ Detener'; $('#xPlay').classList.add('on');
+}
+function stopPlay(quiet){
+  if(!explode.play && quiet) return;
+  explode.play = null; explode.items.forEach(it=>{ it.f = 1; });
+  document.querySelectorAll('.xnum.on,.xlist li.on').forEach(e=>e.classList.remove('on'));
+  $('#xPlay').textContent = '▶ Ver cómo se arma'; $('#xPlay').classList.remove('on'); $('#xStep').hidden = true;
+  if(!quiet) placeExplode();
+}
+function stepPlay(){
+  const P = explode.play, now = performance.now(), items = explode.items;
+  if(P.phase==='move'){
+    const it = items[P.i], dur = it.dir.lengthSq() > 1 ? 750 : 350, t = Math.min(1, (now-P.t0)/dur), e = t<.5 ? 2*t*t : 1-(-2*t+2)**2/2;
+    if(t===0 || !P.shown){ P.shown = true; markPart(it.n, true); $('#xStep').hidden = false;
+      $('#xStep').textContent = `Paso ${it.n} de ${items.length}: ${it.name}${it.hole ? ' (hueco)' : ''}`; }
+    it.f = 1 - e; placeExplode();
+    if(t >= 1){ markPart(it.n, false); P.shown = false; P.i++; P.t0 = now; P.phase = P.i < items.length ? 'pause' : 'done'; }
+  } else if(P.phase==='pause'){
+    if(now - P.t0 > 300){ P.phase = 'move'; P.t0 = now; }
+  } else if(P.phase==='done'){
+    $('#xStep').textContent = '¡Listo! Así queda armada la pieza.';
+    if(now - P.t0 > 1400){ P.phase = 'back'; P.t0 = now; }
+  } else if(P.phase==='back'){
+    const t = Math.min(1, (now-P.t0)/500), e = 1 - Math.pow(1-t,3);
+    items.forEach(it=>{ it.f = e; }); placeExplode();
+    if(t >= 1) stopPlay();
+  }
+}
+// Imagen PNG de la vista: el dibujo 3D + los números + la lista de piezas
+async function explodePng(){
+  if(!explode.items.length) return;
+  renderer.render(scene, camera);
+  const src = renderer.domElement, W = src.width, H = src.height, s = W / vp.clientWidth;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'); g.drawImage(src, 0, 0);
+  const fg = css('--fg'), panel = css('--panel'), muted = css('--muted'), line = css('--line');
+  const font = (w, px) => `${w} ${px*s}px system-ui, sans-serif`;
+  const nums = $('#xNums').checked;
+  if(nums){
+    for(const it of explode.items){
+      const p = labelPos(it); if(!p) continue;
+      const x = p[0]*s, y = p[1]*s, r = 12*s;
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fillStyle = panel; g.fill();
+      g.lineWidth = 2*s; g.strokeStyle = it.hole ? muted : fg; g.setLineDash(it.hole ? [3*s, 2*s] : []); g.stroke(); g.setLineDash([]);
+      g.fillStyle = it.hole ? muted : fg; g.font = font(700, 12.5); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(it.n), x, y + 0.5*s);
+    }
+    // lista de piezas
+    const rowH = 20*s, pad = 10*s, x0 = 12*s, y0 = 12*s;
+    g.font = font(400, 12.5);
+    const rows = explode.items.map(it=>`${it.name}${it.hole ? ' (hueco)' : ''} · ${it.dims}`);
+    const wList = Math.min(W - 2*x0, Math.max(...rows.map(t=>g.measureText(t).width)) + 54*s + 2*pad);
+    const hList = 26*s + rows.length*rowH + pad;
+    g.fillStyle = panel; g.strokeStyle = line; g.lineWidth = 1*s;
+    g.beginPath(); g.roundRect(x0, y0, wList, hList, 10*s); g.fill(); g.stroke();
+    g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillStyle = muted; g.font = font(700, 11); g.fillText(`PIEZAS (${rows.length}) · ORDEN DE ARMADO`, x0 + pad, y0 + 15*s);
+    explode.items.forEach((it,i)=>{
+      const y = y0 + 26*s + i*rowH + rowH/2;
+      g.beginPath(); g.arc(x0 + pad + 10*s, y, 9*s, 0, Math.PI*2); g.lineWidth = 1.5*s; g.strokeStyle = fg; g.stroke();
+      g.fillStyle = fg; g.font = font(700, 11.5); g.textAlign = 'center'; g.fillText(String(it.n), x0 + pad + 10*s, y + 0.5*s);
+      g.fillStyle = it.hole ? muted : (it.color || '#888'); g.fillRect(x0 + pad + 26*s, y - 5*s, 10*s, 10*s);
+      g.fillStyle = fg; g.font = font(400, 12.5); g.textAlign = 'left'; g.fillText(rows[i], x0 + pad + 44*s, y);
+    });
+  }
+  g.fillStyle = muted; g.font = font(400, 12); g.textAlign = 'right'; g.textBaseline = 'alphabetic';
+  g.fillText(`${projectName} · vista explosiva · Taller 3D`, W - 12*s, H - 12*s);
+  const blob = await new Promise(r=>cv.toBlob(r, 'image/png'));
+  if(blob) await offer(`${projectName}-vista-explosiva.png`, blob, 'image/png'); else toast('No se pudo crear la imagen.');
+}
+
+/* ---------- Barra de herramientas (fila de abajo del menú superior) ---------- */
+function updateToolbar(){
+  const n = selected.length, sel = selected.map(byId).filter(Boolean);
+  for(const id of ['tDel','tTurn','tMirror','tFloor','tCenter','tPattern','tLib','tbHole']) $('#'+id).disabled = !n;
+  $('#tAlign').disabled = n<2; $('#tSelAll').disabled = !objects.length;
+  $('#tExplode').disabled = !objects.length && !explode.on;
+  $('#tCheck').disabled = !objects.some(o=>!o.hole);
+  const allHole = sel.length && sel.every(o=>o.hole);
+  $('#tbHole').classList.toggle('on', !!allHole); $('#tbHole').setAttribute('aria-pressed', !!allHole);
+  $('#tbHole').querySelector('span').textContent = allHole ? 'Sólido' : 'Hueco';
+  $('#tbHole').title = allHole ? 'Volver sólida: la figura vuelve a tener material (H)' : 'Hueco: la figura elegida resta material (H)';
+  if(!$('#tbMenu').hidden && menuFor && $('#'+menuFor).disabled) closeTbMenu();
+}
+function toggleHole(){
+  const sel = selected.map(byId).filter(Boolean); if(!sel.length) return;
+  const make = !sel.every(o=>o.hole);
+  commit(()=>sel.forEach(o=>{ o.hole = make; }));
+  toast(make ? 'Ahora es un hueco: pon la figura dentro de un sólido y pulsa Agrupar.' : 'Ahora es sólida.');
+}
+let menuFor = null;
+function closeTbMenu(){ $('#tbMenu').hidden = true; if(menuFor) $('#'+menuFor).classList.remove('on'); menuFor = null; }
+const AX = {x:'<span class="axis-x">X</span>', y:'<span class="axis-y">Y</span>', z:'<span class="axis-z">Z</span>'};
+const TB_MENUS = {
+  tTurn: ()=>`<div class="mh">Girar 90°</div>
+    <button class="btn" role="menuitem" data-turn="z">↻ ${AX.z} · girar sobre la mesa</button>
+    <button class="btn" role="menuitem" data-turn="x">↻ ${AX.x} · volcar hacia atrás</button>
+    <button class="btn" role="menuitem" data-turn="y">↻ ${AX.y} · volcar hacia el lado</button>`,
+  tMirror: ()=>`<div class="mh">Reflejar (espejo)</div>
+    <div class="seg" role="radiogroup" aria-label="Qué hacer">
+      <button role="radio" aria-checked="${!mirrorCopy}" data-mcopy="0" title="Da vuelta la figura elegida, sin copiarla">Dar vuelta</button>
+      <button role="radio" aria-checked="${mirrorCopy}" data-mcopy="1" title="Deja la figura y agrega al lado una copia en espejo">Copia en espejo</button>
+    </div>
+    <button class="btn" role="menuitem" data-mirror="x">⇋ ${AX.x} · izquierda ↔ derecha</button>
+    <button class="btn" role="menuitem" data-mirror="y">⇅ ${AX.y} · adelante ↔ atrás</button>
+    <button class="btn" role="menuitem" data-mirror="z">⇵ ${AX.z} · arriba ↔ abajo</button>
+    <p class="note">${mirrorCopy ? 'La copia aparece pegada a la figura: a la derecha (X), atrás (Y) o arriba (Z). Para una copia igual, sin espejo, usa <b>Duplicar</b>.' : 'La figura queda en su lugar, dada vuelta como en un espejo.'}</p>`,
+  tAlign: ()=>`<div class="mh">Alinear las ${selected.length} figuras</div>
+    <div class="g3"><button class="btn" role="menuitem" data-align="x,min">Izquierda</button><button class="btn" role="menuitem" data-align="x,mid">Centro ${AX.x}</button><button class="btn" role="menuitem" data-align="x,max">Derecha</button>
+    <button class="btn" role="menuitem" data-align="y,min">Adelante</button><button class="btn" role="menuitem" data-align="y,mid">Centro ${AX.y}</button><button class="btn" role="menuitem" data-align="y,max">Atrás</button>
+    <button class="btn" role="menuitem" data-align="z,min">Abajo</button><button class="btn" role="menuitem" data-align="z,mid">Centro ${AX.z}</button><button class="btn" role="menuitem" data-align="z,max">Arriba</button></div>
+    <p class="note">Para centrar un agujero en una pieza: <b>Centro X</b> y <b>Centro Y</b>.</p>`,
+};
+function openTbMenu(id, kb){
+  if(menuFor===id){ closeTbMenu(); return; }
+  closeTbMenu();
+  const m = $('#tbMenu'), b = $('#'+id);
+  m.innerHTML = TB_MENUS[id](); m.hidden = false; menuFor = id; b.classList.add('on');
+  const r = b.getBoundingClientRect(), w = m.offsetWidth;
+  m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; m.style.top = (r.bottom + 4) + 'px';
+  m.querySelectorAll('[data-turn]').forEach(x=>x.onclick = ()=>turn90(x.dataset.turn));
+  m.querySelectorAll('[data-mirror]').forEach(x=>x.onclick = ()=>mirror(x.dataset.mirror));
+  m.querySelectorAll('[data-mcopy]').forEach(x=>x.onclick = ()=>{
+    mirrorCopy = x.dataset.mcopy==='1'; try{ localStorage.setItem('taller3d-espejo', mirrorCopy ? 'copia' : 'lugar'); }catch(e){}
+    closeTbMenu(); openTbMenu(id); m.querySelector(`[data-mcopy="${x.dataset.mcopy}"]`)?.focus(); });
+  m.querySelectorAll('[data-align]').forEach(x=>x.onclick = ()=>{ const [a,w2] = x.dataset.align.split(','); align(a,w2); });
+  if(kb) m.querySelector('[role=menuitem]').focus();
+}
+for(const id of Object.keys(TB_MENUS)) $('#'+id).onclick = e=>{ e.stopPropagation(); openTbMenu(id, e.detail===0); };
+$('#tbMenu').addEventListener('click', e=>e.stopPropagation());
+$('#tbMenu').addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Escape'){ const f = menuFor; closeTbMenu(); f && $('#'+f).focus(); } });
+addEventListener('pointerdown', e=>{ if(!$('#tbMenu').hidden && !e.target.closest('#tbMenu,[aria-haspopup]')) closeTbMenu(); });
+addEventListener('resize', closeTbMenu);
+$('.toolbar').addEventListener('scroll', closeTbMenu);
+$('#tSelAll').onclick = selectAll; $('#tDel').onclick = del; $('#tbHole').onclick = toggleHole;
+$('#tFloor').onclick = dropToFloor; $('#tCenter').onclick = centerOnBed;
+$('#tPattern').onclick = patternDlg; $('#tLib').onclick = addToLibrary; $('#tCheck').onclick = checkPrint;
 
 /* ---------- Herramientas de la mesa: plano de trabajo y medir ---------- */
 let tool = null;   // 'plano' | 'medir' | null
@@ -1738,8 +2287,8 @@ function pairGaps(a, b){
     return {k, s, gap: r2(s>0 ? B.min[k]-A.max[k] : A.min[k]-B.max[k]), center: r2(cb[k]-ca[k])}; });
 }
 const DIST_HTML = (a, b) => { const g = pairGaps(a, b); if(!g) return '';
-  return `<div><div class="label">Distancia <span class="units">mm</span></div>
-    <p class="note" style="margin:0 0 6px">Escribe la distancia y se mueve <b>${esc(b.name)}</b> (la segunda que elegiste).</p>
+  return `<div><div class="psec-h"><div class="label">Distancia <span class="units">mm</span></div></div>
+    <p class="note" style="margin:4px 0 6px">Escribe la distancia y se mueve <b>${esc(b.name)}</b> (la segunda que elegiste).</p>
     <div class="note" style="margin:2px 0">De borde a borde</div><div class="grid3">${g.map(x=>`<label class="field"><span class="axis-${x.k}">${x.k.toUpperCase()}</span><input type="number" step="0.5" data-gap="${x.k}" value="${x.gap}"></label>`).join('')}</div>
     <div class="note" style="margin:6px 0 2px">De centro a centro</div><div class="grid3">${g.map(x=>`<label class="field"><span class="axis-${x.k}">${x.k.toUpperCase()}</span><input type="number" step="0.5" data-ctr="${x.k}" value="${x.center}"></label>`).join('')}</div>
     <p class="note" style="margin-top:4px">Un número negativo en <i>borde a borde</i> quiere decir que las figuras se tocan o se meten una en otra.</p></div>`; };
@@ -1803,7 +2352,7 @@ async function insertFromLibrary(item){
 function renderLibrary(){
   const box = $('#libList');
   box.innerHTML = library.length ? library.map((it,i)=>`<div class="libitem"><button class="shape" data-lib="${i}" title="Agregar ${esc(it.name)} a la mesa">${it.img ? `<img src="${it.img}" alt="">` : '<svg viewBox="0 0 32 32"><path d="M6 11l10-5 10 5v11l-10 5-10-5z"/></svg>'}<span>${esc(it.name)}</span></button><button class="libdel" data-libdel="${i}" title="Borrar ${esc(it.name)} de Mis piezas" aria-label="Borrar ${esc(it.name)}">×</button></div>`).join('')
-    : '<p class="note">Elige una figura y pulsa <b>Guardar en Mis piezas</b> para usarla otra vez.</p>';
+    : '<p class="note">Elige una figura y pulsa <b>Mis piezas</b> en la barra de arriba para guardarla.</p>';
   box.querySelectorAll('[data-lib]').forEach(b=>b.onclick = ()=>insertFromLibrary(library[+b.dataset.lib]));
   box.querySelectorAll('[data-libdel]').forEach(b=>b.onclick = ()=>{ const it = library[+b.dataset.libdel];
     if(!confirm(`¿Borrar "${it.name}" de Mis piezas?`)) return; library.splice(+b.dataset.libdel, 1); saveLibrary(); renderLibrary(); });
@@ -2046,7 +2595,7 @@ function pictureDlg(P){
 
 /* ---------- Inicio ---------- */
 // para las pruebas automáticas (solo con ?prueba en la dirección)
-if(location.search.includes('prueba')) window.__t3d = { get objects(){ return objects; }, get selected(){ return selected; }, camera, meshes, wp, ruler, toScreen:(x,y,z)=>{ const q = new THREE.Vector3(x,y,z).project(camera), r = canvas.getBoundingClientRect(); return [r.left+(q.x+1)/2*r.width, r.top+(1-q.y)/2*r.height]; } };
+if(location.search.includes('prueba')) window.__t3d = { get objects(){ return objects; }, get selected(){ return selected; }, camera, meshes, wp, ruler, explode, xworld, world, mirror, setExplode, select:ids=>{ selected = ids; rebuild(); }, snapshot, toScreen:(x,y,z)=>{ const q = new THREE.Vector3(x,y,z).project(camera), r = canvas.getBoundingClientRect(); return [r.left+(q.x+1)/2*r.width, r.top+(1-q.y)/2*r.height]; } };
 
 function resize(){ const w = vp.clientWidth, h = vp.clientHeight; if(!w||!h) return; renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
 new ResizeObserver(resize).observe(vp); resize();
@@ -2090,8 +2639,8 @@ const GUIDE = [
   ['1. Agrega figuras', `<p>Haz clic en una figura de la izquierda: <b>Caja</b>, <b>Cilindro</b>, <b>Estrella</b>, <b>Texto</b>…</p><p>Para moverla, arrastra las flechas de colores. Para cambiar su tamaño exacto, escribe los milímetros en el panel de la derecha.</p>`],
   ['2. Haz agujeros', `<p>Las figuras grises de <b>Huecos</b> quitan material.</p><ul><li>Pon el hueco dentro del sólido.</li><li>Pulsa <b>Unir todo en una pieza</b> (o <b>Agrupar</b>).</li></ul><p>Para centrar el agujero: pulsa <b>Elegir varias</b>, haz clic en las dos figuras y luego en <b>Centro X</b> y <b>Centro Y</b>.</p>`],
   ['3. Guarda e imprime', `<ul><li><b>Guardar</b>: crea un archivo para seguir otro día. Con <b>Abrir</b> lo recuperas.</li><li><b>Exportar STL</b>: descarga la pieza para el programa de la impresora (Cura, PrusaSlicer…).</li></ul><p>Si te equivocas, usa <b>Deshacer</b> (Ctrl+Z).</p>`],
-  ['4. Herramientas para medir y construir', `<ul><li><b>Plano de trabajo</b> (abajo): haz clic en la cara de una pieza y las figuras nuevas aparecen sobre esa cara, aunque esté de lado. <b>× Quitar plano</b> lo devuelve a la mesa.</li><li><b>Medir</b> (o la tecla <b>M</b>): haz clic en dos puntos y ves la distancia en mm. El punto se pega a las esquinas.</li><li>Con <b>dos figuras</b> elegidas, en <b>Distancia</b> escribes cuántos mm las separan (de borde a borde o de centro a centro) y se mueve la segunda.</li><li><b>Mis piezas</b> (a la izquierda): guarda una pieza con <b>Guardar en Mis piezas</b> y úsala otra vez. Con <b>Exportar</b> la compartes con tus alumnos.</li><li><b>Importar</b> también trae una imagen (PNG, JPG) o un dibujo SVG y lo convierte en relieve.</li><li><b>Ejercicios</b> (arriba): actividades paso a paso con ayuda.</li></ul>`],
-  ['Atajos de teclado', `<ul><li><b>Supr</b>: eliminar · <b>Ctrl+D</b>: duplicar</li><li><b>Ctrl+Z</b> / <b>Ctrl+Y</b>: deshacer / rehacer</li><li><b>Ctrl+A</b>: elegir todo · <b>Esc</b>: soltar la selección</li><li><b>Ctrl+G</b>: agrupar · <b>Ctrl+S</b>: guardar</li><li><b>Flechas</b>: mover · <b>Re Pág / Av Pág</b>: subir y bajar</li><li><b>W</b>, <b>E</b>, <b>R</b>: mover, rotar, escalar · <b>M</b>: medir</li><li><b>Shift</b> mientras escalas: ajuste fino (0,1 mm)</li></ul><p><b>Mouse</b></p><ul><li><b>Izquierdo</b> arrastrando: girar la vista</li><li><b>Rueda apretada</b> arrastrando: desplazar la vista (como en los programas CAD)</li><li><b>Shift + rueda apretada</b>: girar la vista</li><li><b>Girar la rueda</b>: acercar o alejar hacia el puntero</li><li><b>Derecho</b> arrastrando: también desplaza</li></ul>`],
+  ['4. Herramientas para medir y construir', `<ul><li><b>Plano</b> (barra de herramientas, arriba): haz clic en la cara de una pieza y las figuras nuevas aparecen sobre esa cara, aunque esté de lado. <b>× Quitar plano</b> lo devuelve a la mesa.</li><li><b>Medir</b> (arriba, o la tecla <b>M</b>): haz clic en dos puntos y ves la distancia en mm. El punto se pega a las esquinas.</li><li>Con <b>dos figuras</b> elegidas, en <b>Distancia</b> escribes cuántos mm las separan (de borde a borde o de centro a centro) y se mueve la segunda.</li><li><b>Mis piezas</b> (a la izquierda): guarda una pieza con el botón <b>Mis piezas</b> de la barra y úsala otra vez. Con <b>Exportar</b> la compartes con tus alumnos.</li><li><b>Importar</b> también trae una imagen (PNG, JPG) o un dibujo SVG y lo convierte en relieve.</li><li><b>Ejercicios</b> (arriba): actividades paso a paso con ayuda.</li></ul>`],
+  ['Atajos de teclado', `<ul><li><b>Supr</b>: eliminar · <b>Ctrl+D</b>: duplicar</li><li><b>Ctrl+Z</b> / <b>Ctrl+Y</b>: deshacer / rehacer</li><li><b>Ctrl+A</b>: elegir todo · <b>Esc</b>: soltar la selección</li><li><b>Ctrl+G</b>: agrupar · <b>Ctrl+S</b>: guardar</li><li><b>Flechas</b>: mover · <b>Re Pág / Av Pág</b>: subir y bajar</li><li><b>W</b>, <b>E</b>, <b>R</b>: mover, rotar, escalar · <b>M</b>: medir</li><li><b>H</b>: hueco o sólido · <b>D</b>: apoyar en la mesa · <b>L</b>: alinear</li><li><b>X</b>: vista isométrica explosiva (separar las piezas, con números, lista de piezas, animación de armado e imagen PNG)</li><li><b>Shift</b> mientras escalas: ajuste fino (0,1 mm)</li></ul><p><b>Mouse</b></p><ul><li><b>Izquierdo</b> arrastrando: girar la vista</li><li><b>Rueda apretada</b> arrastrando: desplazar la vista (como en los programas CAD)</li><li><b>Shift + rueda apretada</b>: girar la vista</li><li><b>Girar la rueda</b>: acercar o alejar hacia el puntero</li><li><b>Derecho</b> arrastrando: también desplaza</li></ul>`],
 ];
 let gi = 0;
 function showGuide(i){
@@ -2113,6 +2662,6 @@ $('#bHelp').onclick = ()=>showGuide(0);
 let seen = false; try{ seen = localStorage.getItem('taller3d-guia')==='1'; }catch(e){}
 if(!seen) showGuide(0);
 
-renderer.setAnimationLoop(()=>{ if(anim) stepAnim(); else orbit.update(); renderer.render(scene,camera); updateDims(); updateRuler(); renderCube(); });
+renderer.setAnimationLoop(()=>{ stepExplode(); if(anim) stepAnim(); else orbit.update(); renderer.render(scene,camera); updateDims(); updateRuler(); renderCube(); });
 orbit.addEventListener('start', ()=>{ anim = null; });   // si el alumno arrastra, se corta la animación
 </script>
