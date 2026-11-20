@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Taller 3D · versión 19</title>
+<title>Taller 3D · versión 20</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -266,7 +266,7 @@ details.psec summary .label{margin:0}
     <button class="btn" id="bRedo" title="Rehacer (Ctrl+Y)">↷ Rehacer</button>
     <span class="spacer"></span>
     <button class="btn" id="bClass" title="Modo clase: ejercicios paso a paso (llavero, caja con tapa, engranajes)">Ejercicios</button>
-    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 19)">? Ayuda <small style="color:var(--muted);font-size:11px">v19</small></button>
+    <button class="btn" id="bHelp" title="Ver la guía y los atajos de teclado (Taller 3D versión 20)">? Ayuda <small style="color:var(--muted);font-size:11px">v20</small></button>
     <button class="btn primary" id="bStl" title="Descargar en formato STL para imprimir (todo el diseño, o solo lo seleccionado)">Exportar STL</button>
    </div>
    <div class="toolbar" role="toolbar" aria-label="Herramientas">
@@ -1340,7 +1340,7 @@ function renderProps(){
       <details class="psec" id="pMouse"><summary><span class="label">Mouse</span></summary><div class="keys">
         <kbd>Izquierdo</kbd><span>girar la vista</span><kbd>Rueda apretada</kbd><span>desplazar la vista</span><kbd>Shift + rueda</kbd><span>girar la vista</span>
         <kbd>Girar la rueda</kbd><span>acercar hacia el puntero</span><kbd>Derecho</kbd><span>desplazar</span></div></details>
-      <div class="pfoot"><p class="note" id="savedAt" style="margin:0">${savedText()}</p><p class="note" style="margin:0">Taller 3D · <b>versión 19</b> (20 de noviembre)</p></div>`;
+      <div class="pfoot"><p class="note" id="savedAt" style="margin:0">${savedText()}</p><p class="note" style="margin:0">Taller 3D · <b>versión 20</b> (20 de noviembre)</p></div>`;
     p.querySelectorAll('[data-pr]').forEach(inp=>inp.onchange = ()=>{ const v = Math.max(20, +inp.value || 200); PRINTER[inp.dataset.pr] = v; try{ localStorage.setItem('taller3d-impresora', JSON.stringify(PRINTER)); }catch(e){} renderProps(); });
     if($('#pGroupAll')) $('#pGroupAll').onclick = group;
     // se recuerda si dejaste abiertos los atajos
@@ -2135,12 +2135,12 @@ function sketchMan(o){
   cs.delete();
   return m;
 }
-const SK_TOOLS = {linea:'╱ Líneas', rect:'▭ Rectángulo', circ:'◯ Círculo', poly:'⬡ Polígono'};
+const SK_TOOLS = {linea:'╱ Líneas', arco:'◠ Arco', rect:'▭ Rectángulo', circ:'◯ Círculo', poly:'⬡ Polígono'};
 function openSketch(target, asHole){
   const editing = !!target;
   const st = {
     paths: editing ? structuredClone(target.paths||[]) : [],
-    cur: [], tool:'linea', area: 100, snap: 1, mouse: null, sides: 6,
+    cur: [], segs: [], mid: null, tool:'linea', area: 100, snap: 1, mouse: null, sides: 6,
     mode: editing ? (target.mode||'extruir') : 'extruir',
     ext: editing ? (target.ext||10) : 10, taper: editing ? (target.taper ?? 100) : 100, hole: editing ? !!target.hole : !!asHole,
   };
@@ -2160,6 +2160,7 @@ function openSketch(target, asHole){
           <label class="field"><span>Hoja mm</span><select id="skArea">${[50,100,200,400].map(a=>`<option ${a===st.area?'selected':''} value="${a}">${a} × ${a}</option>`).join('')}</select></label>
           <label class="field"><span>Ajuste</span><select id="skSnap"><option value="0">Libre</option><option value="0.5">0,5 mm</option><option value="1" selected>1 mm</option><option value="5">5 mm</option></select></label>
         </div>
+        <p class="note" id="skArcNote" style="margin:0" hidden>En una misma forma puedes mezclar <b>Líneas</b> y <b>Arcos</b>: cambia de herramienta sin cerrar (teclas <b>L</b> y <b>A</b>). Para cerrar, termina en el primer punto.</p>
         <label class="field" id="skSidesF" hidden><span>Lados del polígono</span><input type="number" id="skSides" value="6" min="3" max="24" step="1"></label>
         <div class="seg" role="group" aria-label="Cómo hacer la pieza"><button id="skModeE" aria-pressed="${st.mode!=='girar'}" title="Levanta el dibujo hacia arriba">⬆ Extruir</button><button id="skModeR" aria-pressed="${st.mode==='girar'}" title="Gira el dibujo alrededor del eje, como en un torno (vasos, botellas, perillas)">⟳ Girar</button></div>
         <div id="skExt" class="grid3" style="grid-template-columns:1fr 1fr">
@@ -2177,6 +2178,7 @@ function openSketch(target, asHole){
     const px = () => N/st.area;                              // píxeles por mm
     const toPx = ([x,y]) => [N/2 + x*px(), N/2 - y*px()];
     const help = { linea:'Haz clic punto por punto. Para cerrar la forma, haz clic en el primer punto (o pulsa Enter o doble clic).',
+      arco:'Arco por 3 puntos, como ARC de AutoCAD: desde el último punto, clic en un punto por donde pasa el arco y clic en el final.',
       rect:'Clic en una esquina y clic en la esquina opuesta.', circ:'Clic en el centro y clic para el tamaño.',
       poly:'Clic en el centro y clic para el tamaño. Elige los lados abajo.' };
     // punto del mouse en mm, pegado a la cuadrícula o a un punto ya dibujado
@@ -2187,6 +2189,24 @@ function openSketch(target, asHole){
       if(st.snap){ mx = Math.round(mx/st.snap)*st.snap; my = Math.round(my/st.snap)*st.snap; }
       return [r2(mx), r2(my)];
     }
+    // arco por 3 puntos (como ARC de AutoCAD): inicio, un punto del arco y final. Devuelve los puntos sin el inicio.
+    function arcPts(A, M, B){
+      const ax = A[0], ay = A[1], bx = M[0], by = M[1], cx = B[0], cy = B[1];
+      const d = 2*(ax*(by-cy) + bx*(cy-ay) + cx*(ay-by));
+      if(Math.abs(d) < 1e-9) return {pts:[[...B]], r:Infinity};              // en línea recta: tramo recto
+      const ux = ((ax*ax+ay*ay)*(by-cy) + (bx*bx+by*by)*(cy-ay) + (cx*cx+cy*cy)*(ay-by))/d;
+      const uy = ((ax*ax+ay*ay)*(cx-bx) + (bx*bx+by*by)*(ax-cx) + (cx*cx+cy*cy)*(bx-ax))/d;
+      const R = Math.hypot(ax-ux, ay-uy), TAU = 2*Math.PI, ang = (x,y) => Math.atan2(y-uy, x-ux);
+      const a0 = ang(ax,ay), am = ang(bx,by), a1 = ang(cx,cy), ccw = (t)=>((t - a0) % TAU + TAU) % TAU;
+      // sentido: el que pasa por el punto del medio
+      let sweep = ccw(a1); if(ccw(am) > sweep) sweep = sweep - TAU;
+      const n = Math.max(4, Math.ceil(Math.abs(sweep)/(Math.PI/36)));        // un punto cada 5°
+      const pts = []; for(let i=1;i<n;i++){ const t = a0 + sweep*i/n; pts.push([r2(ux + R*Math.cos(t)), r2(uy + R*Math.sin(t))]); }
+      pts.push([...B]);
+      return {pts, r:R, c:[ux,uy]};
+    }
+    const sameP = (a,b) => a && b && a[0]===b[0] && a[1]===b[1];
+    const LINE = t => t==='linea' || t==='arco';
     function shapeFrom(a, b){
       if(st.tool==='rect'){ if(a[0]===b[0] || a[1]===b[1]) return null; return [[a[0],a[1]],[b[0],a[1]],[b[0],b[1]],[a[0],b[1]]]; }
       const R = Math.hypot(b[0]-a[0], b[1]-a[1]); if(R < 0.2) return null;
@@ -2196,7 +2216,7 @@ function openSketch(target, asHole){
     // contorno en sentido antihorario (lo pide la librería para que no quede al revés)
     const area = P => P.reduce((s,p,i)=>{ const q = P[(i+1)%P.length]; return s + p[0]*q[1] - q[0]*p[1]; }, 0)/2;
     function addPath(P){ if(P.length < 3 || Math.abs(area(P)) < 0.01){ toast('La forma es demasiado chica o no tiene superficie.'); return; } st.paths.push(area(P) < 0 ? P.reverse() : P); }
-    function closeCur(){ if(st.cur.length >= 3){ addPath(st.cur); } else if(st.cur.length) toast('Una forma necesita al menos 3 puntos.'); st.cur = []; draw(); }
+    function closeCur(){ if(sameP(st.cur[0], st.cur.at(-1)) && st.cur.length > 1) st.cur.pop(); if(st.cur.length >= 3){ addPath(st.cur); } else if(st.cur.length) toast('Una forma necesita al menos 3 puntos.'); st.cur = []; st.segs = []; st.mid = null; draw(); }
     function draw(){
       const c = g, k = px();
       c.clearRect(0,0,N,N);
@@ -2221,9 +2241,15 @@ function openSketch(target, asHole){
       // forma en curso
       const m = st.mouse;
       c.strokeStyle = '#e8590c'; c.lineWidth = 2; c.fillStyle = '#e8590c';
-      if(st.tool==='linea' && st.cur.length){
-        c.beginPath(); st.cur.forEach((p,i)=>{ const q = toPx(p); i ? c.lineTo(...q) : c.moveTo(...q); }); if(m) c.lineTo(...toPx(m)); c.stroke();
-        st.cur.forEach((p,i)=>{ const q = toPx(p); c.beginPath(); c.arc(q[0], q[1], i ? 3 : 5, 0, 7); c.fill(); });
+      if(LINE(st.tool) && st.cur.length){
+        c.beginPath(); st.cur.forEach((p,i)=>{ const q = toPx(p); i ? c.lineTo(...q) : c.moveTo(...q); });
+        if(m && st.tool==='linea') c.lineTo(...toPx(m));
+        if(m && st.tool==='arco' && st.mid && !sameP(m, st.mid)) arcPts(st.cur.at(-1), st.mid, m).pts.forEach(p=>c.lineTo(...toPx(p)));
+        c.stroke();
+        if(m && st.tool==='arco' && !st.mid){ c.setLineDash([3,4]); c.lineWidth = 1; c.beginPath(); c.moveTo(...toPx(st.cur.at(-1))); c.lineTo(...toPx(m)); c.stroke(); c.setLineDash([]); c.lineWidth = 2; }
+        // marcas solo en los puntos donde empieza cada tramo (no en cada puntito del arco)
+        [0, ...st.segs].forEach((k,i)=>{ const p = st.cur[Math.max(0,k-1)] || st.cur[0], q = toPx(i ? p : st.cur[0]); c.beginPath(); c.arc(q[0], q[1], i ? 3 : 5, 0, 7); c.fill(); });
+        if(st.mid){ const q = toPx(st.mid); c.beginPath(); c.rect(q[0]-4, q[1]-4, 8, 8); c.fill(); }
       } else if(st.cur.length && m){
         const P = shapeFrom(st.cur[0], m);
         if(P){ c.setLineDash([6,4]); c.beginPath(); P.forEach((p,i)=>{ const q = toPx(p); i ? c.lineTo(...q) : c.moveTo(...q); }); c.closePath(); c.stroke(); c.setLineDash([]); }
@@ -2232,16 +2258,18 @@ function openSketch(target, asHole){
       // texto de medidas
       let t = m ? `X ${f1(m[0])}  Y ${f1(m[1])} mm` : '';
       if(m && st.cur.length){
-        const a = st.tool==='linea' ? st.cur.at(-1) : st.cur[0];
-        if(st.tool==='linea') t += ` · tramo ${f1(Math.hypot(m[0]-a[0], m[1]-a[1]))} mm`;
+        const a = LINE(st.tool) ? st.cur.at(-1) : st.cur[0];
+        if(st.tool==='linea' || (st.tool==='arco' && !st.mid)) t += ` · ${st.tool==='arco' ? 'clic en un punto del arco' : 'tramo ' + f1(Math.hypot(m[0]-a[0], m[1]-a[1])) + ' mm'}`;
+        if(st.tool==='arco' && st.mid){ const R = arcPts(a, st.mid, m).r; t += isFinite(R) ? ` · radio ${f1(R)} mm · clic en el final del arco` : ' · (en línea recta)'; }
         if(st.tool==='rect') t += ` · ${f1(Math.abs(m[0]-a[0]))} × ${f1(Math.abs(m[1]-a[1]))} mm`;
         if(st.tool==='circ' || st.tool==='poly') t += ` · Ø ${f1(2*Math.hypot(m[0]-a[0], m[1]-a[1]))} mm`;
       }
       if(!t) t = st.paths.length ? `${st.paths.length} forma${st.paths.length>1?'s':''} cerrada${st.paths.length>1?'s':''}` : 'Hoja vacía: elige una herramienta y haz clic en la hoja.';
       card.querySelector('#skInfo').textContent = t;
       card.querySelector('#skGo').disabled = !st.paths.length && st.cur.length < 3;
+      card.querySelector('#skArcNote').hidden = !LINE(st.tool);
     }
-    function setTool(t){ if(st.tool==='linea' && st.cur.length >= 3) closeCur(); st.tool = t; st.cur = [];
+    function setTool(t){ if(!(LINE(st.tool) && LINE(t))){ if(LINE(st.tool) && st.cur.length >= 3) closeCur(); st.cur = []; st.segs = []; } st.mid = null; st.tool = t;
       card.querySelectorAll('[data-skt]').forEach(b=>b.classList.toggle('on', b.dataset.skt===t));
       card.querySelector('#skHelp').textContent = help[t]; card.querySelector('#skSidesF').hidden = t!=='poly'; draw(); }
     function setMode(m){ st.mode = m; card.querySelector('#skModeE').setAttribute('aria-pressed', m!=='girar'); card.querySelector('#skModeR').setAttribute('aria-pressed', m==='girar');
@@ -2252,28 +2280,38 @@ function openSketch(target, asHole){
     card.querySelector('#skSnap').onchange = e=>{ st.snap = +e.target.value; };
     card.querySelector('#skSides').onchange = e=>{ st.sides = Math.min(24, Math.max(3, Math.round(+e.target.value||6))); e.target.value = st.sides; };
     card.querySelector('#skHole').onchange = e=>{ st.hole = e.target.checked; draw(); };
-    card.querySelector('#skUndo').onclick = ()=>{ if(st.cur.length) st.cur.pop(); else st.paths.pop(); draw(); };
-    card.querySelector('#skClear').onclick = ()=>{ st.cur = []; st.paths = []; draw(); };
+    card.querySelector('#skUndo').onclick = ()=>{ if(st.mid) st.mid = null; else if(st.cur.length){ if(st.segs.length){ st.segs.pop(); st.cur.length = st.segs.at(-1) || 1; } else st.cur = []; } else st.paths.pop(); draw(); };
+    card.querySelector('#skClear').onclick = ()=>{ st.cur = []; st.segs = []; st.mid = null; st.paths = []; draw(); };
     cv.addEventListener('pointermove', e=>{ st.mouse = toMm(e); draw(); });
     cv.addEventListener('pointerleave', ()=>{ st.mouse = null; draw(); });
     cv.addEventListener('pointerdown', e=>{
       if(e.button !== 0) return; e.preventDefault();
       const p = toMm(e);
-      if(st.tool==='linea'){
-        if(st.cur.length >= 3 && p[0]===st.cur[0][0] && p[1]===st.cur[0][1]){ closeCur(); return; }
-        const last = st.cur.at(-1); if(!last || last[0]!==p[0] || last[1]!==p[1]) st.cur.push(p);
+      if(LINE(st.tool)){
+        const last = st.cur.at(-1);
+        if(!last){ st.cur = [p]; st.segs = []; }
+        else if(st.tool==='linea'){
+          if(st.cur.length >= 3 && sameP(p, st.cur[0])){ closeCur(); return; }
+          if(!sameP(p, last)){ st.cur.push(p); st.segs.push(st.cur.length); }
+        } else if(!st.mid){ if(!sameP(p, last)) st.mid = p; }
+        else if(!sameP(p, st.mid)){
+          st.cur.push(...arcPts(last, st.mid, p).pts); st.segs.push(st.cur.length); st.mid = null;
+          if(st.cur.length >= 3 && sameP(p, st.cur[0])){ closeCur(); return; }
+        }
       } else if(!st.cur.length) st.cur = [p];
       else { const P = shapeFrom(st.cur[0], p); st.cur = []; if(P) addPath(P); }
       draw();
     });
-    cv.addEventListener('dblclick', e=>{ if(st.tool==='linea') closeCur(); });
+    cv.addEventListener('dblclick', e=>{ if(LINE(st.tool)) closeCur(); });
     card.querySelector('.sk').addEventListener('keydown', e=>{
       if(e.target.matches('input,select')) return;
-      if(e.key==='Enter'){ e.preventDefault(); if(st.tool==='linea' && st.cur.length) closeCur(); else card.querySelector('#skGo').click(); }
+      if(e.key==='Enter'){ e.preventDefault(); if(LINE(st.tool) && st.cur.length) closeCur(); else card.querySelector('#skGo').click(); }
+      if(e.key==='a' || e.key==='A'){ e.preventDefault(); setTool('arco'); }
+      if(e.key==='l' || e.key==='L'){ e.preventDefault(); setTool('linea'); }
       if(e.key==='Backspace'){ e.preventDefault(); card.querySelector('#skUndo').click(); }
     });
     card.querySelector('#skGo').onclick = ()=>{
-      if(st.tool==='linea' && st.cur.length >= 3) closeCur();
+      if(LINE(st.tool) && st.cur.length >= 3) closeCur();
       if(!st.paths.length){ toast('Dibuja al menos una forma cerrada.'); return; }
       const ext = Math.max(0.2, +card.querySelector('#skH').value || 10), tv = card.querySelector('#skTaper').value, taper = Math.min(300, Math.max(0, tv === '' ? 100 : +tv));
       const data = {paths: st.paths, mode: st.mode, ext: r2(ext), taper: r2(taper)};
