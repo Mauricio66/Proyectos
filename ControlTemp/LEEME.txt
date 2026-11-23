@@ -1,0 +1,27 @@
+CONTROL DE TEMPERATURAS - Windows 10/11 (64 bits)
+=================================================
+
+INSTALAR
+1. Copia ControlTemp.exe a una carpeta fija, por ejemplo: C:\Programas\ControlTemp\
+2. Instala PawnIO (controlador gratuito, necesario para leer la CPU y mover ventiladores):
+   https://pawnio.eu/   -> descarga e instala, y reinicia el PC si lo pide.
+3. Abre ControlTemp.exe y acepta el permiso de administrador.
+   Si Windows muestra "Windows protegió su PC": "Más información" -> "Ejecutar de todas formas".
+   (Sale porque la app no tiene firma digital comercial.)
+
+USAR
+- Temperaturas: CPU, GPU y disco con colores (verde/naranja/rojo), gráfico de 10 minutos y lista de todos los sensores.
+- Ventiladores: velocidad de cada ventilador. En "Control de ventiladores" eliges por ventilador:
+    Automático (BIOS)  -> no lo toca la app
+    Fijo               -> siempre al % que escribas
+    Curva              -> sube según la temperatura de CPU, GPU o la más alta ("Editar curva...")
+  Seguridad: nunca baja de la potencia mínima, si se llega a la temperatura de emergencia van al 100 %,
+  y al salir de la app vuelven al control de la BIOS.
+- Alertas y opciones: límites de aviso, sonido, e iniciar con Windows.
+- La X esconde la ventana: la app sigue junto al reloj mostrando la temperatura de la CPU.
+  Para cerrarla del todo: clic derecho en el icono -> Salir.
+
+NOTAS
+- En portátiles y algunas placas base no se pueden controlar los ventiladores desde Windows
+  (no aparecerá ninguno en la tabla). Las temperaturas y avisos funcionan igual.
+- La configuración se guarda en %AppData%\ControlTemp\config.json
